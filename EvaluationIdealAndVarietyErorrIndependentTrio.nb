@@ -1,0 +1,93 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 13.1' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      3138,         85]
+NotebookOptionsPosition[      2540,         65]
+NotebookOutlinePosition[      2934,         81]
+CellTagsIndexPosition[      2891,         78]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["\<\
+Evaluation ideal and variety for a trio of error independent binary \
+classifiers\
+\>", "Title",
+ CellChangeTimes->{{3.8792303443240547`*^9, 
+  3.8792303599056273`*^9}},ExpressionUUID->"29955daf-01cd-4fcb-bae4-\
+b31c33b32906"],
+
+Cell[CellGroupData[{
+
+Cell["Introduction", "Section",
+ CellChangeTimes->{{3.879231317817143*^9, 
+  3.879231321385253*^9}},ExpressionUUID->"cfcc22cd-6c56-4439-b0bd-\
+f5f657cbab6b"],
+
+Cell["\<\
+This notebook will detail the algebraic geometry computations that take us \
+from the \[OpenCurlyDoubleQuote]evaluation ideal\[CloseCurlyDoubleQuote] \
+created from the voting patterns of a trio of binary classifiers to the \
+\[OpenCurlyDoubleQuote]evaluation variety\[CloseCurlyDoubleQuote]. An \
+evaluation ideal is a set of polynomials connecting observable voting pattern \
+frequencies by the classifiers to unknown sample statistics of the ground \
+truth that are our evaluation goal. We want to \[OpenCurlyDoubleQuote]grade\
+\[CloseCurlyDoubleQuote] the classifiers using only the frequencies of their \
+voting patterns.
+
+That \[OpenCurlyDoubleQuote]grade\[CloseCurlyDoubleQuote] exists in sample \
+statistics space. The test has already been taken. We have the decisions of \
+the judges. We are faced with the task of grading them now. Not in the \
+future, not in the past. This is another example of how the task of \
+evaluation is much simpler than that of training. We have to estimate \
+something that already exists, if you will. And there is only one time we \
+have to do it. Training is much harder. You must create judges that, in the \
+future, will behave correctly. And they have to do it many times. The task of \
+evaluation is trivial in comparison. Why have we not conquered this much \
+simpler space of the whole enterprise of learning?\
+\>", "Text",
+ CellChangeTimes->{{3.8792313277041397`*^9, 
+  3.8792317826122007`*^9}},ExpressionUUID->"ef8202ac-beed-4046-9382-\
+e6a1e9c61684"]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{1437, 829},
+WindowMargins->{{28, Automatic}, {49, Automatic}},
+FrontEndVersion->"13.1 for Mac OS X ARM (64-bit) (June 16, 2022)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"114ed296-e2ee-4bb6-bd88-147badebba0c"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 236, 6, 200, "Title",ExpressionUUID->"29955daf-01cd-4fcb-bae4-b31c33b32906"],
+Cell[CellGroupData[{
+Cell[841, 32, 157, 3, 84, "Section",ExpressionUUID->"cfcc22cd-6c56-4439-b0bd-f5f657cbab6b"],
+Cell[1001, 37, 1511, 24, 246, "Text",ExpressionUUID->"ef8202ac-beed-4046-9382-e6a1e9c61684"]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
