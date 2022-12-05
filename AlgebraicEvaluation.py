@@ -108,6 +108,12 @@ def ProjectToVotingPatternFrequencies(byTrueLabelCounts):
     return {vp:byPatternCounts[vp]/sizeOfTestSet
             for vp in byPatternCounts.keys()}
 
+def ProjectToVotingPatternFrequencies2(byPatternCounts):
+    """Same as above, but we start from the projected by-pattern counts."""
+    sizeOfTestSet = sum(byPatternCounts.values())
+    return {vp:byPatternCounts[vp]/sizeOfTestSet
+            for vp in byPatternCounts.keys()}
+
 # The first moments of the observable frequencies we are about to encounter are
 # familiar ones, the frequencies with which the classifiers voted for each
 # of the two labels.
@@ -180,9 +186,48 @@ def ClassifiersObservedLabelFrequencies(byPatternCounts):
                     pt in c3VotesB})/totalTestSize}}
 
 def ClassifiersObservedLabelFrequencies2(votingFrequencies):
+    """Convenience function to compare the numerical loss associated
+    with going from exact integer ratios to the inexact algebra of
+    of the floating point system."""
     return {1:{
                 'a':sum({votingFrequencies[pt] for pt in c1VotesA}),
                 'b':sum({votingFrequencies[pt] for pt in c1VotesB})}}
+
+# The second group of voting pattern frequency moments should also be
+# familiar to experienced readers. And yet, care must be taken to not
+# infuse notions of probability distributions to this algebraic approach.
+# The second moment we are going to calculate is something like:
+# f_1a_2a - (f_1a)(f_2a)
+# This is very similar to the test for independence in a probabilistic
+# context if you interpret the "f"s as probabilities. But they are not.
+# And this becomes obvious when one is able to prove the following
+# equality that tells us there is only one of these quantities to calculate
+# because the label designation does not matter! In other words, it is
+# universally true that f_1a_2a - (f_1a)(f_2a) = f_1b_2b - (f_1b)(f_2b)
+# This mathematical equality for voting pattern frequencies is another
+# example of how one must tread lightly in Evaluation Land when one has built
+# years of intuition in Training Land.
+# To whet the readers appetite, we point out that this moment has algebraic
+# and engineering significance - it defines a "blindspot" in this algebraic
+# evaluator. This is an important topic we gloss over now.
+def PairsFrequencyMoment(byPatternCounts):
+    """Calculates the pair moment that defines the pair error correlation
+    blindspots."""
+    clfs = ClassifiersObservedLabelFrequencies(byPatternCounts)
+    vf = ProjectToVotingPatternFrequencies2(byPatternCounts)
+    return {(1,2):((vf[('a','a','a')] + vf[('a','a','b')]) - clfs[1]['a']*clfs[2]['a']),
+            (1,3):((vf[('a','a','a')] + vf[('a','b','a')]) - clfs[1]['a']*clfs[3]['a']),
+            (2,3):((vf[('a','a','a')] + vf[('b','a','a')]) - clfs[2]['a']*clfs[3]['a'])}
+
+def PairsFrequencyMoment2(byPatternCounts):
+    """Function meant to illustrate, via numerical equality, that the 2nd moment is
+    the same for either of the two labels."""
+    clfs = ClassifiersObservedLabelFrequencies(byPatternCounts)
+    vf = ProjectToVotingPatternFrequencies2(byPatternCounts)
+    return {(1,2):((vf[('b','b','a')] + vf[('b','b','b')]) - clfs[1]['b']*clfs[2]['b']),
+            (1,3):((vf[('b','a','b')] + vf[('b','b','b')]) - clfs[1]['b']*clfs[3]['b']),
+            (2,3):((vf[('a','b','b')] + vf[('b','b','b')]) - clfs[2]['b']*clfs[3]['b'])}
+
 
 if __name__ == '__main__':
     print(adultLabelCounts)
@@ -191,6 +236,9 @@ if __name__ == '__main__':
     print(byPatternCounts)
 
     votingFrequencies = ProjectToVotingPatternFrequencies(adultLabelCounts)
+    print(votingFrequencies)
 
     print(ClassifiersObservedLabelFrequencies(byPatternCounts))
     print(ClassifiersObservedLabelFrequencies2(votingFrequencies))
+    print(PairsFrequencyMoment(byPatternCounts))
+    print(PairsFrequencyMoment2(byPatternCounts))
