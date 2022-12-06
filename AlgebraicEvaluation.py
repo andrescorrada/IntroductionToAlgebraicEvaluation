@@ -2,6 +2,12 @@
 """Basic utilities for carrying out algebraic evaluation of binary classifiers.
 Contains code for evaluating an ensemble of three error-independent judges."""
 
+# The mathematics of evaluating finite samples is, by construction, one
+# of estimating integer fractions. We import this module so we can create
+# two versions of every computation - the exact one using integer ratios,
+# and the one using the default floating point numbers
+from fractions import Fraction
+
 # The basic data structure of algebraic evaluation contains the number of
 # times an ensemble of judges votes a certain way. In the case of binary
 # classification for three judges, there are 8 possible ways they could vote.
@@ -95,20 +101,26 @@ def ProjectToVotingPatternCounts(byTrueLabelCounts):
 # in Python. So the following set of functions cannot be motivated
 # here by direct appeal to the their origin in the algebra. They are, in
 # effect moment functions of the observable counts when viewed as normalized
-# frequencies - "38% of the time we saw (a,b,a), etc."
-def ProjectToVotingPatternFrequencies(byTrueLabelCounts):
-    """Projects to unit-normalized voting pattern frequencies. Unfortunately,
-    this will introduce real numbers! This already obscures the importance
-    of remaining within an algebraic number system. But we digress. That
-    insight is for later. We accept the imprecision this brings. It will
-    obscure some of the information one can gain by having exact integer
-    mathematics but it will not affect its numerical accuracy."""
+# frequencies - "38% of the time we saw (a,b,a), etc." So let's start by
+# computing those voting pattern frequencies
+
+# The exact computation based on using integer ratios
+def ProjectToVotingPatternFrequenciesExact(byTrueLabelCounts):
+    """Computes observed voting pattern frequencies."""
+    byPatternCounts = ProjectToVotingPatternCounts(byTrueLabelCounts)
+    sizeOfTestSet = sum(byPatternCounts.values())
+    return {vp:Fraction(byPatternCounts[vp],sizeOfTestSet)
+            for vp in byPatternCounts.keys()}
+
+def ProjectToVotingPatternFrequenciesFP(byTrueLabelCounts):
+    """Same as the exact computation, but using floating point
+    numbers."""
     byPatternCounts = ProjectToVotingPatternCounts(byTrueLabelCounts)
     sizeOfTestSet = sum(byPatternCounts.values())
     return {vp:byPatternCounts[vp]/sizeOfTestSet
             for vp in byPatternCounts.keys()}
 
-def ProjectToVotingPatternFrequencies2(byPatternCounts):
+def ProjectToVotingPatternFrequenciesFP2(byPatternCounts):
     """Same as above, but we start from the projected by-pattern counts."""
     sizeOfTestSet = sum(byPatternCounts.values())
     return {vp:byPatternCounts[vp]/sizeOfTestSet
@@ -175,26 +187,32 @@ c3VotesB = (('a', 'a', 'b'),
             ('b', 'a', 'b'),
             ('b', 'b', 'b'))
 
-def ClassifiersLabelAccuracies(byTrueLabelCounts):
+def ClassifiersLabelAccuraciesExact(byTrueLabelCounts):
     """Given the by-true label voting pattern counts, calculates the observed
     by-label accuracies of a trio of classifiers."""
     aTestSize = sum(byTrueLabelCounts['a'].values())
     bTestSize = sum(byTrueLabelCounts['b'].values())
     return {1:{
-               'a': sum({byTrueLabelCounts['a'][vp]
-                         for vp in c1VotesA})/aTestSize,
-               'b': sum({byTrueLabelCounts['b'][vp]
-                         for vp in c1VotesB})/bTestSize},
+               'a': Fraction(sum({byTrueLabelCounts['a'][vp]
+                                    for vp in c1VotesA}),
+                             aTestSize),
+               'b': Fraction(sum({byTrueLabelCounts['b'][vp]
+                                    for vp in c1VotesB}),
+                             bTestSize)},
             2:{
-               'a': sum({byTrueLabelCounts['a'][vp]
-                         for vp in c2VotesA})/aTestSize,
-               'b': sum({byTrueLabelCounts['b'][vp]
-                         for vp in c2VotesB})/bTestSize},
+               'a': Fraction(sum({byTrueLabelCounts['a'][vp]
+                                    for vp in c2VotesA}),
+                             aTestSize),
+               'b': Fraction(sum({byTrueLabelCounts['b'][vp]
+                                    for vp in c2VotesB}),
+                                    bTestSize)},
             3:{
-               'a': sum({byTrueLabelCounts['a'][vp]
-                         for vp in c3VotesA})/aTestSize,
-               'b': sum({byTrueLabelCounts['b'][vp]
-                         for vp in c3VotesB})/bTestSize}}
+               'a': Fraction(sum({byTrueLabelCounts['a'][vp]
+                                    for vp in c3VotesA}),
+                             aTestSize),
+               'b': Fraction(sum({byTrueLabelCounts['b'][vp]
+                                    for vp in c3VotesB}),
+                             bTestSize)}}
 
 # We now encounter our 1st error correlation -
 # the pair sample error correlation.
@@ -237,7 +255,7 @@ def ClassifierPairByLabelErrorCorrelations(byTrueLabelCounts, pair):
     bTestSize = sum(byTrueLabelCounts['b'].values())
 
     (ci, cj) = pair
-    ca = ClassifiersLabelAccuracies(byTrueLabelCounts)
+    ca = ClassifiersLabelAccuraciesExact(byTrueLabelCounts)
     ciAccuracies = ca[ci]
     cjAccuracies = ca[cj]
 
@@ -283,7 +301,7 @@ def GroundTruthSampleStatistics(byTrueLabelCounts):
     set of sample statistics needed to have an exact polynomial representation
     of the observed voting patterns by three binary classifiers."""
     return {
-    "accuracies":ClassifiersLabelAccuracies(byTrueLabelCounts),
+    "accuracies":ClassifiersLabelAccuraciesExact(byTrueLabelCounts),
     "pair-error-correlations":{
       pair:ClassifierPairByLabelErrorCorrelations(byTrueLabelCounts,pair) for
       pair in ((1,2),(1,3),(2,3))}
@@ -351,7 +369,7 @@ def PairsFrequencyMoment(byPatternCounts):
     """Calculates the pair moment that defines the pair error correlation
     blindspots."""
     clfs = ClassifiersObservedLabelFrequencies(byPatternCounts)
-    vf = ProjectToVotingPatternFrequencies2(byPatternCounts)
+    vf = ProjectToVotingPatternFrequenciesFP2(byPatternCounts)
     return {(1,2):((vf[('a','a','a')] + vf[('a','a','b')]) - clfs[1]['a']*clfs[2]['a']),
             (1,3):((vf[('a','a','a')] + vf[('a','b','a')]) - clfs[1]['a']*clfs[3]['a']),
             (2,3):((vf[('a','a','a')] + vf[('b','a','a')]) - clfs[2]['a']*clfs[3]['a'])}
@@ -360,7 +378,7 @@ def PairsFrequencyMoment2(byPatternCounts):
     """Function meant to illustrate, via numerical equality, that the 2nd moment is
     the same for either of the two labels."""
     clfs = ClassifiersObservedLabelFrequencies(byPatternCounts)
-    vf = ProjectToVotingPatternFrequencies2(byPatternCounts)
+    vf = ProjectToVotingPatternFrequenciesFP2(byPatternCounts)
     return {(1,2):((vf[('b','b','a')] + vf[('b','b','b')]) - clfs[1]['b']*clfs[2]['b']),
             (1,3):((vf[('b','a','b')] + vf[('b','b','b')]) - clfs[1]['b']*clfs[3]['b']),
             (2,3):((vf[('a','b','b')] + vf[('b','b','b')]) - clfs[2]['b']*clfs[3]['b'])}
@@ -385,14 +403,14 @@ if __name__ == '__main__':
     byPatternCounts = ProjectToVotingPatternCounts(adultLabelCounts)
     print(byPatternCounts)
 
-    votingFrequencies = ProjectToVotingPatternFrequencies(adultLabelCounts)
+    votingFrequencies = ProjectToVotingPatternFrequenciesExact(adultLabelCounts)
     print(votingFrequencies)
 
     print(ClassifiersObservedLabelFrequencies(byPatternCounts))
     print(ClassifiersObservedLabelFrequencies2(votingFrequencies))
     print(PairsFrequencyMoment(byPatternCounts))
     print(PairsFrequencyMoment2(byPatternCounts))
-    print(ClassifiersLabelAccuracies(adultLabelCounts))
+    print(ClassifiersLabelAccuraciesExact(adultLabelCounts))
     # The test run picked for this code comes from a trio of classifiers
     # that have, in fact, very small pair error correlations.
     print(GroundTruthSampleStatistics(adultLabelCounts))
