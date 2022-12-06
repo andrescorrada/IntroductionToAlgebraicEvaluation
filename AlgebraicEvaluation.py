@@ -114,28 +114,39 @@ def ProjectToVotingPatternFrequencies2(byPatternCounts):
     return {vp:byPatternCounts[vp]/sizeOfTestSet
             for vp in byPatternCounts.keys()}
 
-# The first moments of the observable frequencies we are about to encounter are
-# familiar ones, the frequencies with which the classifiers voted for each
-# of the two labels.
-# If a classifier was perfect, this would be a perfect measurement of the
-# the prevalence of the labels. A perfect would label each item in the
-# test set perfectly and we would just count the 'a' and 'b' decisions to
-# compute the unknown prevalence of the true labels.
-# When classifiers disagree on these frequencies, you know at least n-1
-# cannot possibly be correct - a somewhat trivial universal statement that
-# illustrates how evaluation is easier than training.
-# In addition, we are going to code to versions of the moments to see how
-# floating point arithmetic is causing exact frequencies to become inexact.
-# To make the logic clearer, let's enumerate the voting patterns where
-# each classifier votes a given label.
-(('a', 'a', 'a'),
-                            ('a', 'a', 'b'),
-                            ('a', 'b', 'a'),
-                            ('a', 'b', 'b'),
-                            ('b', 'a', 'a'),
-                            ('b', 'a', 'b'),
-                            ('b', 'b', 'a'),
-                            ('b', 'b', 'b'))
+# The known unknowns : All the sample statistics that are needed to
+# write exact polynomials of the observed voting frequencies.
+#
+# Like data streaming algorithms, the desired "stream statistics" are
+# coupled to the "data sketch". Depending on what observable statistics
+# of the evaluation you are interested in, you would need to formulate
+# its exact polynomial formulation. This is the "evaluation ideal"
+# definition stage.
+#
+# In the case considered here where we are collecting "point statistics"
+# of the classifiers decisions - the frequencies of the voting patterns
+# given items in the test - all the unknown sample statistics needed to have
+# an exact polynomial representation of the voting pattern frequencies are:
+# 1. The prevalence of the labels (the "environmental" statistics).
+# 2. The by-label accuracy of each of the three classifiers.(6)
+# 3. The sample defined pair error correlation by pair and label. (6)
+# 4. The trio error correlation by label. (2)
+#
+# Exact representations in Evaluation Land are possible.
+# These sample statistics have been completely enumerated above. This
+# enumeration is complete and universal. Any test, for any trio of classifiers,
+# can be expressed exactly by these unknown sample statistics.
+# There are no unknown unknowns in evaluation. We know exactly what we are
+# missing - the values of these sample statistics.
+# No such universal algorithms or representations are available in Training
+# Land. No universal model of the world exists. There are two sides to this
+# realization. First, it really is a fundamentally trivial statement. Sample
+# statistics are easy to state and enumerate. Second, why have not conquered
+# this finite space that we can completely describe?
+
+# To make the logic of the calculations clearer, let's enumerate the voting
+# patterns where each classifier votes a given label.
+
 # The patterns for classifier 1
 c1VotesA = (('a', 'a', 'a'),
             ('a', 'a', 'b'),
@@ -164,6 +175,132 @@ c3VotesB = (('a', 'a', 'b'),
             ('b', 'a', 'b'),
             ('b', 'b', 'b'))
 
+def ClassifiersLabelAccuracies(byTrueLabelCounts):
+    """Given the by-true label voting pattern counts, calculates the observed
+    by-label accuracies of a trio of classifiers."""
+    aTestSize = sum(byTrueLabelCounts['a'].values())
+    bTestSize = sum(byTrueLabelCounts['b'].values())
+    return {1:{
+               'a': sum({byTrueLabelCounts['a'][vp]
+                         for vp in c1VotesA})/aTestSize,
+               'b': sum({byTrueLabelCounts['b'][vp]
+                         for vp in c1VotesB})/bTestSize},
+            2:{
+               'a': sum({byTrueLabelCounts['a'][vp]
+                         for vp in c2VotesA})/aTestSize,
+               'b': sum({byTrueLabelCounts['b'][vp]
+                         for vp in c2VotesB})/bTestSize},
+            3:{
+               'a': sum({byTrueLabelCounts['a'][vp]
+                         for vp in c3VotesA})/aTestSize,
+               'b': sum({byTrueLabelCounts['b'][vp]
+                         for vp in c3VotesB})/bTestSize}}
+
+# We now encounter our 1st error correlation -
+# the pair sample error correlation.
+# Since algebraic evaluation does not use probability theory, one
+# needs to define a notion of independence that is sample based. This
+# turns out to be easy - just use the typical sample statistics that
+# we are all familiar with. So we define an error correlation based
+# on whether you were right or wrong in a particular label decision.
+# In essence, we are taking moments of correct decisions indicator
+# functions. So the pair error correlation is the sum of the product
+# (ci_indicator_value - ci_average_label_accuracy)*
+# (cj_indicator_value - cj_average_label_accuracy)
+# This is very much like the sample correlation statistics we are all
+# familiar with.
+#
+# To help us carry out the calculation, we enumerate the possible
+# ways a pair can vote in terms of the trio votes.
+pairVotingPatterns = {
+    (1,2):{
+      ('a', 'a'):(('a', 'a', 'a'), ('a', 'a', 'b')),
+      ('a', 'b'):(('a', 'b', 'a'), ('a', 'b', 'b')),
+      ('b', 'a'):(('b', 'a', 'a'), ('b', 'a', 'b')),
+      ('b', 'b'):(('b', 'b', 'a'), ('b', 'b', 'b'))},
+    (1,3):{
+      ('a', 'a'):(('a', 'a', 'a'), ('a', 'b', 'a')),
+      ('a', 'b'):(('a', 'a', 'b'), ('a', 'b', 'b')),
+      ('b', 'a'):(('b', 'a', 'a'), ('b', 'b', 'a')),
+      ('b', 'b'):(('b', 'a', 'b'), ('b', 'b', 'b'))},
+    (2,3):{
+      ('a', 'a'):(('a', 'a', 'a'), ('b', 'a', 'a')),
+      ('a', 'b'):(('a', 'a', 'b'), ('a', 'a', 'b')),
+      ('b', 'a'):(('a', 'b', 'a'), ('b', 'b', 'a')),
+      ('b', 'b'):(('a', 'b', 'b'), ('b', 'b', 'b'))},
+}
+
+def ClassifierPairByLabelErrorCorrelations(byTrueLabelCounts, pair):
+    """Calculates the by-label pair error correlation for two
+    binary classifiers"""
+    aTestSize = sum(byTrueLabelCounts['a'].values())
+    bTestSize = sum(byTrueLabelCounts['b'].values())
+
+    (ci, cj) = pair
+    ca = ClassifiersLabelAccuracies(byTrueLabelCounts)
+    ciAccuracies = ca[ci]
+    cjAccuracies = ca[cj]
+
+    return {
+        'a':(
+            # They are both correct
+            (1-ciAccuracies['a'])*(1-cjAccuracies['a'])*\
+            sum({byTrueLabelCounts['a'][vp]
+            for vp in pairVotingPatterns[pair][('a','a')]}) +
+            # C_i is correct, C_j is incorrect
+            (1-ciAccuracies['a'])*(0-cjAccuracies['a'])*\
+            sum({byTrueLabelCounts['a'][vp]
+            for vp in pairVotingPatterns[pair][('a','b')]}) +
+            # C_i is incorrect, C_j is correct
+            (0-ciAccuracies['a'])*(1-cjAccuracies['a'])*\
+            sum({byTrueLabelCounts['a'][vp]
+            for vp in pairVotingPatterns[pair][('b','a')]}) +
+            # C_i and C_j are incorrect
+            (0-ciAccuracies['a'])*(0-cjAccuracies['a'])*\
+            sum({byTrueLabelCounts['a'][vp]
+            for vp in pairVotingPatterns[pair][('b','b')]}))/aTestSize,
+        'b':(
+        # They are both correct
+        (1-ciAccuracies['b'])*(1-cjAccuracies['b'])*\
+        sum({byTrueLabelCounts['b'][vp]
+        for vp in pairVotingPatterns[pair][('b','b')]}) +
+        # C_i is correct, C_j is incorrect
+        (1-ciAccuracies['b'])*(0-cjAccuracies['b'])*\
+        sum({byTrueLabelCounts['b'][vp]
+        for vp in pairVotingPatterns[pair][('b','a')]}) +
+        # C_i is incorrect, C_j is correct
+        (0-ciAccuracies['b'])*(1-cjAccuracies['b'])*\
+        sum({byTrueLabelCounts['b'][vp]
+        for vp in pairVotingPatterns[pair][('a','b')]}) +
+        # C_i and C_j are incorrect
+        (0-ciAccuracies['b'])*(0-cjAccuracies['b'])*\
+        sum({byTrueLabelCounts['b'][vp]
+        for vp in pairVotingPatterns[pair][('a','a')]}))/bTestSize}
+
+
+def GroundTruthSampleStatistics(byTrueLabelCounts):
+    """Given the by-true label voting pattern counts, calculates the complete
+    set of sample statistics needed to have an exact polynomial representation
+    of the observed voting patterns by three binary classifiers."""
+    return {
+    "accuracies":ClassifiersLabelAccuracies(byTrueLabelCounts),
+    "pair-error-correlations":{
+      pair:ClassifierPairByLabelErrorCorrelations(byTrueLabelCounts,pair) for
+      pair in ((1,2),(1,3),(2,3))}
+    }
+
+
+
+# The first moments of the observable frequencies we are about to encounter are
+# familiar ones, the frequencies with which the classifiers voted for each
+# of the two labels.
+# If a classifier was perfect, this would be a perfect measurement of the
+# the prevalence of the labels. A perfect would label each item in the
+# test set perfectly and we would just count the 'a' and 'b' decisions to
+# compute the unknown prevalence of the true labels.
+# When classifiers disagree on these frequencies, you know at least n-1
+# cannot possibly be correct - a somewhat trivial universal statement that
+# illustrates how evaluation is easier than training.
 
 def ClassifiersObservedLabelFrequencies(byPatternCounts):
     """Calculates the label frequencies noisily counted by the three
@@ -228,6 +365,19 @@ def PairsFrequencyMoment2(byPatternCounts):
             (1,3):((vf[('b','a','b')] + vf[('b','b','b')]) - clfs[1]['b']*clfs[3]['b']),
             (2,3):((vf[('a','b','b')] + vf[('b','b','b')]) - clfs[2]['b']*clfs[3]['b'])}
 
+# The last voting pattern frequency moment we need is one for which we have no
+# intuition. It is a polynomial of the observed voting frequencies that involves
+# all three classifiers. Its origin can only be elucidated by going thru the
+# algebraic geometry needed for computing the "evaluation variety" (a geometric
+# surface in sample statistics space) from the "evaluation ideal" (the set of
+# polynomial equations that relate observable frequencies to unknown sample
+# statistics). See the accompanying Mathematica notebook if you are interested
+# in the details of this mathematics.
+def TrioFrequencyMoment(byPatternCounts):
+    """Calculates the 3rd frequency moment of a trio of binary classifiers
+    needed for algebraic evaluation using the error indepedent model."""
+    return 1
+
 
 if __name__ == '__main__':
     print(adultLabelCounts)
@@ -242,3 +392,7 @@ if __name__ == '__main__':
     print(ClassifiersObservedLabelFrequencies2(votingFrequencies))
     print(PairsFrequencyMoment(byPatternCounts))
     print(PairsFrequencyMoment2(byPatternCounts))
+    print(ClassifiersLabelAccuracies(adultLabelCounts))
+    # The test run picked for this code comes from a trio of classifiers
+    # that have, in fact, very small pair error correlations.
+    print(GroundTruthSampleStatistics(adultLabelCounts))
