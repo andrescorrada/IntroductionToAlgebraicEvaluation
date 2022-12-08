@@ -112,6 +112,13 @@ def ProjectToVotingPatternFrequenciesExact(byTrueLabelCounts):
     return {vp:Fraction(byPatternCounts[vp],sizeOfTestSet)
             for vp in byPatternCounts.keys()}
 
+def ByPatternCountsToFrequenciesExact(byPatternCounts):
+    """Computes observerd voting pattern frequencies from
+    observed voting pattern counts."""
+    sizeOfTestSet = sum(byPatternCounts.values())
+    return {vp:Fraction(byPatternCounts[vp],sizeOfTestSet)
+            for vp in byPatternCounts.keys()}
+
 def ProjectToVotingPatternFrequenciesFP(byTrueLabelCounts):
     """Same as the exact computation, but using floating point
     numbers."""
@@ -325,20 +332,32 @@ def ClassifiersObservedLabelFrequencies(byPatternCounts):
     classifiers."""
     totalTestSize = sum(byPatternCounts.values())
     return {1:{
-                'a':sum({byPatternCounts[pt] for
-                    pt in c1VotesA})/totalTestSize,
-                'b':sum({byPatternCounts[pt] for
-                    pt in c1VotesB})/totalTestSize},
+                'a':Fraction(
+                      sum({byPatternCounts[pt] for
+                           pt in c1VotesA}),
+                      totalTestSize),
+                'b':Fraction(
+                      sum({byPatternCounts[pt] for
+                           pt in c1VotesB}),
+                      totalTestSize)},
             2:{
-                'a':sum({byPatternCounts[pt] for
-                    pt in c2VotesA})/totalTestSize,
-                'b':sum({byPatternCounts[pt] for
-                    pt in c2VotesB})/totalTestSize},
+                'a':Fraction(
+                      sum({byPatternCounts[pt] for
+                           pt in c2VotesA}),
+                      totalTestSize),
+                'b':Fraction(
+                      sum({byPatternCounts[pt] for
+                           pt in c2VotesB}),
+                      totalTestSize)},
             3:{
-                'a':sum({byPatternCounts[pt] for
-                    pt in c3VotesA})/totalTestSize,
-                'b':sum({byPatternCounts[pt] for
-                    pt in c3VotesB})/totalTestSize}}
+                'a':Fraction(
+                      sum({byPatternCounts[pt] for
+                           pt in c3VotesA}),
+                      totalTestSize),
+                'b':Fraction(
+                      sum({byPatternCounts[pt] for
+                           pt in c3VotesB}),
+                      totalTestSize)}}
 
 def ClassifiersObservedLabelFrequencies2(votingFrequencies):
     """Convenience function to compare the numerical loss associated
@@ -369,10 +388,19 @@ def PairsFrequencyMoment(byPatternCounts):
     """Calculates the pair moment that defines the pair error correlation
     blindspots."""
     clfs = ClassifiersObservedLabelFrequencies(byPatternCounts)
-    vf = ProjectToVotingPatternFrequenciesFP2(byPatternCounts)
-    return {(1,2):((vf[('a','a','a')] + vf[('a','a','b')]) - clfs[1]['a']*clfs[2]['a']),
-            (1,3):((vf[('a','a','a')] + vf[('a','b','a')]) - clfs[1]['a']*clfs[3]['a']),
-            (2,3):((vf[('a','a','a')] + vf[('b','a','a')]) - clfs[2]['a']*clfs[3]['a'])}
+    vf = ByPatternCountsToFrequenciesExact(byPatternCounts)
+    return {'a':{(1,2):(sum(vf[vp] for vp in pairVotingPatterns[(1,2)][('a','a')]) -
+                        clfs[1]['a']*clfs[2]['a']),
+                 (1,3):(sum(vf[vp] for vp in pairVotingPatterns[(1,3)][('a','a')]) -
+                        clfs[1]['a']*clfs[3]['a']),
+                 (2,3):(sum(vf[vp] for vp in pairVotingPatterns[(2,3)][('a','a')]) -
+                        clfs[2]['a']*clfs[3]['a'])},
+            'b':{(1,2):(sum(vf[vp] for vp in pairVotingPatterns[(1,2)][('b','b')]) -
+                        clfs[1]['b']*clfs[2]['b']),
+                 (1,3):(sum(vf[vp] for vp in pairVotingPatterns[(1,3)][('b','b')]) -
+                        clfs[1]['b']*clfs[3]['b']),
+                 (2,3):(sum(vf[vp] for vp in pairVotingPatterns[(2,3)][('b','b')]) -
+                        clfs[2]['b']*clfs[3]['b'])}}
 
 def PairsFrequencyMoment2(byPatternCounts):
     """Function meant to illustrate, via numerical equality, that the 2nd moment is
@@ -408,6 +436,7 @@ if __name__ == '__main__':
 
     print(ClassifiersObservedLabelFrequencies(byPatternCounts))
     print(ClassifiersObservedLabelFrequencies2(votingFrequencies))
+    print("A numerical demonstration that the 2nd moment for either label.")
     print(PairsFrequencyMoment(byPatternCounts))
     print(PairsFrequencyMoment2(byPatternCounts))
     print(ClassifiersLabelAccuraciesExact(adultLabelCounts))
