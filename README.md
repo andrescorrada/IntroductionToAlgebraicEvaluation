@@ -88,5 +88,25 @@ are discussed in the document.
 
 - **AlgebraicEvaluation.py**: This Python code contains basic utilities showing
 how you can turn the counts of voting patterns by binary classifiers into an
-algebraic formalism for carrying out perfect evaluation of binary classifiers **IF** they are error independent in the sample. The code details all the sample
-statistics that are sufficient to write down an exact representation of the algebraic ideal associated with evaluation (the evaluation ideal).
+algebraic formalism for carrying out perfect evaluation of binary classifiers
+**IF** they are error independent in the sample. The code details all the sample
+statistics that are sufficient to write down an exact representation of the
+algebraic ideal associated with evaluation (the evaluation ideal).
+
+- **EvaluationIdealAndVarietyErrorIndependentTrio.nb (and its PDF version)**:
+The mathematics of algebraic evaluation is algebraic geometry. Since you are
+estimating sample statistics, you get to work in a finite dimensional space
+where all parameters are known. You can build exact polynomial representations
+of any evaluation you care to set-up for noisy judges on unlabeled data. This
+notebook shows how to do the simplest algebraic evaluation possible -
+the tests where the noisy judges where independent in their errors. The almost
+visceral reactions that critics of algebraic evaluation have to this "spherical
+cow" in Evaluation Land is telling of the intuition that years of working in
+Training Land has built up in them. All of them have most likely uttered the
+phrase "consider an iid sample". In Evaluation Land we get to say "consider
+noisy judges error independent on the sample". None of these critics has yet to
+enunciate why speaking like this in Evaluation Land is not allowed, but yet we
+write papers and textbooks whose results are all mainly in the vein of "consider
+an iid sample". They cannot. The mathematics of this notebook is what it is.
+You may not like the golden spherical cow in Evaluation Land. But it does exist
+and in some ways is much better than the spherical cow of Training Land.
