@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[     70764,       1895]
-NotebookOptionsPosition[     65047,       1794]
-NotebookOutlinePosition[     65495,       1812]
-CellTagsIndexPosition[     65452,       1809]
+NotebookDataLength[     83581,       2232]
+NotebookOptionsPosition[     76441,       2108]
+NotebookOutlinePosition[     76889,       2126]
+CellTagsIndexPosition[     76846,       2123]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -1787,7 +1787,321 @@ contexts.\
 Cell["Knowing that you are flying blind is priceless", "Subsubsection",
  CellChangeTimes->{{3.8796638531851*^9, 
   3.879663860635689*^9}},ExpressionUUID->"b00e9572-34e5-44c7-a114-\
-fa5dc18c54f0"]
+fa5dc18c54f0"],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+How good is the numerical estimate by the error independent evaluator?\
+\>", "Subsubsection",
+ CellChangeTimes->{{3.879671619563179*^9, 
+  3.879671638201065*^9}},ExpressionUUID->"458cfaf2-fadd-43f5-a9c1-\
+1c7b90c8f656"],
+
+Cell["\<\
+So let\[CloseCurlyQuote]s see how well the error independent evaluator \
+estimated the accuracy of the UCI Adult binary classifiers.\
+\>", "Text",
+ CellChangeTimes->{{3.879671659630913*^9, 
+  3.879671688099226*^9}},ExpressionUUID->"96859ff9-bd92-437d-a96a-\
+a6c27b35eb23"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"N", "@", "independentModelEvaluation"}]], "Input",
+ CellChangeTimes->{{3.8796716998647614`*^9, 3.8796717016458406`*^9}},
+ CellLabel->"In[66]:=",ExpressionUUID->"a88478fb-0176-4d1b-857b-18414f5a3761"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"\[LeftAssociation]", 
+    RowBox[{
+     RowBox[{
+      SubscriptBox["P", "\[Alpha]"], "\[Rule]", "0.16711443965305098`"}], ",", 
+     RowBox[{
+      SubscriptBox["P", 
+       RowBox[{"1", ",", "\[Alpha]"}]], "\[Rule]", "0.688996977450412`"}], 
+     ",", 
+     RowBox[{
+      SubscriptBox["P", 
+       RowBox[{"1", ",", "\[Beta]"}]], "\[Rule]", "0.6367312718542217`"}], 
+     ",", 
+     RowBox[{
+      SubscriptBox["P", 
+       RowBox[{"2", ",", "\[Alpha]"}]], "\[Rule]", "0.3219766608593499`"}], 
+     ",", 
+     RowBox[{
+      SubscriptBox["P", 
+       RowBox[{"2", ",", "\[Beta]"}]], "\[Rule]", "0.9775577459893988`"}], 
+     ",", 
+     RowBox[{
+      SubscriptBox["P", 
+       RowBox[{"3", ",", "\[Alpha]"}]], "\[Rule]", "0.6561157732222994`"}], 
+     ",", 
+     RowBox[{
+      SubscriptBox["P", 
+       RowBox[{"3", ",", "\[Beta]"}]], "\[Rule]", "0.6408230207357203`"}]}], 
+    "\[RightAssociation]"}], ",", 
+   RowBox[{"\[LeftAssociation]", 
+    RowBox[{
+     RowBox[{
+      SubscriptBox["P", "\[Alpha]"], "\[Rule]", "0.8328855603469492`"}], ",", 
+     
+     RowBox[{
+      SubscriptBox["P", 
+       RowBox[{"1", ",", "\[Alpha]"}]], "\[Rule]", "0.3632687281457782`"}], 
+     ",", 
+     RowBox[{
+      SubscriptBox["P", 
+       RowBox[{"1", ",", "\[Beta]"}]], "\[Rule]", "0.31100302254958795`"}], 
+     ",", 
+     RowBox[{
+      SubscriptBox["P", 
+       RowBox[{"2", ",", "\[Alpha]"}]], "\[Rule]", "0.022442254010601133`"}], 
+     ",", 
+     RowBox[{
+      SubscriptBox["P", 
+       RowBox[{"2", ",", "\[Beta]"}]], "\[Rule]", "0.67802333914065`"}], ",", 
+     
+     RowBox[{
+      SubscriptBox["P", 
+       RowBox[{"3", ",", "\[Alpha]"}]], "\[Rule]", "0.3591769792642797`"}], 
+     ",", 
+     RowBox[{
+      SubscriptBox["P", 
+       RowBox[{"3", ",", "\[Beta]"}]], "\[Rule]", "0.3438842267777006`"}]}], 
+    "\[RightAssociation]"}]}], "}"}]], "Output",
+ CellChangeTimes->{3.879671703054063*^9},
+ CellLabel->"Out[66]=",ExpressionUUID->"c4e260bb-6a15-4605-b1d3-a7ce087f2b76"]
+}, Open  ]],
+
+Cell["\<\
+Here is where we get to see why decoding is many times trivial in the real \
+world. This is no different than decoding of error-correcting codes being \
+trivial in the real world. You do here exactly what you would do for error \
+correcting codes. When you decode in error-correcting codes you have multiple \
+possible solutions if a detectable error has occurred. The default choice is \
+ALWAYS least bit errors. Error-correcting codes are engineered so this is \
+almost always true. It works for inter-planetary communications and your \
+computer. Same thing in Algebraic Evaluation. Its engineering context usually \
+has enough outside context to allow you to decode the right evaluation for \
+noisy binary classifiers.
+
+Let\[CloseCurlyQuote]s talk through one example of how this decoding choice \
+could be done - you have very good knowledge of the prevalence of labels. For \
+example, you could trying to evaluate DNA sequencers and you want to estimate \
+their error rates. Since you are most likely handling Earth DNA, it would be \
+a simple calibrating step to check which prevalence solution is closer to the \
+known frequency distribution of DNA bases. That simple.
+
+Another example applies to a business that is using AI to discover a rare, \
+valuable thing. Like Google trying to find pages where users will click on \
+ads. The click rate in the internet is about 1/1000 on a good website. The \
+\[OpenCurlyDoubleQuote]it will be clicked\[CloseCurlyDoubleQuote] label will \
+be rare in whatever ad campaign you run. This is the case in UCI Adult. The 0 \
+label is the rare one. So we just choose the first solution.\
+\>", "Text",
+ CellChangeTimes->{{3.8796717478262243`*^9, 3.879672256717669*^9}, {
+  3.879672417513568*^9, 
+  3.8796724187783327`*^9}},ExpressionUUID->"179e80d9-e738-4c45-b157-\
+60f504559681"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"evaluationAlgebraicGuess", " ", "=", " ", 
+   RowBox[{"First", "@", "independentModelEvaluation"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"N", "@", "evaluationAlgebraicGuess"}]}], "Input",
+ CellChangeTimes->{{3.879672258293508*^9, 3.87967229329532*^9}},
+ CellLabel->"In[71]:=",ExpressionUUID->"8420770f-5482-4d53-9369-5cf94fac0ab8"],
+
+Cell[BoxData[
+ RowBox[{"\[LeftAssociation]", 
+  RowBox[{
+   RowBox[{
+    SubscriptBox["P", "\[Alpha]"], "\[Rule]", "0.16711443965305098`"}], ",", 
+   RowBox[{
+    SubscriptBox["P", 
+     RowBox[{"1", ",", "\[Alpha]"}]], "\[Rule]", "0.688996977450412`"}], ",", 
+   
+   RowBox[{
+    SubscriptBox["P", 
+     RowBox[{"1", ",", "\[Beta]"}]], "\[Rule]", "0.6367312718542217`"}], ",", 
+   
+   RowBox[{
+    SubscriptBox["P", 
+     RowBox[{"2", ",", "\[Alpha]"}]], "\[Rule]", "0.3219766608593499`"}], ",", 
+   RowBox[{
+    SubscriptBox["P", 
+     RowBox[{"2", ",", "\[Beta]"}]], "\[Rule]", "0.9775577459893988`"}], ",", 
+   
+   RowBox[{
+    SubscriptBox["P", 
+     RowBox[{"3", ",", "\[Alpha]"}]], "\[Rule]", "0.6561157732222994`"}], ",", 
+   RowBox[{
+    SubscriptBox["P", 
+     RowBox[{"3", ",", "\[Beta]"}]], "\[Rule]", "0.6408230207357203`"}]}], 
+  "\[RightAssociation]"}]], "Output",
+ CellChangeTimes->{{3.879672282035626*^9, 3.879672294229452*^9}},
+ CellLabel->"Out[72]=",ExpressionUUID->"3b439a50-2c1b-48e3-b81a-19f565fd7de3"]
+}, Open  ]],
+
+Cell["\<\
+Now let\[CloseCurlyQuote]s look at the ground truth for this single run of \
+three binary classifiers on a UCI Adult test set.\
+\>", "Text",
+ CellChangeTimes->{{3.8796723061453867`*^9, 
+  3.87967232931915*^9}},ExpressionUUID->"6c3440c8-3648-4651-9e25-\
+38572c061de8"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"N", "@", "evaluationGroundTruth"}]], "Input",
+ CellChangeTimes->{{3.879671728908721*^9, 3.879671733811434*^9}},
+ CellLabel->"In[67]:=",ExpressionUUID->"c2711819-5294-4a75-ab84-2d27845de0e8"],
+
+Cell[BoxData[
+ RowBox[{"\[LeftAssociation]", 
+  RowBox[{
+   RowBox[{
+    SubscriptBox["P", "\[Alpha]"], "\[Rule]", "0.15436186960534173`"}], ",", 
+   RowBox[{
+    SubscriptBox["P", 
+     RowBox[{"1", ",", "\[Alpha]"}]], "\[Rule]", "0.6571127132055565`"}], ",", 
+   RowBox[{
+    SubscriptBox["P", 
+     RowBox[{"2", ",", "\[Alpha]"}]], "\[Rule]", "0.22155793915948654`"}], 
+   ",", 
+   RowBox[{
+    SubscriptBox["P", 
+     RowBox[{"3", ",", "\[Alpha]"}]], "\[Rule]", "0.8345349041673993`"}], ",", 
+   RowBox[{
+    SubscriptBox["P", 
+     RowBox[{"1", ",", "\[Beta]"}]], "\[Rule]", "0.625999037072701`"}], ",", 
+   RowBox[{
+    SubscriptBox["P", 
+     RowBox[{"2", ",", "\[Beta]"}]], "\[Rule]", "0.9547103193708875`"}], ",", 
+   
+   RowBox[{
+    SubscriptBox["P", 
+     RowBox[{"3", ",", "\[Beta]"}]], "\[Rule]", "0.6689134970309741`"}], ",", 
+   
+   RowBox[{
+    SubscriptBox["\[CapitalGamma]", 
+     RowBox[{"1", ",", "2", ",", "\[Alpha]"}]], "\[Rule]", 
+    "0.008446981072797392`"}], ",", 
+   RowBox[{
+    SubscriptBox["\[CapitalGamma]", 
+     RowBox[{"1", ",", "3", ",", "\[Alpha]"}]], "\[Rule]", 
+    "0.00041200336318422665`"}], ",", 
+   RowBox[{
+    SubscriptBox["\[CapitalGamma]", 
+     RowBox[{"2", ",", "3", ",", "\[Alpha]"}]], "\[Rule]", 
+    RowBox[{"-", "0.008179001099160041`"}]}], ",", 
+   RowBox[{
+    SubscriptBox["\[CapitalGamma]", 
+     RowBox[{"1", ",", "2", ",", "\[Beta]"}]], "\[Rule]", 
+    "0.0068138225424356005`"}], ",", 
+   RowBox[{
+    SubscriptBox["\[CapitalGamma]", 
+     RowBox[{"1", ",", "3", ",", "\[Beta]"}]], "\[Rule]", 
+    RowBox[{"-", "0.006156954986200901`"}]}], ",", 
+   RowBox[{
+    SubscriptBox["\[CapitalGamma]", 
+     RowBox[{"2", ",", "3", ",", "\[Beta]"}]], "\[Rule]", 
+    "0.0024341821316226785`"}], ",", 
+   RowBox[{
+    SubscriptBox["\[CapitalGamma]", 
+     RowBox[{"1", ",", "2", ",", "3", ",", "\[Alpha]"}]], "\[Rule]", 
+    "0.002460563885934084`"}], ",", 
+   RowBox[{
+    SubscriptBox["\[CapitalGamma]", 
+     RowBox[{"1", ",", "2", ",", "3", ",", "\[Beta]"}]], "\[Rule]", 
+    RowBox[{"-", "0.00020286827445940953`"}]}]}], 
+  "\[RightAssociation]"}]], "Output",
+ CellChangeTimes->{3.879671734930511*^9},
+ CellLabel->"Out[67]=",ExpressionUUID->"404df3b4-1146-4cb5-9c54-58261eda872a"]
+}, Open  ]],
+
+Cell["\<\
+Wow! Look at the closeness of the independent model estimates. Let\
+\[CloseCurlyQuote]s pretty print the comparison.\
+\>", "Text",
+ CellChangeTimes->{{3.879672333781089*^9, 3.879672350441534*^9}, {
+  3.879672394113401*^9, 
+  3.879672400739893*^9}},ExpressionUUID->"f2a44c0e-86ce-4fe5-8f6a-\
+d27618f86305"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Grid", "[", 
+   RowBox[{
+    RowBox[{"Prepend", "[", 
+     RowBox[{
+      RowBox[{"Transpose", "@", 
+       RowBox[{"{", 
+        RowBox[{"evaluationVariables", ",", 
+         RowBox[{"Map", "[", 
+          RowBox[{"evaluationGroundTruth", ",", "evaluationVariables"}], 
+          "]"}], ",", 
+         RowBox[{"Map", "[", 
+          RowBox[{"evaluationAlgebraicGuess", ",", "evaluationVariables"}], 
+          "]"}]}], "}"}]}], ",", 
+      RowBox[{"{", 
+       RowBox[{
+       "\"\<Evaluation Statistic\>\"", ",", " ", "\"\<Correct\>\"", ",", " ", 
+        "\"\<Estimated\>\""}], "}"}]}], "]"}], ",", 
+    RowBox[{"Dividers", "->", "All"}]}], "]"}], "//", "N"}]], "Input",
+ CellChangeTimes->{{3.879672445953738*^9, 3.879672636326202*^9}},
+ CellLabel->"In[77]:=",ExpressionUUID->"6c84192c-472e-4b08-9f6f-12322f7667ff"],
+
+Cell[BoxData[
+ TagBox[GridBox[{
+    {"\<\"Evaluation Statistic\"\>", "\<\"Correct\"\>", "\<\"Estimated\"\>"},
+    {
+     SubscriptBox["P", "\[Alpha]"], "0.15436186960534173`", 
+     "0.16711443965305098`"},
+    {
+     SubscriptBox["P", 
+      RowBox[{"1", ",", "\[Alpha]"}]], "0.6571127132055565`", 
+     "0.688996977450412`"},
+    {
+     SubscriptBox["P", 
+      RowBox[{"1", ",", "\[Beta]"}]], "0.625999037072701`", 
+     "0.6367312718542217`"},
+    {
+     SubscriptBox["P", 
+      RowBox[{"2", ",", "\[Alpha]"}]], "0.22155793915948654`", 
+     "0.3219766608593499`"},
+    {
+     SubscriptBox["P", 
+      RowBox[{"2", ",", "\[Beta]"}]], "0.9547103193708875`", 
+     "0.9775577459893988`"},
+    {
+     SubscriptBox["P", 
+      RowBox[{"3", ",", "\[Alpha]"}]], "0.8345349041673993`", 
+     "0.6561157732222994`"},
+    {
+     SubscriptBox["P", 
+      RowBox[{"3", ",", "\[Beta]"}]], "0.6689134970309741`", 
+     "0.6408230207357203`"}
+   },
+   AutoDelete->False,
+   GridBoxDividers->{"Columns" -> {{True}}, "Rows" -> {{True}}},
+   GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}],
+  "Grid"]], "Output",
+ CellChangeTimes->{{3.879672514967841*^9, 3.879672546617683*^9}, 
+   3.879672637610093*^9},
+ CellLabel->"Out[77]=",ExpressionUUID->"67afad9c-9e9c-4682-a911-2f7a8eb5b922"]
+}, Open  ]]
+}, Open  ]]
 }, Open  ]]
 }, Open  ]]
 }, Open  ]]
@@ -1893,7 +2207,30 @@ Cell[61885, 1729, 511, 14, 65, "Output",ExpressionUUID->"4dd02ff8-c627-4d05-af3c
 }, Open  ]],
 Cell[62411, 1746, 2386, 37, 447, "Text",ExpressionUUID->"15c484c8-cdb7-4a49-bf48-175569cf280d"]
 }, Open  ]],
-Cell[64812, 1786, 195, 3, 56, "Subsubsection",ExpressionUUID->"b00e9572-34e5-44c7-a114-fa5dc18c54f0"]
+Cell[64812, 1786, 195, 3, 56, "Subsubsection",ExpressionUUID->"b00e9572-34e5-44c7-a114-fa5dc18c54f0"],
+Cell[CellGroupData[{
+Cell[65032, 1793, 229, 5, 45, "Subsubsection",ExpressionUUID->"458cfaf2-fadd-43f5-a9c1-1c7b90c8f656"],
+Cell[65264, 1800, 282, 6, 44, "Text",ExpressionUUID->"96859ff9-bd92-437d-a96a-a6c27b35eb23"],
+Cell[CellGroupData[{
+Cell[65571, 1810, 223, 3, 37, "Input",ExpressionUUID->"a88478fb-0176-4d1b-857b-18414f5a3761"],
+Cell[65797, 1815, 2031, 61, 74, "Output",ExpressionUUID->"c4e260bb-6a15-4605-b1d3-a7ce087f2b76"]
+}, Open  ]],
+Cell[67843, 1879, 1831, 29, 389, "Text",ExpressionUUID->"179e80d9-e738-4c45-b157-60f504559681"],
+Cell[CellGroupData[{
+Cell[69699, 1912, 375, 7, 64, "Input",ExpressionUUID->"8420770f-5482-4d53-9369-5cf94fac0ab8"],
+Cell[70077, 1921, 1024, 28, 45, "Output",ExpressionUUID->"3b439a50-2c1b-48e3-b81a-19f565fd7de3"]
+}, Open  ]],
+Cell[71116, 1952, 277, 6, 44, "Text",ExpressionUUID->"6c3440c8-3648-4651-9e25-38572c061de8"],
+Cell[CellGroupData[{
+Cell[71418, 1962, 214, 3, 37, "Input",ExpressionUUID->"c2711819-5294-4a75-ab84-2d27845de0e8"],
+Cell[71635, 1967, 2236, 60, 101, "Output",ExpressionUUID->"404df3b4-1146-4cb5-9c54-58261eda872a"]
+}, Open  ]],
+Cell[73886, 2030, 315, 7, 44, "Text",ExpressionUUID->"f2a44c0e-86ce-4fe5-8f6a-d27618f86305"],
+Cell[CellGroupData[{
+Cell[74226, 2041, 853, 21, 116, "Input",ExpressionUUID->"6c84192c-472e-4b08-9f6f-12322f7667ff"],
+Cell[75082, 2064, 1295, 37, 247, "Output",ExpressionUUID->"67afad9c-9e9c-4682-a911-2f7a8eb5b922"]
+}, Open  ]]
+}, Open  ]]
 }, Open  ]]
 }, Open  ]]
 }, Open  ]]
