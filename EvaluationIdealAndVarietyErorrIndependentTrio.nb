@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[     31811,        928]
-NotebookOptionsPosition[     29780,        885]
-NotebookOutlinePosition[     30228,        903]
-CellTagsIndexPosition[     30185,        900]
+NotebookDataLength[     47902,       1333]
+NotebookOptionsPosition[     44546,       1268]
+NotebookOutlinePosition[     44994,       1286]
+CellTagsIndexPosition[     44951,       1283]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -871,20 +871,403 @@ sample items, for example.\
  CellChangeTimes->{{3.879489720554055*^9, 3.8794898520643253`*^9}, {
   3.8794898956654577`*^9, 3.8794901040361147`*^9}, {3.879490138563158*^9, 
   3.879490143812853*^9}},ExpressionUUID->"c6921f84-0952-411c-bd4c-\
-2ec1227b70bb"],
+2ec1227b70bb"]
+}, Open  ]],
+
+Cell[CellGroupData[{
 
 Cell["\<\
 The evaluation variety of three error independent binary classifiers\
-\>", "Subsubsection",
+\>", "Subsection",
  CellChangeTimes->{{3.8794901609454803`*^9, 
   3.879490191938344*^9}},ExpressionUUID->"952d73fb-ffe1-4f30-b632-\
-2751d60469b8"]
+2751d60469b8"],
+
+Cell["\<\
+The goal of algebraic evaluation is to obtain \[OpenCurlyDoubleQuote]grades\
+\[CloseCurlyDoubleQuote] for the noisy judges on unlabeled data. We know the \
+types of grades we want. We want their exact grades. Not spreads of where we \
+think their grade is - no probabilistic solutions! That is not quite what we \
+get in algebraic evaluation. The mathematical object you get as a grade is \
+actually a geometric object in sample statistics space. The true grade lies \
+on that geometric object. Mathematicians call the geometrical objects defined \
+by polynomials - varieties. You will see that for error-independent binary \
+classifiers that geometric object is almost what we want - a collection of \
+two points. For correlated classifiers those points \
+\[OpenCurlyDoubleQuote]bloom out\[CloseCurlyDoubleQuote]. It is an unsolved \
+problem in algebraic evaluation to characterize the surface for correlated \
+classifiers - but it does exist! The evaluation ideal for any set of \
+correlated classifiers can be written down and it defines, by construction, \
+an evaluation variety that is guaranteed to contain the true evaluation point \
+for the classifiers. All that is left when you build the evaluation ideal is \
+to figure out what that surface is and whether it would be useful to your AI \
+safety task.\
+\>", "Text",
+ CellChangeTimes->{{3.879657045981392*^9, 
+  3.879657562292131*^9}},ExpressionUUID->"e848c97a-cbd6-4562-bfc0-\
+ea38be34ae2e"],
+
+Cell[CellGroupData[{
+
+Cell["A quick look at evaluation", "Subsubsection",
+ CellChangeTimes->{{3.879657582108775*^9, 
+  3.879657620138989*^9}},ExpressionUUID->"0715499f-bd76-4a66-970d-\
+b2383d41263c"],
+
+Cell["\<\
+Before continuing to present the formalism of algebraic evaluation, let\
+\[CloseCurlyQuote]s do a quick end run to our goal - the grade for noisy \
+binary classifiers. I\[CloseCurlyQuote]ll use the UCI Adult run that can be \
+found in the Python code - AlgebraicEvaluation.py. The input to algebraic \
+evaluation in our current application is the frequency of voting patterns by \
+the classifiers. Here is how it looked for a single run of three binary \
+classifiers on the UCI Adult dataset.\
+\>", "Text",
+ CellChangeTimes->{{3.879657627510211*^9, 
+  3.879657816727069*^9}},ExpressionUUID->"72532dfa-b80b-496c-b932-\
+be6e02db66ae"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"singleEvaluationUCIAdult", " ", "=", " ", 
+  RowBox[{"\[LeftAssociation]", 
+   RowBox[{
+    RowBox[{"0", "\[Rule]", 
+     RowBox[{"\[LeftAssociation]", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"0", ",", "0", ",", "0"}], "}"}], "\[Rule]", "715"}], ",", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"0", ",", "0", ",", "1"}], "}"}], "\[Rule]", "161"}], ",", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"0", ",", "1", ",", "0"}], "}"}], "\[Rule]", "2406"}], ",", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"0", ",", "1", ",", "1"}], "}"}], "\[Rule]", "455"}], ",", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"1", ",", "0", ",", "0"}], "}"}], "\[Rule]", "290"}], ",", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"1", ",", "0", ",", "1"}], "}"}], "\[Rule]", "94"}], ",", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"1", ",", "1", ",", "0"}], "}"}], "\[Rule]", "1335"}], ",", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"1", ",", "1", ",", "1"}], "}"}], "\[Rule]", "231"}]}], 
+      "\[RightAssociation]"}]}], ",", 
+    RowBox[{"1", "\[Rule]", 
+     RowBox[{"\[LeftAssociation]", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"0", ",", "0", ",", "0"}], "}"}], "\[Rule]", "271"}], ",", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"0", ",", "0", ",", "1"}], "}"}], "\[Rule]", "469"}], ",", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"0", ",", "1", ",", "0"}], "}"}], "\[Rule]", "3395"}], ",", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"0", ",", "1", ",", "1"}], "}"}], "\[Rule]", "7517"}], ",", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"1", ",", "0", ",", "0"}], "}"}], "\[Rule]", "272"}], ",", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"1", ",", "0", ",", "1"}], "}"}], "\[Rule]", "399"}], ",", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"1", ",", "1", ",", "0"}], "}"}], "\[Rule]", "6377"}], ",", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"1", ",", "1", ",", "1"}], "}"}], "\[Rule]", "12455"}]}], 
+      "\[RightAssociation]"}]}]}], "\[RightAssociation]"}]}]], "Input",
+ CellChangeTimes->{{3.879657926000263*^9, 3.8796579367358437`*^9}},
+ CellLabel->
+  "In[3169]:=",ExpressionUUID->"8506ac0d-d695-4f48-93af-2780a059e8c6"],
+
+Cell[BoxData[
+ RowBox[{"\[LeftAssociation]", 
+  RowBox[{
+   RowBox[{"0", "\[Rule]", 
+    RowBox[{"\[LeftAssociation]", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"0", ",", "0", ",", "0"}], "}"}], "\[Rule]", "715"}], ",", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"0", ",", "0", ",", "1"}], "}"}], "\[Rule]", "161"}], ",", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"0", ",", "1", ",", "0"}], "}"}], "\[Rule]", "2406"}], ",", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"0", ",", "1", ",", "1"}], "}"}], "\[Rule]", "455"}], ",", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"1", ",", "0", ",", "0"}], "}"}], "\[Rule]", "290"}], ",", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"1", ",", "0", ",", "1"}], "}"}], "\[Rule]", "94"}], ",", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"1", ",", "1", ",", "0"}], "}"}], "\[Rule]", "1335"}], ",", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"1", ",", "1", ",", "1"}], "}"}], "\[Rule]", "231"}]}], 
+     "\[RightAssociation]"}]}], ",", 
+   RowBox[{"1", "\[Rule]", 
+    RowBox[{"\[LeftAssociation]", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"0", ",", "0", ",", "0"}], "}"}], "\[Rule]", "271"}], ",", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"0", ",", "0", ",", "1"}], "}"}], "\[Rule]", "469"}], ",", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"0", ",", "1", ",", "0"}], "}"}], "\[Rule]", "3395"}], ",", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"0", ",", "1", ",", "1"}], "}"}], "\[Rule]", "7517"}], ",", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"1", ",", "0", ",", "0"}], "}"}], "\[Rule]", "272"}], ",", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"1", ",", "0", ",", "1"}], "}"}], "\[Rule]", "399"}], ",", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"1", ",", "1", ",", "0"}], "}"}], "\[Rule]", "6377"}], ",", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"1", ",", "1", ",", "1"}], "}"}], "\[Rule]", "12455"}]}], 
+     "\[RightAssociation]"}]}]}], "\[RightAssociation]"}]], "Output",
+ CellChangeTimes->{3.879657953705823*^9},
+ CellLabel->
+  "Out[3169]=",ExpressionUUID->"fd5ad141-270f-4d3c-a628-c4d00e257bab"]
+}, Open  ]],
+
+Cell["\<\
+This is not a randomly selected run of binary classifiers on the UCI Adult \
+dataset. It is being used for various reasons. It was engineered to be as \
+close to error independence as possible.  This will be discussed more later. \
+For now, let\[CloseCurlyQuote]s verify that, in fact, the classifiers are \
+near error independence in this sample.\
+\>", "Text",
+ CellChangeTimes->{{3.8796579781760817`*^9, 3.879658050961401*^9}, {
+  3.879658087495729*^9, 
+  3.879658135992023*^9}},ExpressionUUID->"53622335-0b48-4a47-905e-\
+bb58945fecd9"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"evaluationGroundTruth", " ", "=", " ", 
+  RowBox[{"GTClassifiers", "[", "singleEvaluationUCIAdult", "]"}]}]], "Input",\
+
+ CellChangeTimes->{{3.879658224646476*^9, 3.879658251232798*^9}},
+ CellLabel->
+  "In[3220]:=",ExpressionUUID->"bfcb247c-358a-4f3f-a429-2b911b0f067c"],
+
+Cell[BoxData[
+ RowBox[{"\[LeftAssociation]", 
+  RowBox[{
+   RowBox[{
+    SubscriptBox["P", "\[Alpha]"], "\[Rule]", 
+    FractionBox["5687", "36842"]}], ",", 
+   RowBox[{
+    SubscriptBox["P", 
+     RowBox[{"1", ",", "\[Alpha]"}]], "\[Rule]", 
+    FractionBox["3737", "5687"]}], ",", 
+   RowBox[{
+    SubscriptBox["P", 
+     RowBox[{"2", ",", "\[Alpha]"}]], "\[Rule]", 
+    FractionBox["1260", "5687"]}], ",", 
+   RowBox[{
+    SubscriptBox["P", 
+     RowBox[{"3", ",", "\[Alpha]"}]], "\[Rule]", 
+    FractionBox["4746", "5687"]}], ",", 
+   RowBox[{
+    SubscriptBox["P", 
+     RowBox[{"1", ",", "\[Beta]"}]], "\[Rule]", 
+    FractionBox["6501", "10385"]}], ",", 
+   RowBox[{
+    SubscriptBox["P", 
+     RowBox[{"2", ",", "\[Beta]"}]], "\[Rule]", 
+    FractionBox["29744", "31155"]}], ",", 
+   RowBox[{
+    SubscriptBox["P", 
+     RowBox[{"3", ",", "\[Beta]"}]], "\[Rule]", 
+    FractionBox["4168", "6231"]}], ",", 
+   RowBox[{
+    SubscriptBox["\[CapitalGamma]", 
+     RowBox[{"1", ",", "2", ",", "\[Alpha]"}]], "\[Rule]", 
+    FractionBox["273192", "32341969"]}], ",", 
+   RowBox[{
+    SubscriptBox["\[CapitalGamma]", 
+     RowBox[{"1", ",", "3", ",", "\[Alpha]"}]], "\[Rule]", 
+    FractionBox["13325", "32341969"]}], ",", 
+   RowBox[{
+    SubscriptBox["\[CapitalGamma]", 
+     RowBox[{"2", ",", "3", ",", "\[Alpha]"}]], "\[Rule]", 
+    RowBox[{"-", 
+     FractionBox["264525", "32341969"]}]}], ",", 
+   RowBox[{
+    SubscriptBox["\[CapitalGamma]", 
+     RowBox[{"1", ",", "2", ",", "\[Beta]"}]], "\[Rule]", 
+    FractionBox["2204576", "323544675"]}], ",", 
+   RowBox[{
+    SubscriptBox["\[CapitalGamma]", 
+     RowBox[{"1", ",", "3", ",", "\[Beta]"}]], "\[Rule]", 
+    RowBox[{"-", 
+     FractionBox["79682", "12941787"]}]}], ",", 
+   RowBox[{
+    SubscriptBox["\[CapitalGamma]", 
+     RowBox[{"2", ",", "3", ",", "\[Beta]"}]], "\[Rule]", 
+    FractionBox["94508", "38825361"]}], ",", 
+   RowBox[{
+    SubscriptBox["\[CapitalGamma]", 
+     RowBox[{"1", ",", "2", ",", "3", ",", "\[Alpha]"}]], "\[Rule]", 
+    FractionBox["452568508", "183928777703"]}], ",", 
+   RowBox[{
+    SubscriptBox["\[CapitalGamma]", 
+     RowBox[{"1", ",", "2", ",", "3", ",", "\[Beta]"}]], "\[Rule]", 
+    RowBox[{"-", 
+     FractionBox["27265589", "134400457995"]}]}]}], 
+  "\[RightAssociation]"}]], "Output",
+ CellChangeTimes->{{3.879658234019175*^9, 3.879658258986566*^9}},
+ CellLabel->
+  "Out[3220]=",ExpressionUUID->"1208149e-cb43-4ae1-b450-d0c285a1bbbc"]
+}, Open  ]],
+
+Cell["\<\
+The evaluation ground truth is what we want. It was calculated above by \
+cheating - we have the by-label counts so we can easily compute ALL the \
+sample statistics required to explain exactly the frequency patterns we \
+observe when we DO NOT have the knowledge of the true labels. Note that the \
+evaluation ground truth are integer ratios. The exact sample statistics for \
+evaluation are a subset of the real numbers. This is crucial. This allows \
+algebraic evaluators to get closer to the true grades. Integer ratios are \
+also in the field of algebraic numbers. But the field of algebraic numbers is \
+less dense than reals!
+
+This evaluation also reminds the reader of why evaluation is easier than \
+training. There are no unknown unknowns. Evaluation computes sample \
+statistics. The space of sample statistics required to explain observable \
+voting patterns is finite and complete. You may not know what all these \
+sample statistics are, but they are all you would need to know to describe \
+the frequency of their observed decisions.
+
+It is hard to compare integer ratios so let\[CloseCurlyQuote]s get the \
+floating point approximation to the evaluation to confirm the claim that \
+these classifiers are nearly error independent.\
+\>", "Text",
+ CellChangeTimes->{{3.879658266862031*^9, 3.879658574597755*^9}, {
+  3.879658665574068*^9, 3.879658765019106*^9}, {3.8796588053923473`*^9, 
+  3.879658919613491*^9}},ExpressionUUID->"6512745a-9d1f-4a5e-b0e4-\
+c0ab49cdd87d"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"evaluationGroundTruth", "//", "N"}]], "Input",
+ CellChangeTimes->{{3.879658722392478*^9, 3.879658726101561*^9}},
+ CellLabel->
+  "In[3221]:=",ExpressionUUID->"6350e80b-2e3e-47c8-bdf6-e3e4cbdfd897"],
+
+Cell[BoxData[
+ RowBox[{"\[LeftAssociation]", 
+  RowBox[{
+   RowBox[{
+    SubscriptBox["P", "\[Alpha]"], "\[Rule]", "0.15436186960534173`"}], ",", 
+   RowBox[{
+    SubscriptBox["P", 
+     RowBox[{"1", ",", "\[Alpha]"}]], "\[Rule]", "0.6571127132055565`"}], ",", 
+   RowBox[{
+    SubscriptBox["P", 
+     RowBox[{"2", ",", "\[Alpha]"}]], "\[Rule]", "0.22155793915948654`"}], 
+   ",", 
+   RowBox[{
+    SubscriptBox["P", 
+     RowBox[{"3", ",", "\[Alpha]"}]], "\[Rule]", "0.8345349041673993`"}], ",", 
+   RowBox[{
+    SubscriptBox["P", 
+     RowBox[{"1", ",", "\[Beta]"}]], "\[Rule]", "0.625999037072701`"}], ",", 
+   RowBox[{
+    SubscriptBox["P", 
+     RowBox[{"2", ",", "\[Beta]"}]], "\[Rule]", "0.9547103193708875`"}], ",", 
+   
+   RowBox[{
+    SubscriptBox["P", 
+     RowBox[{"3", ",", "\[Beta]"}]], "\[Rule]", "0.6689134970309741`"}], ",", 
+   
+   RowBox[{
+    SubscriptBox["\[CapitalGamma]", 
+     RowBox[{"1", ",", "2", ",", "\[Alpha]"}]], "\[Rule]", 
+    "0.008446981072797392`"}], ",", 
+   RowBox[{
+    SubscriptBox["\[CapitalGamma]", 
+     RowBox[{"1", ",", "3", ",", "\[Alpha]"}]], "\[Rule]", 
+    "0.00041200336318422665`"}], ",", 
+   RowBox[{
+    SubscriptBox["\[CapitalGamma]", 
+     RowBox[{"2", ",", "3", ",", "\[Alpha]"}]], "\[Rule]", 
+    RowBox[{"-", "0.008179001099160041`"}]}], ",", 
+   RowBox[{
+    SubscriptBox["\[CapitalGamma]", 
+     RowBox[{"1", ",", "2", ",", "\[Beta]"}]], "\[Rule]", 
+    "0.0068138225424356005`"}], ",", 
+   RowBox[{
+    SubscriptBox["\[CapitalGamma]", 
+     RowBox[{"1", ",", "3", ",", "\[Beta]"}]], "\[Rule]", 
+    RowBox[{"-", "0.006156954986200901`"}]}], ",", 
+   RowBox[{
+    SubscriptBox["\[CapitalGamma]", 
+     RowBox[{"2", ",", "3", ",", "\[Beta]"}]], "\[Rule]", 
+    "0.0024341821316226785`"}], ",", 
+   RowBox[{
+    SubscriptBox["\[CapitalGamma]", 
+     RowBox[{"1", ",", "2", ",", "3", ",", "\[Alpha]"}]], "\[Rule]", 
+    "0.002460563885934084`"}], ",", 
+   RowBox[{
+    SubscriptBox["\[CapitalGamma]", 
+     RowBox[{"1", ",", "2", ",", "3", ",", "\[Beta]"}]], "\[Rule]", 
+    RowBox[{"-", "0.00020286827445940953`"}]}]}], 
+  "\[RightAssociation]"}]], "Output",
+ CellChangeTimes->{3.879658727207533*^9},
+ CellLabel->
+  "Out[3221]=",ExpressionUUID->"fbe030e8-1234-40b1-af0f-94ad29e7cf95"]
+}, Open  ]],
+
+Cell[TextData[{
+ "One can see that all the pair error correlation terms (",
+ Cell[BoxData[
+  SubscriptBox["\[CapitalGamma]", 
+   RowBox[{"i", ",", "j", ",", "label"}]]],
+  CellChangeTimes->{3.879658727207533*^9},ExpressionUUID->
+  "518a4323-a077-44ae-9e65-3a2fa9136f71"],
+ ") are less that 1% absolute."
+}], "Text",
+ CellChangeTimes->{{3.879658931584025*^9, 
+  3.879659056007758*^9}},ExpressionUUID->"533d3909-2dc0-4461-b040-\
+0540c6e6b1a6"]
+}, Open  ]]
 }, Open  ]]
 }, Open  ]]
 }, Open  ]]
 },
 WindowSize->{1437, 829},
-WindowMargins->{{28, Automatic}, {49, Automatic}},
+WindowMargins->{{17, Automatic}, {Automatic, 35}},
 PrintingCopies->1,
 PrintingPageRange->{1, Automatic},
 FrontEndVersion->"13.1 for Mac OS X ARM (64-bit) (June 16, 2022)",
@@ -925,8 +1308,30 @@ Cell[CellGroupData[{
 Cell[21144, 623, 220, 5, 37, "Input",ExpressionUUID->"2dfe4717-a495-4e76-9f34-dafbd736f7d3"],
 Cell[21367, 630, 7020, 222, 150, "Output",ExpressionUUID->"054b0565-2374-4169-b4c0-ae525c4fa3bf"]
 }, Open  ]],
-Cell[28402, 855, 1106, 18, 217, "Text",ExpressionUUID->"c6921f84-0952-411c-bd4c-2ec1227b70bb"],
-Cell[29511, 875, 229, 5, 56, "Subsubsection",ExpressionUUID->"952d73fb-ffe1-4f30-b632-2751d60469b8"]
+Cell[28402, 855, 1106, 18, 217, "Text",ExpressionUUID->"c6921f84-0952-411c-bd4c-2ec1227b70bb"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[29545, 878, 226, 5, 67, "Subsection",ExpressionUUID->"952d73fb-ffe1-4f30-b632-2751d60469b8"],
+Cell[29774, 885, 1461, 22, 246, "Text",ExpressionUUID->"e848c97a-cbd6-4562-bfc0-ea38be34ae2e"],
+Cell[CellGroupData[{
+Cell[31260, 911, 177, 3, 56, "Subsubsection",ExpressionUUID->"0715499f-bd76-4a66-970d-b2383d41263c"],
+Cell[31440, 916, 642, 11, 102, "Text",ExpressionUUID->"72532dfa-b80b-496c-b932-be6e02db66ae"],
+Cell[CellGroupData[{
+Cell[32107, 931, 2374, 62, 142, "Input",ExpressionUUID->"8506ac0d-d695-4f48-93af-2780a059e8c6"],
+Cell[34484, 995, 2236, 61, 139, "Output",ExpressionUUID->"fd5ad141-270f-4d3c-a628-c4d00e257bab"]
+}, Open  ]],
+Cell[36735, 1059, 548, 10, 73, "Text",ExpressionUUID->"53622335-0b48-4a47-905e-bb58945fecd9"],
+Cell[CellGroupData[{
+Cell[37308, 1073, 294, 6, 37, "Input",ExpressionUUID->"bfcb247c-358a-4f3f-a429-2b911b0f067c"],
+Cell[37605, 1081, 2437, 68, 125, "Output",ExpressionUUID->"1208149e-cb43-4ae1-b450-d0c285a1bbbc"]
+}, Open  ]],
+Cell[40057, 1152, 1492, 25, 332, "Text",ExpressionUUID->"6512745a-9d1f-4a5e-b0e4-c0ab49cdd87d"],
+Cell[CellGroupData[{
+Cell[41574, 1181, 220, 4, 37, "Input",ExpressionUUID->"6350e80b-2e3e-47c8-bdf6-e3e4cbdfd897"],
+Cell[41797, 1187, 2241, 61, 119, "Output",ExpressionUUID->"fbe030e8-1234-40b1-af0f-94ad29e7cf95"]
+}, Open  ]],
+Cell[44053, 1251, 441, 11, 47, "Text",ExpressionUUID->"533d3909-2dc0-4461-b040-0540c6e6b1a6"]
+}, Open  ]]
 }, Open  ]]
 }, Open  ]]
 }, Open  ]]
