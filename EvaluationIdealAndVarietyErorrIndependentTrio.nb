@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[     69791,       1878]
-NotebookOptionsPosition[     64177,       1778]
-NotebookOutlinePosition[     64625,       1796]
-CellTagsIndexPosition[     64582,       1793]
+NotebookDataLength[     70764,       1895]
+NotebookOptionsPosition[     65047,       1794]
+NotebookOutlinePosition[     65495,       1812]
+CellTagsIndexPosition[     65452,       1809]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -1763,15 +1763,31 @@ signal processing engineering, you understand how decoding ambiguity in \
 algebraic evaluation is a non-problem for engineers. This point is hard for \
 computer science academics to get. Later, I\[CloseCurlyQuote]ll return to the \
 practical significance that algebraic evaluation enables error-correcting \
-algorithms. For now note that I have so far shown two connections of \
-Algebraic Evaluation with three other areas of research interest: algebraic \
-geometry, data streaming algorithms and now error-correcting codes. I am not \
-done. Algebraic evaluation has more goodies in store for us.\
+algorithms. For now note that I have so far shown connections of Algebraic \
+Evaluation with three other areas of research interest: algebraic geometry, \
+data streaming algorithms and now error-correcting codes. I am not done. \
+Algebraic evaluation has more goodies in store for us.
+
+Algebraic evaluation connects mathematical field theory to AI safety. The \
+number field you use to carry your AI safety computations matters. Algebraic \
+numbers are more useful than real numbers. The evaluation above is a simple \
+demonstration of this. The error independent evaluation model must be wrong. \
+We can tell that it is wrong because it did not give us integer ratios. There \
+are unresolved square roots in its output. This is gold in safety engineering \
+contexts.\
 \>", "Text",
- CellChangeTimes->{{3.8796621250191307`*^9, 
-  3.87966273228714*^9}},ExpressionUUID->"15c484c8-cdb7-4a49-bf48-\
+ CellChangeTimes->{{3.8796621250191307`*^9, 3.87966273228714*^9}, {
+  3.879663069018708*^9, 3.879663075134262*^9}, {3.879663429719455*^9, 
+  3.879663432986455*^9}, {3.879663574132213*^9, 3.879663798468748*^9}, {
+  3.879663840030422*^9, 
+  3.879663847076414*^9}},ExpressionUUID->"15c484c8-cdb7-4a49-bf48-\
 175569cf280d"]
-}, Open  ]]
+}, Open  ]],
+
+Cell["Knowing that you are flying blind is priceless", "Subsubsection",
+ CellChangeTimes->{{3.8796638531851*^9, 
+  3.879663860635689*^9}},ExpressionUUID->"b00e9572-34e5-44c7-a114-\
+fa5dc18c54f0"]
 }, Open  ]]
 }, Open  ]]
 }, Open  ]]
@@ -1875,8 +1891,9 @@ Cell[CellGroupData[{
 Cell[61548, 1719, 334, 8, 37, "Input",ExpressionUUID->"5bbe74b4-842e-47e4-aace-6c7c3f750690"],
 Cell[61885, 1729, 511, 14, 65, "Output",ExpressionUUID->"4dd02ff8-c627-4d05-af3c-5573fa23aead"]
 }, Open  ]],
-Cell[62411, 1746, 1714, 26, 332, "Text",ExpressionUUID->"15c484c8-cdb7-4a49-bf48-175569cf280d"]
-}, Open  ]]
+Cell[62411, 1746, 2386, 37, 447, "Text",ExpressionUUID->"15c484c8-cdb7-4a49-bf48-175569cf280d"]
+}, Open  ]],
+Cell[64812, 1786, 195, 3, 56, "Subsubsection",ExpressionUUID->"b00e9572-34e5-44c7-a114-fa5dc18c54f0"]
 }, Open  ]]
 }, Open  ]]
 }, Open  ]]
