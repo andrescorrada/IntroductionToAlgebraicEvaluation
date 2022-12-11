@@ -33,7 +33,7 @@ intelligence that would prevent us from doing this?
 
 Since this repository will contain code that carries out purely algebraic
 evaluation of binary classifiers, it cannot be the case that the only way
-we can evaluate intelligent agents is via the use of an ever more
+we can evaluate intelligent agents is via the use of ever more
 intelligent ones.
 
 <p>
