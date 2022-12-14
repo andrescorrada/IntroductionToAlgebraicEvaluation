@@ -19,11 +19,12 @@ ML Safety Workshop is an exemplar of this myopic theoretical focus on just
 one side of learning. Evaluation and its simplicity has been lost in a morass
 of theory about training.
 
-A safety analogy in another technological realm may clarify the stupidity of
-this focus on just one side of the learning problem. Consider the humble role
-of thermometers in cars. Temperature thermometers are not that smart. They
-just measure and output a single number. But they are useful because they can
-be hooked to a car's computer and warn us that our engine is overheating.
+A safety analogy in another technological realm may clarify why this
+focus on just one side of the learning problem is needlesly narrow.
+Consider the humble role of thermometers in cars. Temperature thermometers
+are not that smart. They just measure and output a single number. But they are
+useful because they can be hooked to a car's computer and warn us that our
+engine is overheating.
 
 Where are the evaluation thermometers that can do the same for measuring the
 quality of the decisions made by noisy judges? What is special about
