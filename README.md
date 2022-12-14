@@ -51,7 +51,7 @@ If *only-intelligent* evaluation is possible then we truly face a risky
 AI future. We would be condemmed to a technological arms race with ourselves.
 Faced with having to monitor AI agents on data that is unlabeled - the hard
 task of evaluation upon system deployment - we would have to invent succesively
-smarter AI agents to monitor stupidier ones.
+smarter AI agents to monitor stupider ones.
 
 This is a pervese race of ``turtles all the way up''. We would be forced
 to build ever smarter agents that could very well turn malicious or otherwise

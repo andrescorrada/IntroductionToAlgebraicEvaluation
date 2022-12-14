@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[    120471,       3182]
-NotebookOptionsPosition[    111832,       3036]
-NotebookOutlinePosition[    112280,       3054]
-CellTagsIndexPosition[    112237,       3051]
+NotebookDataLength[    156025,       4171]
+NotebookOptionsPosition[    145387,       3993]
+NotebookOutlinePosition[    145835,       4011]
+CellTagsIndexPosition[    145792,       4008]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -3031,6 +3031,963 @@ universally guaranteed to contain the true evaluation values.\
 5d9a25f5b73c"]
 }, Open  ]]
 }, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Computing the evaluation variety corresponding to the three error-independent \
+evaluation ideal\
+\>", "Section",
+ CellChangeTimes->{{3.879834119838615*^9, 
+  3.879834155202589*^9}},ExpressionUUID->"77d58688-39c8-44ca-a1de-\
+fad904ad0305"],
+
+Cell["\<\
+We now come to the hard part of this notebook. One full of the math and \
+terminology of algebraic geometry. This is a mathematical topic that few in \
+the AI community know. Likewise in the statistics community. But there is an \
+exception in Statistics Land. There is a well defined field concerned with \
+the use of algebraic geometry - algebraic statistics. Algebraic evaluation is \
+a sister to algebraic statistics. The former deals with the algebraic \
+geometry of evaluating noisy judges on finite samples, the later, with the \
+algebraic geometry of the mathematics of infinite samples. Given their \
+affinity, in the future Algebraic Statistics books will contain chapters on \
+the topics discussed here if they are concerned with the algebraic geometry \
+of evaluating noisy judges.
+
+Our goal is an algebraic formulation of the variety that allows us to \
+understand its geometrical structure. The way to do is to compute the \
+Groebner basis for the evaluation ideal. So let\[CloseCurlyQuote]s do it. As \
+you\[CloseCurlyQuote]ll see, it is going to be crazy long.\
+\>", "Text",
+ CellChangeTimes->{{3.879834161142749*^9, 3.879834275015459*^9}, {
+  3.879879696520135*^9, 
+  3.879880004802175*^9}},ExpressionUUID->"92f8f28e-eb11-404c-ba1d-\
+3318910c7efe"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"gb", "=", 
+  RowBox[{"GroebnerBasis", "[", 
+   RowBox[{
+    RowBox[{"MakeIndependentVotingIdeal", "[", 
+     RowBox[{"{", 
+      RowBox[{"1", ",", "2", ",", "3"}], "}"}], "]"}], ",", 
+    "evaluationVariables"}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.8798800671558247`*^9, 3.879880080314064*^9}, {
+  3.879880153112959*^9, 3.8798801693316927`*^9}},
+ CellLabel->
+  "In[332]:=",ExpressionUUID->"44de2181-c25e-4faa-aa30-db331c18a4eb"],
+
+Cell[BoxData[
+ TemplateBox[<|"shortenedBoxes" -> TagBox[
+     RowBox[{"{", 
+       RowBox[{
+         RowBox[{
+           RowBox[{"-", "1"}], "+", 
+           SubscriptBox["f", 
+            RowBox[{"\[Alpha]", ",", "\[Alpha]", ",", "\[Alpha]"}]], "+", 
+           SubscriptBox["f", 
+            RowBox[{"\[Alpha]", ",", "\[Alpha]", ",", "\[Beta]"}]], "+", 
+           SubscriptBox["f", 
+            RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Alpha]"}]], "+", 
+           SubscriptBox["f", 
+            RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Beta]"}]], "+", 
+           SubscriptBox["f", 
+            RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Alpha]"}]], "+", 
+           SubscriptBox["f", 
+            RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Beta]"}]], "+", 
+           SubscriptBox["f", 
+            RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}]], "+", 
+           SubscriptBox["f", 
+            RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], ",", 
+         TemplateBox[{"39"}, "OutputSizeLimit`Skeleton"], ",", 
+         RowBox[{
+           RowBox[{"-", 
+             SubscriptBox["P", "\[Alpha]"]}], "+", 
+           RowBox[{
+             SubscriptBox["P", "\[Alpha]"], " ", 
+             SubscriptBox["P", 
+              RowBox[{"1", ",", "\[Alpha]"}]]}], "-", 
+           SubscriptBox["P", 
+            RowBox[{"1", ",", "\[Beta]"}]], "+", 
+           RowBox[{
+             SubscriptBox["P", "\[Alpha]"], " ", 
+             SubscriptBox["P", 
+              RowBox[{"1", ",", "\[Beta]"}]]}], "+", 
+           SubscriptBox["f", 
+            RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Alpha]"}]], "+", 
+           SubscriptBox["f", 
+            RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Beta]"}]], "+", 
+           SubscriptBox["f", 
+            RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}]], "+", 
+           SubscriptBox["f", 
+            RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}]}], "}"}], 
+     Short[#, 5]& ], "line" -> 332, "sessionID" -> 27035643811442480917, 
+   "byteCount" -> 1024864, "size" -> 5, "stored" -> False, "expr" -> 
+   Missing["NotStored"], "wrap" -> OutputSizeLimit`Defer, "version" -> 1|>,
+  "OutputSizeLimitTemplate"]], "Output",
+ CellChangeTimes->{{3.879880161673156*^9, 3.879880180625537*^9}},
+ CellLabel->
+  "Out[332]=",ExpressionUUID->"266434fa-c46e-4f0b-b802-8d7305ddc6d8"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Understanding the Groebner basis for three error-independent binary \
+classifiers\
+\>", "Subsection",
+ CellChangeTimes->{{3.879880207049205*^9, 3.879880222534128*^9}, {
+  3.8798802569953947`*^9, 
+  3.879880265263077*^9}},ExpressionUUID->"f07b0cee-5c3e-4bf1-8c3e-\
+d81cedff00ad"],
+
+Cell["\<\
+It is going to take some work to figure out the algebraic mess we get from \
+the Groebner basis computation. This is the hard work that will result in \
+simple algebraic expressions making possible the computation of the \
+independent algebraic evaluator in Python code. Let\[CloseCurlyQuote]s start \
+simple and look at the very first equation returned by Mathematica\
+\[CloseCurlyQuote]s computation,\
+\>", "Text",
+ CellChangeTimes->{{3.879920869437954*^9, 3.879920983170568*^9}, {
+  3.8799210154380493`*^9, 
+  3.8799210524076633`*^9}},ExpressionUUID->"b734fde1-4f6a-4ab0-bace-\
+fe1e7f048390"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"First", "@", "gb"}]], "Input",
+ CellChangeTimes->{{3.879920989143959*^9, 3.879920990660632*^9}},
+ CellLabel->
+  "In[333]:=",ExpressionUUID->"5f4f8626-0b0f-4768-98b9-6cf980a6b5e7"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"-", "1"}], "+", 
+  SubscriptBox["f", 
+   RowBox[{"\[Alpha]", ",", "\[Alpha]", ",", "\[Alpha]"}]], "+", 
+  SubscriptBox["f", 
+   RowBox[{"\[Alpha]", ",", "\[Alpha]", ",", "\[Beta]"}]], "+", 
+  SubscriptBox["f", 
+   RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Alpha]"}]], "+", 
+  SubscriptBox["f", 
+   RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Beta]"}]], "+", 
+  SubscriptBox["f", 
+   RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Alpha]"}]], "+", 
+  SubscriptBox["f", 
+   RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Beta]"}]], "+", 
+  SubscriptBox["f", 
+   RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}]], "+", 
+  SubscriptBox["f", 
+   RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}]], "Output",
+ CellChangeTimes->{3.8799209927798843`*^9},
+ CellLabel->
+  "Out[333]=",ExpressionUUID->"688710dd-257e-44d6-bff4-b4feb475db7f"]
+}, Open  ]],
+
+Cell["\<\
+When  we constructed the evaluation ideal for the classifiers, we never told \
+Mathematica what those voting pattern frequencies meant. The algebraic \
+computation has no semantic meaning except its own algebra. It is us who are \
+applying that mathematics in a specific scientific context - the evaluation \
+of noisy judges on unlabeled test data. Because those frequencies were \
+constructed from the voting patterns of the judges, they must sum to one. \
+This first equation is essentially asserting that fact as an essential \
+mathematical requirement for there to actually exist ANY surface in sample \
+parameter space. At the same time, the mathematics does not require that any \
+of the f\[CloseCurlyQuote]s be positive. This is an additional constraint \
+that relates to the application context of this algebra - counts of observed \
+events cannot be negative.
+
+Let\[CloseCurlyQuote]s take a peek at all the equations at once by making a \
+survey of the sample statistics involved in each equation in the computed \
+Groebner basis.\
+\>", "Text",
+ CellChangeTimes->{{3.879921065411523*^9, 3.879921080150764*^9}, {
+  3.8799212080794*^9, 3.87992134043311*^9}, {3.879921424728938*^9, 
+  3.8799215637240467`*^9}, {3.879997930137752*^9, 
+  3.879998105327428*^9}},ExpressionUUID->"6baa8055-735a-4d8c-af66-\
+4eb740521ddc"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"Map", "[", 
+    RowBox[{"Variables", ",", " ", "gb"}], "]"}], "//", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"Map", "[", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"Cases", "[", 
+        RowBox[{"#", ",", 
+         RowBox[{"Except", "[", 
+          SubscriptBox["f", "__"], "]"}]}], "]"}], "&"}], ",", "#"}], "]"}], 
+    "&"}]}], "//", "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{"Column", "[", 
+    RowBox[{"#", ",", 
+     RowBox[{"Dividers", "->", "All"}]}], "]"}], "&"}]}]], "Input",
+ CellChangeTimes->{{3.87999810947911*^9, 3.87999815860061*^9}},
+ CellLabel->
+  "In[334]:=",ExpressionUUID->"15d97d0d-857c-41e9-b039-5e90c81cb23d"],
+
+Cell[BoxData[
+ TagBox[GridBox[{
+    {
+     RowBox[{"{", "}"}]},
+    {
+     RowBox[{"{", 
+      SubscriptBox["P", 
+       RowBox[{"3", ",", "\[Beta]"}]], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"3", ",", "\[Alpha]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"3", ",", "\[Beta]"}]]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"3", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"3", ",", "\[Alpha]"}]]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"2", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"3", ",", "\[Beta]"}]]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"2", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"3", ",", "\[Beta]"}]]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"2", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"3", ",", "\[Beta]"}]]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"2", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"3", ",", "\[Alpha]"}]]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"2", ",", "\[Alpha]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"3", ",", "\[Beta]"}]]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"3", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"2", ",", "\[Alpha]"}]]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"2", ",", "\[Alpha]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"3", ",", "\[Alpha]"}]]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"2", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"2", ",", "\[Alpha]"}]]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"2", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"2", ",", "\[Alpha]"}]]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"1", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"3", ",", "\[Beta]"}]]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"1", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"3", ",", "\[Beta]"}]]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"1", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"3", ",", "\[Beta]"}]]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"1", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"3", ",", "\[Alpha]"}]]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"1", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"2", ",", "\[Beta]"}]]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"1", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"2", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"3", ",", "\[Beta]"}]]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"1", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"2", ",", "\[Alpha]"}]]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"1", ",", "\[Alpha]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"3", ",", "\[Beta]"}]]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"3", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"1", ",", "\[Alpha]"}]]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"1", ",", "\[Alpha]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"3", ",", "\[Alpha]"}]]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"2", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"1", ",", "\[Alpha]"}]]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"1", ",", "\[Alpha]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"2", ",", "\[Alpha]"}]]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"1", ",", "\[Alpha]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"2", ",", "\[Alpha]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"3", ",", "\[Alpha]"}]]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"1", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"1", ",", "\[Alpha]"}]]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"1", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"1", ",", "\[Alpha]"}]]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"3", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", "\[Alpha]"]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"3", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", "\[Alpha]"]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"3", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", "\[Alpha]"]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", "\[Alpha]"], ",", 
+       SubscriptBox["P", 
+        RowBox[{"3", ",", "\[Alpha]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"3", ",", "\[Beta]"}]]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"3", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"2", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", "\[Alpha]"]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"3", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"2", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", "\[Alpha]"]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"2", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"3", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", "\[Alpha]"]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", "\[Alpha]"], ",", 
+       SubscriptBox["P", 
+        RowBox[{"2", ",", "\[Alpha]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"2", ",", "\[Beta]"}]]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"1", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", "\[Alpha]"], ",", 
+       SubscriptBox["P", 
+        RowBox[{"3", ",", "\[Beta]"}]]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"1", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", "\[Alpha]"], ",", 
+       SubscriptBox["P", 
+        RowBox[{"3", ",", "\[Beta]"}]]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"1", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"3", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", "\[Alpha]"]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", 
+        RowBox[{"1", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"2", ",", "\[Beta]"}]], ",", 
+       SubscriptBox["P", "\[Alpha]"]}], "}"}]},
+    {
+     RowBox[{"{", 
+      RowBox[{
+       SubscriptBox["P", "\[Alpha]"], ",", 
+       SubscriptBox["P", 
+        RowBox[{"1", ",", "\[Alpha]"}]], ",", 
+       SubscriptBox["P", 
+        RowBox[{"1", ",", "\[Beta]"}]]}], "}"}]}
+   },
+   DefaultBaseStyle->"Column",
+   GridBoxAlignment->{"Columns" -> {{Left}}},
+   GridBoxDividers->{"Columns" -> {{True}}, "Rows" -> {{True}}},
+   GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}],
+  "Column"]], "Output",
+ CellChangeTimes->{3.8799981660948257`*^9},
+ CellLabel->
+  "Out[334]=",ExpressionUUID->"679db61d-d4ff-48cf-8134-76e20e5c0314"]
+}, Open  ]],
+
+Cell[TextData[{
+ "Interesting, the 2nd equation involves ",
+ Cell[BoxData[
+  SubscriptBox["P", 
+   RowBox[{"3", ",", "\[Beta]"}]]],
+  CellChangeTimes->{3.8799981660948257`*^9},ExpressionUUID->
+  "28cfebf2-e0e7-44c6-80cf-167fac7b1b9d"],
+ " alone. This means that there is a polynomial for it that we can use to see \
+how ",
+ Cell[BoxData[
+  SubscriptBox["P", 
+   RowBox[{"3", ",", "\[Beta]"}]]],
+  CellChangeTimes->{3.8799981660948257`*^9},ExpressionUUID->
+  "f666ad53-4105-4930-b6e2-edfe9950998e"],
+ " varies along the evaluation variety. Here is the polynomial."
+}], "Text",
+ CellChangeTimes->{{3.879998229209175*^9, 
+  3.879998328512178*^9}},ExpressionUUID->"88a4e0a6-4551-4cf3-8f79-\
+ed2afe68c4f5"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"gb", "[", 
+  RowBox[{"[", "2", "]"}], "]"}]], "Input",
+ CellChangeTimes->{{3.879998333224716*^9, 3.8799983348932533`*^9}},
+ CellLabel->
+  "In[335]:=",ExpressionUUID->"c1d10d70-3727-473f-9601-67df8db610bc"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   SubsuperscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}], "2"], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Alpha]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Alpha]"}]]}], "-", 
+  RowBox[{
+   SubscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Beta]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Alpha]"}]]}], "+", 
+  RowBox[{
+   SubsuperscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}], "2"], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Beta]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Alpha]"}]]}], "-", 
+  RowBox[{
+   SubscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Alpha]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Beta]"}]]}], "+", 
+  RowBox[{
+   SubsuperscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}], "2"], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Alpha]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Beta]"}]]}], "+", 
+  RowBox[{
+   SubscriptBox["f", 
+    RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Beta]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Beta]"}]]}], "-", 
+  RowBox[{"2", " ", 
+   SubscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Beta]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Beta]"}]]}], "+", 
+  RowBox[{
+   SubsuperscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}], "2"], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Beta]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Beta]"}]]}], "-", 
+  RowBox[{
+   SubsuperscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}], "2"], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}]]}], "+", 
+  RowBox[{
+   SubscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Alpha]", ",", "\[Alpha]", ",", "\[Beta]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}]]}], "+", 
+  RowBox[{
+   SubsuperscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}], "2"], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Alpha]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}]]}], "+", 
+  RowBox[{
+   SubsuperscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}], "2"], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Beta]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}]]}], "+", 
+  RowBox[{
+   SubsuperscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}], "2"], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Alpha]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}]]}], "+", 
+  RowBox[{
+   SubsuperscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}], "2"], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Beta]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}]]}], "+", 
+  RowBox[{
+   SubsuperscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}], "2"], " ", 
+   SubsuperscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}], "2"]}], "+", 
+  RowBox[{
+   SubscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "-", 
+  RowBox[{
+   SubsuperscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}], "2"], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "-", 
+  RowBox[{
+   SubscriptBox["f", 
+    RowBox[{"\[Alpha]", ",", "\[Alpha]", ",", "\[Beta]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "+", 
+  RowBox[{
+   SubscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Alpha]", ",", "\[Alpha]", ",", "\[Beta]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "-", 
+  RowBox[{
+   SubscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Alpha]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "+", 
+  RowBox[{
+   SubsuperscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}], "2"], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Alpha]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "-", 
+  RowBox[{
+   SubscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Beta]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "+", 
+  RowBox[{
+   SubsuperscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}], "2"], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Beta]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "-", 
+  RowBox[{
+   SubscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Alpha]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "+", 
+  RowBox[{
+   SubsuperscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}], "2"], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Alpha]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "-", 
+  RowBox[{
+   SubscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Beta]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "+", 
+  RowBox[{
+   SubsuperscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}], "2"], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Beta]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "-", 
+  RowBox[{
+   SubscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "+", 
+  RowBox[{"2", " ", 
+   SubsuperscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}], "2"], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "-", 
+  RowBox[{
+   SubscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}]], " ", 
+   SubsuperscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}], "2"]}], "+", 
+  RowBox[{
+   SubsuperscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}], "2"], " ", 
+   SubsuperscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}], "2"]}]}]], "Output",
+ CellChangeTimes->{3.879998335923945*^9},
+ CellLabel->
+  "Out[335]=",ExpressionUUID->"5c0c9521-6b43-4430-ad6c-bed457255d31"]
+}, Open  ]],
+
+Cell[TextData[{
+ "It looks like a quadratic. Let\[CloseCurlyQuote]s collect the terms using \
+",
+ Cell[BoxData[
+  SubscriptBox["P", 
+   RowBox[{"3", ",", "\[Beta]"}]]],
+  CellChangeTimes->{3.8799981660948257`*^9},ExpressionUUID->
+  "e4a83670-af2e-436b-8eb9-eb1503e42f18"]
+}], "Text",
+ CellChangeTimes->{{3.879998365783799*^9, 
+  3.879998389198762*^9}},ExpressionUUID->"c7140fd0-880d-46ab-895d-\
+5a6c2c5ac3e3"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Collect", "[", 
+  RowBox[{
+   RowBox[{"gb", "[", 
+    RowBox[{"[", "2", "]"}], "]"}], ",", 
+   SubscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}]], ",", "Factor"}], "]"}]], "Input",
+ CellChangeTimes->{{3.87999839289116*^9, 3.8799984099961967`*^9}, {
+  3.879998446345808*^9, 3.879998451233267*^9}},
+ CellLabel->
+  "In[337]:=",ExpressionUUID->"9d92f725-9011-4a67-b33a-6daba1951593"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   SubscriptBox["f", 
+    RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Beta]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Beta]"}]]}], "-", 
+  RowBox[{
+   SubscriptBox["f", 
+    RowBox[{"\[Alpha]", ",", "\[Alpha]", ",", "\[Beta]"}]], " ", 
+   SubscriptBox["f", 
+    RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "+", 
+  RowBox[{
+   SubscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}]], " ", 
+   RowBox[{"(", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"-", 
+       SubscriptBox["f", 
+        RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Beta]"}]]}], " ", 
+      SubscriptBox["f", 
+       RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Alpha]"}]]}], "-", 
+     RowBox[{
+      SubscriptBox["f", 
+       RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Alpha]"}]], " ", 
+      SubscriptBox["f", 
+       RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Beta]"}]]}], "-", 
+     RowBox[{"2", " ", 
+      SubscriptBox["f", 
+       RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Beta]"}]], " ", 
+      SubscriptBox["f", 
+       RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Beta]"}]]}], "+", 
+     RowBox[{
+      SubscriptBox["f", 
+       RowBox[{"\[Alpha]", ",", "\[Alpha]", ",", "\[Beta]"}]], " ", 
+      SubscriptBox["f", 
+       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}]]}], "+", 
+     SubscriptBox["f", 
+      RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]], "+", 
+     RowBox[{
+      SubscriptBox["f", 
+       RowBox[{"\[Alpha]", ",", "\[Alpha]", ",", "\[Beta]"}]], " ", 
+      SubscriptBox["f", 
+       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "-", 
+     RowBox[{
+      SubscriptBox["f", 
+       RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Alpha]"}]], " ", 
+      SubscriptBox["f", 
+       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "-", 
+     RowBox[{
+      SubscriptBox["f", 
+       RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Beta]"}]], " ", 
+      SubscriptBox["f", 
+       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "-", 
+     RowBox[{
+      SubscriptBox["f", 
+       RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Alpha]"}]], " ", 
+      SubscriptBox["f", 
+       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "-", 
+     RowBox[{
+      SubscriptBox["f", 
+       RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Beta]"}]], " ", 
+      SubscriptBox["f", 
+       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "-", 
+     RowBox[{
+      SubscriptBox["f", 
+       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}]], " ", 
+      SubscriptBox["f", 
+       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "-", 
+     SubsuperscriptBox["f", 
+      RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}], "2"]}], ")"}]}], 
+  "+", 
+  RowBox[{
+   SubsuperscriptBox["P", 
+    RowBox[{"3", ",", "\[Beta]"}], "2"], " ", 
+   RowBox[{"(", 
+    RowBox[{
+     RowBox[{
+      SubscriptBox["f", 
+       RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Alpha]"}]], " ", 
+      SubscriptBox["f", 
+       RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Alpha]"}]]}], "+", 
+     RowBox[{
+      SubscriptBox["f", 
+       RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Beta]"}]], " ", 
+      SubscriptBox["f", 
+       RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Alpha]"}]]}], "+", 
+     RowBox[{
+      SubscriptBox["f", 
+       RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Alpha]"}]], " ", 
+      SubscriptBox["f", 
+       RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Beta]"}]]}], "+", 
+     RowBox[{
+      SubscriptBox["f", 
+       RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Beta]"}]], " ", 
+      SubscriptBox["f", 
+       RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Beta]"}]]}], "-", 
+     SubscriptBox["f", 
+      RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}]], "+", 
+     RowBox[{
+      SubscriptBox["f", 
+       RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Alpha]"}]], " ", 
+      SubscriptBox["f", 
+       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}]]}], "+", 
+     RowBox[{
+      SubscriptBox["f", 
+       RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Beta]"}]], " ", 
+      SubscriptBox["f", 
+       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}]]}], "+", 
+     RowBox[{
+      SubscriptBox["f", 
+       RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Alpha]"}]], " ", 
+      SubscriptBox["f", 
+       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}]]}], "+", 
+     RowBox[{
+      SubscriptBox["f", 
+       RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Beta]"}]], " ", 
+      SubscriptBox["f", 
+       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}]]}], "+", 
+     SubsuperscriptBox["f", 
+      RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}], "2"], "-", 
+     SubscriptBox["f", 
+      RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]], "+", 
+     RowBox[{
+      SubscriptBox["f", 
+       RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Alpha]"}]], " ", 
+      SubscriptBox["f", 
+       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "+", 
+     RowBox[{
+      SubscriptBox["f", 
+       RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Beta]"}]], " ", 
+      SubscriptBox["f", 
+       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "+", 
+     RowBox[{
+      SubscriptBox["f", 
+       RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Alpha]"}]], " ", 
+      SubscriptBox["f", 
+       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "+", 
+     RowBox[{
+      SubscriptBox["f", 
+       RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Beta]"}]], " ", 
+      SubscriptBox["f", 
+       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "+", 
+     RowBox[{"2", " ", 
+      SubscriptBox["f", 
+       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}]], " ", 
+      SubscriptBox["f", 
+       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "+", 
+     SubsuperscriptBox["f", 
+      RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}], "2"]}], 
+    ")"}]}]}]], "Output",
+ CellChangeTimes->{3.879998411541175*^9, 3.8799984524178343`*^9},
+ CellLabel->
+  "Out[337]=",ExpressionUUID->"3e425498-1543-47eb-8768-1f4de2b2c975"]
+}, Open  ]],
+
+Cell[TextData[{
+ "The appearance of quadratics like this for a single of the evaluation \
+statistics is the beginning of the proof that the evaluation variety \
+connected to the independent algebraic evaluator consists of two points in \
+the 7 dimensional space of these evaluation statistics. There is a solution \
+ladder, if you will, the elimination ladder, that starts using this quadratic \
+and then using the solutions for ",
+ Cell[BoxData[
+  SubscriptBox["P", 
+   RowBox[{"3", ",", "\[Beta]"}]]],
+  CellChangeTimes->{3.8799981660948257`*^9},ExpressionUUID->
+  "47e10b3c-10a0-4fd0-ac92-0fb84bbb14ce"],
+ " to get solutions for the other statistics. We want to climb that \
+elimination ladder but all this algebra still looks crazy. Let\
+\[CloseCurlyQuote]s start by forgetting about this Groebner basis and see if \
+we can get another one for our evaluation ideal that plays nicer. It should \
+be possible to get a quadratic for ",
+ Cell[BoxData[
+  SubscriptBox["P", "\[Alpha]"]],
+  CellChangeTimes->{3.8799981660948257`*^9},ExpressionUUID->
+  "e35f81a0-d582-408c-b775-5f4b5934cfa5"]
+}], "Text",
+ CellChangeTimes->{{3.879998526964909*^9, 
+  3.8799988459441147`*^9}},ExpressionUUID->"bb8e11d2-b92e-48a3-9ff8-\
+a2bcb5cacd47"]
+}, Open  ]]
 }, Open  ]]
 }, Open  ]]
 },
@@ -3074,7 +4031,7 @@ Cell[13238, 370, 7537, 236, 132, "Output",ExpressionUUID->"74bb4b4f-d41f-4a02-a3
 Cell[20790, 609, 333, 7, 44, "Text",ExpressionUUID->"a3e208f5-c83e-4e2a-a172-03d8574d202e"],
 Cell[CellGroupData[{
 Cell[21148, 620, 214, 4, 37, "Input",ExpressionUUID->"2dfe4717-a495-4e76-9f34-dafbd736f7d3"],
-Cell[21365, 626, 7036, 221, 152, "Output",ExpressionUUID->"9e7a7758-f2db-4718-b5da-2154eb4703eb"]
+Cell[21365, 626, 7036, 221, 132, "Output",ExpressionUUID->"9e7a7758-f2db-4718-b5da-2154eb4703eb"]
 }, Open  ]],
 Cell[28416, 850, 1106, 18, 217, "Text",ExpressionUUID->"c6921f84-0952-411c-bd4c-2ec1227b70bb"]
 }, Open  ]],
@@ -3091,7 +4048,7 @@ Cell[34593, 992, 2254, 60, 121, "Output",ExpressionUUID->"511d074e-960c-4a75-9e8
 Cell[36862, 1055, 548, 10, 73, "Text",ExpressionUUID->"53622335-0b48-4a47-905e-bb58945fecd9"],
 Cell[CellGroupData[{
 Cell[37435, 1069, 289, 5, 37, "Input",ExpressionUUID->"bfcb247c-358a-4f3f-a429-2b911b0f067c"],
-Cell[37727, 1076, 2458, 68, 127, "Output",ExpressionUUID->"743f66f1-67c6-4212-8380-4ef66d37aa35"]
+Cell[37727, 1076, 2458, 68, 107, "Output",ExpressionUUID->"743f66f1-67c6-4212-8380-4ef66d37aa35"]
 }, Open  ]],
 Cell[40200, 1147, 1492, 25, 332, "Text",ExpressionUUID->"6512745a-9d1f-4a5e-b0e4-c0ab49cdd87d"],
 Cell[CellGroupData[{
@@ -3156,7 +4113,7 @@ Cell[71635, 1967, 2236, 60, 101, "Output",ExpressionUUID->"404df3b4-1146-4cb5-9c
 Cell[73886, 2030, 315, 7, 44, "Text",ExpressionUUID->"f2a44c0e-86ce-4fe5-8f6a-d27618f86305"],
 Cell[CellGroupData[{
 Cell[74226, 2041, 1912, 44, 142, "Input",ExpressionUUID->"2b391d4e-ed5d-4758-b0db-882f4c17e04c"],
-Cell[76141, 2087, 4397, 114, 341, "Output",ExpressionUUID->"66992bf2-d490-4f0b-926e-cd9bd7ea196e"]
+Cell[76141, 2087, 4397, 114, 369, "Output",ExpressionUUID->"66992bf2-d490-4f0b-926e-cd9bd7ea196e"]
 }, Open  ]],
 Cell[80553, 2204, 641, 11, 102, "Text",ExpressionUUID->"f322131e-a454-4562-b750-e82593633b9a"]
 }, Open  ]],
@@ -3181,6 +4138,38 @@ Cell[109045, 2968, 1372, 37, 60, "Output",ExpressionUUID->"a7c4cc45-db01-4c3c-80
 }, Open  ]],
 Cell[110432, 3008, 1348, 22, 274, "Text",ExpressionUUID->"258b6b34-7524-4e83-ae9b-5d9a25f5b73c"]
 }, Open  ]]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[111841, 3037, 249, 6, 132, "Section",ExpressionUUID->"77d58688-39c8-44ca-a1de-fad904ad0305"],
+Cell[112093, 3045, 1275, 21, 246, "Text",ExpressionUUID->"92f8f28e-eb11-404c-ba1d-3318910c7efe"],
+Cell[CellGroupData[{
+Cell[113393, 3070, 457, 11, 37, "Input",ExpressionUUID->"44de2181-c25e-4faa-aa30-db331c18a4eb"],
+Cell[113853, 3083, 2356, 50, 103, "Output",ExpressionUUID->"266434fa-c46e-4f0b-b802-8d7305ddc6d8"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[116246, 3138, 288, 7, 67, "Subsection",ExpressionUUID->"f07b0cee-5c3e-4bf1-8c3e-d81cedff00ad"],
+Cell[116537, 3147, 605, 11, 102, "Text",ExpressionUUID->"b734fde1-4f6a-4ab0-bace-fe1e7f048390"],
+Cell[CellGroupData[{
+Cell[117167, 3162, 203, 4, 37, "Input",ExpressionUUID->"5f4f8626-0b0f-4768-98b9-6cf980a6b5e7"],
+Cell[117373, 3168, 869, 21, 45, "Output",ExpressionUUID->"688710dd-257e-44d6-bff4-b4feb475db7f"]
+}, Open  ]],
+Cell[118257, 3192, 1332, 22, 246, "Text",ExpressionUUID->"6baa8055-735a-4d8c-af66-4eb740521ddc"],
+Cell[CellGroupData[{
+Cell[119614, 3218, 691, 20, 93, "Input",ExpressionUUID->"15d97d0d-857c-41e9-b039-5e90c81cb23d"],
+Cell[120308, 3240, 8392, 300, 1207, "Output",ExpressionUUID->"679db61d-d4ff-48cf-8134-76e20e5c0314"]
+}, Open  ]],
+Cell[128715, 3543, 701, 18, 76, "Text",ExpressionUUID->"88a4e0a6-4551-4cf3-8f79-ed2afe68c4f5"],
+Cell[CellGroupData[{
+Cell[129441, 3565, 229, 5, 37, "Input",ExpressionUUID->"c1d10d70-3727-473f-9601-67df8db610bc"],
+Cell[129673, 3572, 7505, 205, 137, "Output",ExpressionUUID->"5c0c9521-6b43-4430-ad6c-bed457255d31"]
+}, Open  ]],
+Cell[137193, 3780, 409, 11, 47, "Text",ExpressionUUID->"c7140fd0-880d-46ab-895d-5a6c2c5ac3e3"],
+Cell[CellGroupData[{
+Cell[137627, 3795, 406, 10, 40, "Input",ExpressionUUID->"9d92f725-9011-4a67-b33a-6daba1951593"],
+Cell[138036, 3807, 6068, 154, 136, "Output",ExpressionUUID->"3e425498-1543-47eb-8768-1f4de2b2c975"]
+}, Open  ]],
+Cell[144119, 3964, 1228, 24, 162, "Text",ExpressionUUID->"bb8e11d2-b92e-48a3-9ff8-a2bcb5cacd47"]
 }, Open  ]]
 }, Open  ]]
 }, Open  ]]
