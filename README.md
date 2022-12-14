@@ -48,6 +48,8 @@ intelligent ones.
 </figure>
 </p>
 
+### The existential AI risk for those that believe in the fallacy
+
 If *only-intelligent* evaluation is possible then we truly face a risky
 AI future. We would be condemmed to a technological arms race with ourselves.
 Faced with having to monitor AI agents on data that is unlabeled - the hard
