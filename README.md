@@ -36,7 +36,15 @@ misconception.
 
 ## You can grade three error-indepedent binary classifiers exactly using just algebra
 
-The core of the mathematics
+The core of the mathematics of these assertions is the simplest algebraic
+evaluator possible - that constructed by processing the decisions of judges
+that are error independent in the sample. This simple formulation is enough to
+confront THE fundamental problem in any monitoring of intelligent agents - if
+they are smarter than us, if we are too lazy to do the work ourselves, if we
+ourselves do not know the correct answers to the tests we give them, how do
+we stay safe?
+
+
 
 
 ## The fallacy of *only-intelligent* evaluation
