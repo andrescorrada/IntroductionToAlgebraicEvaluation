@@ -15,9 +15,11 @@ engineering of algebraic evaluators.
 
 Because it will make us safer. The current theoretical state of AI is one
 that views all tasks as solvable only by *training* methods. The 2022 NeurIPS
-ML Safety Workshop is an exemplar of this myopic theoretical focus on just
-one side of learning. Evaluation and its simplicity has been lost in a morass
-of theory about training.
+ML Safety Workshop is an exemplar of this exclusive theoretical focus on just
+one side of learning. Evaluation and its simplicity can help make us safer.
+Partly because the mathematics of evaluation is simpler than that of training.
+But also from that common sense point of view we all have about safety - the
+more ways you have of looking at something, the safer you are.
 
 A safety analogy in another technological realm may clarify why this
 focus on just one side of the learning problem is needlesly narrow.
@@ -28,7 +30,14 @@ engine is overheating.
 
 Where are the evaluation thermometers that can do the same for measuring the
 quality of the decisions made by noisy judges? What is special about
-intelligence that would prevent us from doing this?
+intelligence that would prevent us from doing this? Nothing. The mathematical
+theorem that is central to this work shows that there is a way around this
+misconception.
+
+## You can grade three error-indepedent binary classifiers exactly using just algebra
+
+The core of the mathematics
+
 
 ## The fallacy of *only-intelligent* evaluation
 
