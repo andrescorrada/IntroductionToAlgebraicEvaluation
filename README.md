@@ -116,9 +116,9 @@ visceral reactions that critics of algebraic evaluation have to this "spherical
 cow" in Evaluation Land is telling of the intuition that years of working in
 Training Land has built up in them. All of them have most likely uttered the
 phrase "consider an iid sample". In Evaluation Land we get to say "consider
-noisy judges error independent on the sample". None of these critics has yet to
-enunciate why speaking like this in Evaluation Land is not allowed, but yet we
-write papers and textbooks whose results are all mainly in the vein of "consider
-an iid sample". They cannot. The mathematics of this notebook is what it is.
-You may not like the golden spherical cow in Evaluation Land. But it does exist
-and in some ways is much better than the spherical cow of Training Land.
+noisy judges error independent on the sample". This simplest and purest of
+algebraic evaluators - combining the decisions from error independent judges -
+can be used to understand what algebraic evaluation can and cannot do. The
+mathematics here is that of algebraic geometry. This may seem complex but if you
+just read the text and enjoy the jumble of algebra, you can get a taste of what
+can be accomplished by doing evaluation in a purely algebraic manner.
