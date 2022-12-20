@@ -45,8 +45,6 @@ ourselves do not know the correct answers to the tests we give them, how do
 we stay safe?
 
 
-
-
 ## The fallacy of *only-intelligent* evaluation
 
 Since this repository will contain code that carries out purely algebraic
