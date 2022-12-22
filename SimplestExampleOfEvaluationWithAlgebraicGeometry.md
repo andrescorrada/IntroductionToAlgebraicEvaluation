@@ -71,7 +71,7 @@ they just estimate sample statistics, are universal. The lack of any domain
 knowledge or information in this equation is precisely its utility. Algebra is
 dumb and thus universal. No epistemic ignorance in our part will ever make
 this algebraic equation be wrong. There are no wrong evaluation polynomials.
-This is not at all that happens in Machine Training Land. Neither I nor anyone
+This is not at all what happens in Machine Training Land. Neither I nor anyone
 else will ever be able to write the universal model that explains all the
 phenomena we see. Being an expert is hard. Evaluation is not. That is the
 core of our insight of why algebras of evaluation could be useful. They are
