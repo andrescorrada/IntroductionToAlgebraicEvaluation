@@ -64,6 +64,19 @@ written as the exact polynomial[^1],
 
 $$ f_\alpha = P_\alpha  P_{1,\alpha} + P_\beta  (1 - P_{1, \beta}). $$
 
+3. We want to hammer an important point now. The polynomial above is exact and
+universal. Any noisy algorithm that you test will satisfy this evaluation
+polynomial exactly. No ifs and or buts about it. Evaluation polynomials, because
+they just estimate sample statistics, are universal. The lack of any domain
+knowledge or information in this equation is precisely its utility. Algebra is
+dumb and thus universal. No epistemic ignorance in our part will ever make
+this algebraic equation be wrong. There are no wrong evaluation polynomials.
+This is not at all that happens in Machine Training Land. Neither I nor anyone
+else will ever be able to write the universal model that explains all the
+phenomena we see. Being an expert is hard. Evaluation is not. That is the
+core of our insight of why algebras of evaluation could be useful. They are
+dumb but universal. This is a good property to have when you must evaluate
+those smarter than yourself.
 
 [^1]: Working with sample statistics such as, $P_{1,\alpha}$, the frequency of
 times the classifier labeled $\alpha$ items correctly, raises a possible source
