@@ -62,4 +62,14 @@ equal to the number of times it was correct (the item being labeled was $\alpha$
 plus the number of times it was incorrect (the item was $\beta$). That can be
 written as the exact polynomial,
 
-$$ f_\alpha = P_\alpha  P_{1,\alpha} + P_\beta  (1 - P_{1, \beta}). $$
+$$ f_\alpha = P_\alpha  P_{1,\alpha} + P_\beta  (1 - P_{1, \beta}). $$ [^1]
+
+[^1]: When working with sample statistics such as, $P_{1,\alpha}, the frequency of
+times the classifier labeled $\alpha$ items correctly, raises a possible source
+of notational confusion for the reader - "'Ps'? I thought you did not use
+probability theory in algebraic evaluation." We do not. This is merely a
+notational convention. Any "P" variable seen here is a variable for a sample
+statistic, not a pointer to some probability distribution. We could use $\phi$
+instead of $P$ to denote these sample statistics if that helps you realize that we
+are pointing to variables that denote the value of a sample statistic, not an
+unknown probability distribution.
