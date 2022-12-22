@@ -64,7 +64,7 @@ written as the exact polynomial,
 
 $$ f_\alpha = P_\alpha  P_{1,\alpha} + P_\beta  (1 - P_{1, \beta}). $$ [^1]
 
-[^1]: When working with sample statistics such as, $P_{1,\alpha}, the frequency of
+[^1]: Working with sample statistics such as, $P_{1,\alpha}$, the frequency of
 times the classifier labeled $\alpha$ items correctly, raises a possible source
 of notational confusion for the reader - "'Ps'? I thought you did not use
 probability theory in algebraic evaluation." We do not. This is merely a
