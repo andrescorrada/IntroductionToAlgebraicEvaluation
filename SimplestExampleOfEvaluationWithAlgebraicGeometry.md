@@ -29,8 +29,8 @@ their errorful decisions. The trivial case we will consider here (n=1!) is
 already complicated on the possible statistics of the sample we may be
 interested in. Let us start simple with the "point statistics" - what is the
 frequency of vote patterns when we just see their decisions for a single item
-on the test set. There are many more statistics beyond this we may care to probe
-most of them remain unsolved problems in the field. My work is at the very door
+on the test set. There are many more statistics beyond this we may care to probe.
+Most of them remain unsolved problems in the field. My work is at the very door
 of what algebraic evaluation will become. For example, we could be interested
 in the error patterns when we look at the decisions of the ensemble over two
 items in the test set. Algebraically it does not matter what the selection
@@ -38,3 +38,18 @@ function for a pair is. That is what makes algebra so useful for epistemic
 uncertainty. Algebra has no brain. No probability distribution that models how
 errorful the experiment or observation will be like. Algebra is perfect for
 intelligence thermometers.
+One can think of these observables as the data sketch of the decisions that
+will be used to evaluate the noisy algorithms. Once you fix the decision
+events you will collect from the test set, you will be able to define the
+unknown statistics that explain your "surface" frequency counts.
+2. The immediate consequence of just estimating sample statistics is that these are
+finite once you have settled on the decision events. If you are just observing
+events related to single items, as we will consider here, then there is a finite
+polynomial of the unobserved evaluation statistics that will be equivalent to
+the observed decision event.
+
+## Algebraic evaluation of the trivial ensemble (n=1)
+
+The trivial mathematical object exists in many mathematical fields. Algebraic evaluation
+is the same. The ensemble consisting of one noisy algorithm is the trivial evaluation
+ensemble.
