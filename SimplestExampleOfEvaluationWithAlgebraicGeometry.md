@@ -69,7 +69,7 @@ universal. Any noisy algorithm that you test will satisfy this evaluation
 polynomial exactly. No ifs, ands, or buts about it. Evaluation polynomials, because
 they just estimate sample statistics, are universal. The lack of any domain
 knowledge or information in this equation is precisely its utility. Algebra is
-dumb and thus universal. No epistemic ignorance in our part will ever make
+dumb and thus universal. No epistemic ignorance on our part will ever make
 this algebraic equation be wrong. There are no wrong evaluation polynomials.
 This is not at all what happens in Machine Training Land. Neither I nor anyone
 else will ever be able to write the universal model that explains all the
