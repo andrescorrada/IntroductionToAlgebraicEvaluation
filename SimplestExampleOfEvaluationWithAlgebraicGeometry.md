@@ -57,3 +57,8 @@ ensemble.
 1. Observable frequency of decision events: Our choice will be the simplest. We
 collect the number of times the ensemble voted ("a") versus ("b"). Let us denote
 that by $f_\alpha$ and $f_\beta.$
+2. The number of times that the trivial ensemble voted $\alpha$ is, by definition,
+equal to the number of times it was correct (the item being labeled was $\alpha$)
+plus the number of times it was incorrect (the item was $\beta$). That can be
+written as the exact polynomial,
+$$ f_\alpha = P_\alpha \, P_{1,\alpha} + P_\beta \, (1 - P_{1, \beta}).$$
