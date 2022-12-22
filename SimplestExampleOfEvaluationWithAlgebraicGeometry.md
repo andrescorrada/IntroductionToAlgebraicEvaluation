@@ -82,6 +82,17 @@ another exact polynomial we can write for the trivial ensemble,
 
 $$ f_\beta = P_\alpha (1 - P_{1,\alpha}) + P_\beta P_{1, \beta}. $$
 
+5. These two equations, actually three, define the polynomial ideal for our
+evaluation task of this single binary classifier. A third equation expression
+the dependency between $P_\alpha$, and $P_\beta,$
+
+$$\begin{align*}
+2x - 5y &=  8 \\
+3x + 9y &=  -12
+\end{align*}$$
+
+
+
 [^1]: Working with sample statistics such as, $P_{1,\alpha}$, the frequency of
 times the classifier labeled $\alpha$ items correctly, raises a possible source
 of notational confusion for the reader - "'Ps'? I thought you did not use
