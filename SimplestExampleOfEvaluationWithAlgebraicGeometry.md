@@ -103,8 +103,12 @@ would want to know some environmental sample statistics that have nothing to do
 with the classifier. We are talking about either $P_\alpha$ or $P_\beta$. The
 number of questions on the test that have correct answer $\alpha$ exists independent
 of the classifier used to perform the evaluation.
-The other set of sample statistics we need are the label accuracies of the classifier.
+The other set of sample statistics we need are the label accuracies of the
+classifier, $P_{1,\alpha}$ and $P_{1,\beta}.$ We implore the reader to remember
+our notational warning. These "P"s are not distributions. They are variables that
+stand for the unknown statistics of the sample we seek.
 
+6. It seems obvious
 
 
 [^1]: Working with sample statistics such as, $P_{1,\alpha}$, the frequency of
