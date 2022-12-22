@@ -77,6 +77,10 @@ phenomena we see. Being an expert is hard. Evaluation is not. That is the
 core of our insight of why algebras of evaluation could be useful. They are
 dumb but universal. This is a good property to have when you must evaluate
 those smarter than yourself.
+4. Since there are two decision event frequencies in this simple case, there is
+another exact polynomial we can write for the trivial ensemble,
+
+$$ f_\beta = P_\alpha (1 - P_{1,\alpha}) + P_\beta P_{1, \beta}. $$
 
 [^1]: Working with sample statistics such as, $P_{1,\alpha}$, the frequency of
 times the classifier labeled $\alpha$ items correctly, raises a possible source
