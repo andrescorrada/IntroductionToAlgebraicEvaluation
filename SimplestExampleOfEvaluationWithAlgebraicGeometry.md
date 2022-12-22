@@ -89,8 +89,20 @@ the dependency between $P_\alpha$ and $P_\beta$ has been added.
 $$\begin{align*}
 f_\alpha &= P_\alpha  P_{1,\alpha} + P_\beta  (1 - P_{1, \beta}) \\
 f_\beta  &= P_\alpha (1 - P_{1,\alpha}) + P_\beta P_{1, \beta}, \\
-1 &= P_\alpha + P_\beta 
+1 &= P_\alpha + P_\beta
 \end{align*}$$
+The equations have been arranged so that the things we can observe without
+knowledge of the correct answers are on the left. We can see how many times
+a given noisy classifier decides $\alpha$ and $\beta$. We do not need
+to know the correct answers to count these sample statistics of the test this
+classifier took.
+On the left side are all the sample statistics of the test that we want to know.
+The test needs to be graded on unlabeled data. To grade this binary classifier we
+would want to know some environmental sample statistics that have nothing to do
+with the classifier. We are talking about either $P_\alpha$ or $P_\beta$. The
+number of questions on the test that have correct answer $\alpha$ exists independent
+of the classifier used to perform the evaluation.
+The other set of sample statistics we need are the label accuracies of the classifier.
 
 
 
