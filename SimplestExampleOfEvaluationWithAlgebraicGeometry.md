@@ -83,12 +83,13 @@ another exact polynomial we can write for the trivial ensemble,
 $$ f_\beta = P_\alpha (1 - P_{1,\alpha}) + P_\beta P_{1, \beta}. $$
 
 5. These two equations, actually three, define the polynomial ideal for our
-evaluation task of this single binary classifier. A third equation expression
-the dependency between $P_\alpha$, and $P_\beta,$
+evaluation task of this single binary classifier. A third equation expressing
+the dependency between $P_\alpha$ and $P_\beta$ has been added.
 
 $$\begin{align*}
-2x - 5y &=  8 \\
-3x + 9y &=  -12
+f_\alpha &= P_\alpha  P_{1,\alpha} + P_\beta  (1 - P_{1, \beta}) \\
+f_\beta  &= P_\alpha (1 - P_{1,\alpha}) + P_\beta P_{1, \beta}, \\
+1 &= P_\alpha + P_\beta 
 \end{align*}$$
 
 
