@@ -91,6 +91,7 @@ f_\alpha &= P_\alpha  P_{1,\alpha} + P_\beta  (1 - P_{1, \beta}) \\
 f_\beta  &= P_\alpha (1 - P_{1,\alpha}) + P_\beta P_{1, \beta}, \\
 1 &= P_\alpha + P_\beta
 \end{align*}$$
+
 The equations have been arranged so that the things we can observe without
 knowledge of the correct answers are on the left. We can see how many times
 a given noisy classifier decides $\alpha$ and $\beta$. We do not need
