@@ -53,3 +53,7 @@ the observed decision event.
 The trivial mathematical object exists in many mathematical fields. Algebraic evaluation
 is the same. The ensemble consisting of one noisy algorithm is the trivial evaluation
 ensemble.
+
+1. Observable frequency of decision events: Our choice will be the simplest. We
+collect the number of times the ensemble voted ("a") versus ("b"). Let us denote
+that by $f_\alpha$ and $f_\beta.$
