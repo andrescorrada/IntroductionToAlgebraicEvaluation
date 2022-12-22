@@ -66,7 +66,7 @@ $$ f_\alpha = P_\alpha  P_{1,\alpha} + P_\beta  (1 - P_{1, \beta}). $$
 
 3. We want to hammer an important point now. The polynomial above is exact and
 universal. Any noisy algorithm that you test will satisfy this evaluation
-polynomial exactly. No ifs and or buts about it. Evaluation polynomials, because
+polynomial exactly. No ifs, ands, or buts about it. Evaluation polynomials, because
 they just estimate sample statistics, are universal. The lack of any domain
 knowledge or information in this equation is precisely its utility. Algebra is
 dumb and thus universal. No epistemic ignorance in our part will ever make
