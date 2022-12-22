@@ -62,4 +62,4 @@ equal to the number of times it was correct (the item being labeled was $\alpha$
 plus the number of times it was incorrect (the item was $\beta$). That can be
 written as the exact polynomial,
 
-$$ f_\alpha = P_\alpha \, P_{1,\alpha} + P_\beta \, (1 - P_{1, \beta}). $$
+$$ f_\alpha = P_\alpha  P_{1,\alpha} + P_\beta  (1 - P_{1, \beta}). $$
