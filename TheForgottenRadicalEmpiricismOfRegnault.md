@@ -14,3 +14,8 @@ technology is striking. Particularly so when we amplify it by considering
 the task of verifying a super intelligent being's responses to a test we gave
 them. If it was on a subject they knew more about, how could we tell they are
 wrong?
+
+Regnault was working at the dawn of our understanding of atoms and certainly
+very far from any ideas about statistical thermodynamics. Did he know any of
+this theory to certify the precision of his instruments and his mastery of
+the craftmanship it required? No. Did he need it? No.
