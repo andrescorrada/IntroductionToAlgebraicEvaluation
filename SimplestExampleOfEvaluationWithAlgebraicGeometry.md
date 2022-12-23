@@ -113,8 +113,7 @@ This leaves us with the final polynomial set,
 
 $$\begin{align*}
 f_\alpha &= P_\alpha  P_{1,\alpha} + (1 - P_\alpha)  (1 - P_{1, \beta}) \\
-f_\beta  &= P_\alpha (1 - P_{1,\alpha}) + (1 - P_\alpha) P_{1, \beta}, \\
-1 &= P_\alpha + P_\beta
+f_\beta  &= P_\alpha (1 - P_{1,\alpha}) + (1 - P_\alpha) P_{1, \beta}
 \end{align*}$$
 
 
