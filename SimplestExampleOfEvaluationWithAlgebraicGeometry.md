@@ -116,6 +116,38 @@ f_\alpha &= P_\alpha  P_{1,\alpha} + (1 - P_\alpha)  (1 - P_{1, \beta}) \\
 f_\beta  &= P_\alpha (1 - P_{1,\alpha}) + (1 - P_\alpha) P_{1, \beta}
 \end{align*}$$
 
+Algebraic geometry started as the study of the zeros of polynomial systems as
+the one above. The difference between surface and form, a common topic in the
+sciences, arises here too. As it does in linear algebra too. We have equations
+and their solutions. Equations are the algebraic objects. Solutions are points
+in the space defined by the variables in the polynomial.
+
+What is the relation between the two? To clarify this we can start by rewriting
+the equations so we eliminate the equal sign. We write the polynomials as,
+
+$$\begin{align*}
+-f_\alpha + P_\alpha  P_{1,\alpha} + (1 - P_\alpha)  (1 - P_{1, \beta}) \\
+-f_\beta  + P_\alpha (1 - P_{1,\alpha}) + (1 - P_\alpha) P_{1, \beta}
+\end{align*}$$
+
+We can evaluate these equations for any point in the 3-d space of the variables,
+
+$$(P_\alpha, P_{1,\alpha}, P_{1,\beta})$$
+
+The points in the space where all these polynomials are zero is called the
+algebraic variety. By rewriting the equation is this way, we can also see
+that any linear combination or multiplication of them would still yield
+zero for any point that made the original equations zero.
+
+How varied is this space of possible polynomials? Viewed geometrically we
+can restate this as follows - our original polynomials define a geometric
+object where all the polynomials evaluate to zero. How many "distinct"
+polynomials are always zero on exactly the same geometric object? Given
+some finite polynomial set that defines the surface where the polynomials
+are zero, how many other polynomias are zero there also?
+
+This is the celebrated Hilbert Basis Theorem.
+
 
 [^1]: Working with sample statistics such as, $P_{1,\alpha}$, the frequency of
 times the classifier labeled $\alpha$ items correctly, raises a possible source
