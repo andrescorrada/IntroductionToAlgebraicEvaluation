@@ -125,8 +125,8 @@ of thermometers. My claim is that whether thermometers or brains, we can evaluat
 algebraically. The algebra in this repository details how.
 
 - [**SimplestExampleOfEvaluationWithAlgebraicGeometry.md**](./SimplestExampleOfEvaluationWithAlgebraicGeometry.md):
-The mathematics of algebraic evaluation is algebraic geometry. This is not a
-commonly known field. This essay goes thru the simplest ensemble possible,
+Becoming familiar with algebraic geometry can be difficult.
+This essay goes thru the simplest ensemble possible,
 the trivial ensemble of $n=1$. Algebraic geometry may seem like overkill for
 such a trivial ensemble but we hope the reader will use it as a bridge from
 their familiarity with evaluating binary classifiers to the unfamiliar topic
