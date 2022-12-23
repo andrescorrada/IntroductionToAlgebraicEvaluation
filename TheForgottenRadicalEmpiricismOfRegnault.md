@@ -1,4 +1,16 @@
-# The forgoteen radical empiricism of Henri Victor Regnault
+# The forgotten radical empiricism of Henri Victor Regnault
+
+<p>
+<figure>
+    <img src="img/Regnault.jpeg"
+         alt="Henri Victor Regnault."
+         height="400">
+    <figcaption>
+    Figure Caption: <b>A forgotten philosopher of science, a radical
+    empiricist: Henri Victor Regnault</b>
+    </figcaption>
+</figure>
+</p>
 
 Hasok Chang has written an award winning book on measurement and scientific
 progress. It is called "Inventing Temperature". In it I discovered a
