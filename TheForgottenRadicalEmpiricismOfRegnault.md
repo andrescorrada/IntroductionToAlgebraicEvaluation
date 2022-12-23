@@ -31,3 +31,25 @@ Regnault was working at the dawn of our understanding of atoms and certainly
 very far from any ideas about statistical thermodynamics. Did he know any of
 this theory to certify the precision of his instruments and his mastery of
 the craftmanship it required? No. Did he need it? No.
+
+<p>
+<figure>
+    <img src="img/RegnaultsTable.png"
+         alt="Table comparing thermometers."
+         height="400">
+    <figcaption>
+    Figure Caption: <b>Regnault's intuition is that we should ensemble the
+    opinions of noisy judges to estimate their error.</b>
+    </figcaption>
+</figure>
+</p>
+
+If $n$ experts disagree, at least $n-1$ must be wrong. If the truth is contested,
+at least someone is not understanding it. One can look at this table and count
+how many digits of agreement exist between them. We can also see which tends to
+disagree most with the others, etc. We were able to tell all of that from just these
+numbers. I am not even sure what all the different thermometers look like. I do
+not need to. Neither do you. They disagree.
+
+This insight can be made mathematically precise by using ideas from compressed
+sensing. 
