@@ -90,21 +90,6 @@ ourselves.
 
 ## Guide to the repository
 
-- [**CommonMisconceptionsByAIExpertsAboutEvaluation.md**](./CommonMisconceptionsByAIExpertsAboutEvaluation.md):
-Given the enormous
-emphasis that training currently takes in the education and work life of AI
-experts, it would be easy pickings to mock the many misconceptions one
-encounters when discussing purely algebraic evaluation. But we would be mocking
-ourselves and our journey toward understanding. Instead, this document shows
-the type of questions one typically has when 1st encountering algebraic
-evaluation. For example, many AI experts mistakenly assume that algebraic
-evaluation is just a formulation of majority voting. This document exhibits
-the evaluation formulas for majority voting versus the inferential approach of
-algebraic evaluation. Assuming that algebraic evaluation is equivalent to
-majority voting is the intellectual equivalent of saying that decision and
-inference are the same in machine learning. Other such elementary misconceptions
-are discussed in the document.
-
 - [**AlgebraicEvaluation.py**](./AlgebraicEvaluation.py):
 This Python code contains basic utilities showing
 how you can turn the counts of voting patterns by binary classifiers into an
