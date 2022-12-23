@@ -97,7 +97,7 @@ knowledge of the correct answers are on the left. We can see how many times
 a given noisy classifier decides $\alpha$ and $\beta$. We do not need
 to know the correct answers to count these sample statistics of the test this
 classifier took.
-On the left side are all the sample statistics of the test that we want to know.
+On the right side are all the sample statistics of the test that we want to know.
 The test needs to be graded on unlabeled data. To grade this binary classifier we
 would want to know some environmental sample statistics that have nothing to do
 with the classifier. We are talking about either $P_\alpha$ or $P_\beta$. The
@@ -108,7 +108,14 @@ classifier, $P_{1,\alpha}$ and $P_{1,\beta}.$ We implore the reader to remember
 our notational warning. These "P"s are not distributions. They are variables that
 stand for the unknown statistics of the sample we seek.
 
-6. It seems obvious
+6. We can simplify the algebraic work by eliminating, say, the $P_\beta$ variable.
+This leaves us with the final polynomial set,
+
+$\begin{align*}
+f_\alpha &= P_\alpha  P_{1,\alpha} + (1 - P_\alpha)  (1 - P_{1, \beta}) \\
+f_\beta  &= P_\alpha (1 - P_{1,\alpha}) + (1 - P_\alpha) P_{1, \beta}, \\
+1 &= P_\alpha + P_\beta
+\end{align*}$$
 
 
 [^1]: Working with sample statistics such as, $P_{1,\alpha}$, the frequency of
