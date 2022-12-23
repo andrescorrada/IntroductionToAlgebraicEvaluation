@@ -113,7 +113,8 @@ algebraic formalism for carrying out perfect evaluation of binary classifiers
 statistics that are sufficient to write down an exact representation of the
 algebraic ideal associated with evaluation (the evaluation ideal).
 
-- [**EvaluationIdealAndVarietyErrorIndependentTrio.nb**](./EvaluationIdealAndVarietyErorrIndependentTrio.nb):
+- [**EvaluationIdealAndVarietyErrorIndependentTrio.nb**]
+(./EvaluationIdealAndVarietyErorrIndependentTrio.nb):
 The mathematics of algebraic evaluation is algebraic geometry. Since you are
 estimating sample statistics, you get to work in a finite dimensional space
 where all parameters are known. You can build exact polynomial representations
