@@ -111,7 +111,7 @@ stand for the unknown statistics of the sample we seek.
 6. We can simplify the algebraic work by eliminating, say, the $P_\beta$ variable.
 This leaves us with the final polynomial set,
 
-$\begin{align*}
+$$\begin{align*}
 f_\alpha &= P_\alpha  P_{1,\alpha} + (1 - P_\alpha)  (1 - P_{1, \beta}) \\
 f_\beta  &= P_\alpha (1 - P_{1,\alpha}) + (1 - P_\alpha) P_{1, \beta}, \\
 1 &= P_\alpha + P_\beta
