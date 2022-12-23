@@ -116,7 +116,7 @@ mathematics here is that of algebraic geometry. This may seem complex but if you
 just read the text and enjoy the jumble of algebra, you can get a taste of what
 can be accomplished by doing evaluation in a purely algebraic manner.
 
-[**TheForgottenRadicalEmpiricismOfRegnault.md**](./TheForgottenRadicalEmpiricismOfRegnault.md):
+- [**TheForgottenRadicalEmpiricismOfRegnault.md**](./TheForgottenRadicalEmpiricismOfRegnault.md):
 The 19th century French physicist, Henri Victor Regnault, is a forgotten philosopher of
 science. I would contend a radical empiricist that understood that for evaluation of
 experts we do not need to be smarter or aware of their mental states. Evaluation is
