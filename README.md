@@ -90,7 +90,8 @@ ourselves.
 
 ## Guide to the repository
 
-- **CommonMisconceptionsByAIExpertsAboutEvaluation.md**: Given the enormous
+- [**CommonMisconceptionsByAIExpertsAboutEvaluation.md**](./CommonMisconceptionsByAIExpertsAboutEvaluation.md):
+Given the enormous
 emphasis that training currently takes in the education and work life of AI
 experts, it would be easy pickings to mock the many misconceptions one
 encounters when discussing purely algebraic evaluation. But we would be mocking
@@ -104,14 +105,15 @@ majority voting is the intellectual equivalent of saying that decision and
 inference are the same in machine learning. Other such elementary misconceptions
 are discussed in the document.
 
-- **AlgebraicEvaluation.py**: This Python code contains basic utilities showing
+- [**AlgebraicEvaluation.py**](./AlgebraicEvaluation.py):
+This Python code contains basic utilities showing
 how you can turn the counts of voting patterns by binary classifiers into an
 algebraic formalism for carrying out perfect evaluation of binary classifiers
 **IF** they are error independent in the sample. The code details all the sample
 statistics that are sufficient to write down an exact representation of the
 algebraic ideal associated with evaluation (the evaluation ideal).
 
-- **EvaluationIdealAndVarietyErrorIndependentTrio.nb (and its PDF version)**:
+- [**EvaluationIdealAndVarietyErrorIndependentTrio.nb**](./EvaluationIdealAndVarietyErrorIndependentTrio.nb):
 The mathematics of algebraic evaluation is algebraic geometry. Since you are
 estimating sample statistics, you get to work in a finite dimensional space
 where all parameters are known. You can build exact polynomial representations
