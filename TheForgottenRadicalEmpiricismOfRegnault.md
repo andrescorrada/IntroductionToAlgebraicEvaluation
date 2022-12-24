@@ -60,7 +60,8 @@ as a noisy judge of the true value. What is the average error in their estimatio
 when we use it in conjunction with other noisy instruments?
 
 I stumbled upon the algebraic solution to this problem in 2008, ignorant of
-Regnault and his forgotten insights. I was working for Howard Schultz at
+Regnault and his forgotten insights. I was working for
+[Howard Schultz](http://vis-www.cs.umass.edu/~hschultz/) at
 the Computer Science Department at UMass/Amherst. Schultz had hired me a year
 earlier. He called me and started by saying "I have a start-up that is working
 on making Diigital Elevation Models from aerial images. A map-making company."
@@ -83,3 +84,6 @@ in the field. The one we share is this one,
     </figcaption>
 </figure>
 </p>
+
+Howard had also conceived of and programmed a complete photogrammetric system
+to make Digital Elevation Maps from aerial images, the Terrest system.
