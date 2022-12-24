@@ -90,5 +90,10 @@ to make Digital Elevation Maps from aerial images, the Terrest system.
 Howard was a brilliant experimentalist, a craftsman at making all his very
 precise and path breaking cameras. The Navy gave him $1M to build the camera
 based on the idea behind the patent we did together. And he did. He built a
-beautiful camera that ended up being used on top on a really unusual platform
+beautiful camera that ended up being used on top of a really unusual platform
 for oceanographic research.
+
+All of this connects to Regnault because when you make maps or practically do
+any science you face the same problems he had with his instruments - how do
+I evaluate the quality of my instruments without further theory about how they
+work?
