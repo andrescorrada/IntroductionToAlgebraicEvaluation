@@ -51,5 +51,16 @@ disagree most with the others, etc. We were able to tell all of that from just t
 numbers. I am not even sure what all the different thermometers look like. I do
 not need to. Neither do you. They disagree.
 
-This insight can be made mathematically precise by using ideas from compressed
-sensing. 
+## The mathematics of Regnault's insight
+
+Regnault basically anticipated ideas about ensembling the decisions of experts.
+His insight can be made rigorous by considering the mathematics of estimating
+the average error of an ensemble of regressors. We can treat each thermometer
+as a noisy judge of the true value. What is the average error in their estimation
+when we use it in conjunction with other noisy instruments?
+
+I stumbled upon the algebraic solution to this problem in 2008, ignorant of
+Regnault and his forgotten insights. I was working for Howard Schultz at
+the Computer Science Department at UMass/Amherst. Schultz had hired me a year
+earlier. He called me and stared by saying "I have a start-up that is working
+on making Diigital Elevation Models from aerial images. A map-making company."
