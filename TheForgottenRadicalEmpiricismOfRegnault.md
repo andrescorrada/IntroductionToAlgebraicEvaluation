@@ -6,7 +6,7 @@
          alt="Henri Victor Regnault."
          height="400">
     <figcaption>
-    Figure Caption: <b>A forgotten philosopher of science, a radical
+    <b>A forgotten philosopher of science, a radical
     empiricist: Henri Victor Regnault</b>
     </figcaption>
 </figure>
@@ -38,7 +38,7 @@ the craftmanship it required? No. Did he need it? No.
          alt="Table comparing thermometers."
          height="400">
     <figcaption>
-    Figure Caption: <b>Regnault's intuition is that we should ensemble the
+    <b>Regnault's intuition is that we should ensemble the
     opinions of noisy judges to estimate their error.</b>
     </figcaption>
 </figure>
@@ -69,6 +69,17 @@ on making Diigital Elevation Models from aerial images. A map-making company."
 for a year on that failed start-up, IAVO. Schultz had trained as an oceanographer
 and yet he worked at the Computer Science department. The reason was that he is
 one of the pioneers of using computer vision to make maps. He has numerous patents
-in the field,
+in the field. The one we share is this one,
+[System and method for imaging through an irregular water surface ](https://patents.justia.com/patent/7630077)
 
-1.
+<p>
+<figure>
+    <img src="img/PeriscopePatent.png"
+         alt="Description of US Patent 7630077."
+         height="400">
+    <figcaption>
+    <b>Using the four vector components of any light ray to
+    deduce the slope of the water surface.</b>
+    </figcaption>
+</figure>
+</p>
