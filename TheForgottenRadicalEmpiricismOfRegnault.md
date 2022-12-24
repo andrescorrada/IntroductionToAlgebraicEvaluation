@@ -62,5 +62,13 @@ when we use it in conjunction with other noisy instruments?
 I stumbled upon the algebraic solution to this problem in 2008, ignorant of
 Regnault and his forgotten insights. I was working for Howard Schultz at
 the Computer Science Department at UMass/Amherst. Schultz had hired me a year
-earlier. He called me and stared by saying "I have a start-up that is working
+earlier. He called me and started by saying "I have a start-up that is working
 on making Diigital Elevation Models from aerial images. A map-making company."
+
+"Stop, you had me at map-making. How can I help you?" He hired me and we worked
+for a year on that failed start-up, IAVO. Schultz had trained as an oceanographer
+and yet he worked at the Computer Science department. The reason was that he is
+one of the pioneers of using computer vision to make maps. He has numerous patents
+in the field,
+
+1.
