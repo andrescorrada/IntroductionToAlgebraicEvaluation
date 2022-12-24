@@ -87,3 +87,8 @@ in the field. The one we share is this one,
 
 Howard had also conceived of and programmed a complete photogrammetric system
 to make Digital Elevation Maps from aerial images, the Terrest system.
+Howard was a brilliant experimentalist, a craftsman at making all his very
+precise and path breaking cameras. The Navy gave him $1M to build the camera
+based on the idea behind the patent we did together. And he did. He built a
+beautiful camera that ended up being used on top on a really unusual platform
+for oceanographic research.
