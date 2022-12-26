@@ -2,7 +2,7 @@
 
 Elon Musk's exposure to all of us of the Twitter thermometer of social
 likability has profound meaning for all of us. It is an imperfect
-thermoter of what we like and it is probably one of the main ways that
+thermometer of what we like and it is probably one of the main ways that
 Twitter maximizes ad revenue on its platform. How do I know, because for
 more than 10 years I have worked in the ad-tech industry and as a scientist
 this would be one of the most important tools for carrying out that
@@ -23,4 +23,4 @@ to answer but not all.
 ## 1. We are better off for knowing the likes to view ratio
 
 Let us agree that all judges, all experts are imperfect. So it is with simple
-instruments of the truth. The LtV
+instruments of the truth. The LtV thermometer is no different.
