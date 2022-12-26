@@ -26,3 +26,21 @@ to answer but not all.
 
 Let us agree that all judges, all experts are imperfect. So it is with simple
 instruments of the truth. The LtV thermometer is no different.
+
+## 2. Ways to use the LtV thermometer to communicate better
+
+### 2a. Study the views as your thread progresses
+
+Anyone can fall into the unsuspecting web of your dark thoughts. The views
+that you get on an initial tweet are not necessarily reflective of a
+reader's engagement. They may have landed on your tweet because you were
+trolling a conversation, etc.
+
+If your goal is to be heard, to write engaging content that grabs people's
+attention, you want to measure precisely that - engagement. And one good
+way to do so is to look at just the decay of views in your threads.
+
+Not everyone is interested in your angle on a story. They would like to move
+on. So views in your threads should mostly decline (you could have a viral
+tweet embeded in the thread!). Use this to polish your writing and experiment
+with new messages and ways to say it.
