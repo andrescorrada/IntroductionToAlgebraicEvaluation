@@ -1,7 +1,8 @@
 # The Twitter likes to views ratio as a social thermometer
 
-Elon Musk's exposure to all of us of the Twitter thermometer of social
-likability has profound meaning for all of us. It is an imperfect
+Elon Musk's simple tweet of the average likes to views ratio  
+(~1/100) has just calibrated our private views of our own tweets
+in the Twitter Agora. It is an imperfect
 thermometer of what we like and it is probably one of the main ways that
 Twitter maximizes ad revenue on its platform. How do I know? For
 more than 10 years I have worked in the ad-tech industry.
