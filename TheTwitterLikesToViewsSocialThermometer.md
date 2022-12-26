@@ -44,3 +44,15 @@ Not everyone is interested in your angle on a story. They would like to move
 on. So views in your threads should mostly decline (you could have a viral
 tweet embeded in the thread!). Use this to polish your writing and experiment
 with new messages and ways to say it.
+
+## 3. The evil side of safety engineering is trapping
+
+It is a well-known adage that the smartest people to scam are the smartest.
+Why? There are probably many reasons I do not know. But one that I think may
+be at play is our old foe - the fallacy of "only-intelligent" evaluation. That
+only those more intelligent than us, can understand us and evaluate us correctly.
+That we need to understand something to control it. That we have to be intelligent
+to manipulate beings more intelligent than ourselves.
+
+First off, when the space aliens smarter than us land, all of us are going to
+have to learn how to scam those smarter than us.
