@@ -3,10 +3,12 @@
 Elon Musk's exposure to all of us of the Twitter thermometer of social
 likability has profound meaning for all of us. It is an imperfect
 thermometer of what we like and it is probably one of the main ways that
-Twitter maximizes ad revenue on its platform. How do I know, because for
-more than 10 years I have worked in the ad-tech industry and as a scientist
-this would be one of the most important tools for carrying out that
-optimization.
+Twitter maximizes ad revenue on its platform. How do I know? For
+more than 10 years I have worked in the ad-tech industry.
+Simple statistics like these are the only levers available to a business
+like Twitter. They are simple, but very effective levers for
+extracting income - ad revenue - from our social likes, beliefs, prejudices,
+and hates.
 
 Its flaws and strengths can tell us a lot about ourselves and how any
 instrument, cannot answer all the questions we have. But it is far better
