@@ -57,3 +57,11 @@ to manipulate beings more intelligent than ourselves.
 
 First off, when the space aliens smarter than us land, all of us are going to
 have to learn how to scam those smarter than us.
+
+## 4. It depends on what the meaning of is a click is
+
+I joined the ad-tech early enough to be around when ad-tech was sold as
+having finally solved the measurement problem in advertising. We were finally
+get to see realiable metrics on what people saw and what interested them. What
+we got was impressions and clicks. And they are not the same thing. But somewhat
+related.
