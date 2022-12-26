@@ -64,4 +64,6 @@ I joined the ad-tech early enough to be around when ad-tech was sold as
 having finally solved the measurement problem in advertising. We were finally
 get to see realiable metrics on what people saw and what interested them. What
 we got was impressions and clicks. And they are not the same thing. But somewhat
-related.
+related. The promise of ad-tech in those early days was that it would solve
+Wanamaker's famous advertising problem - “Half my advertising spend is wasted; 
+the trouble is, I don’t know which half.”
