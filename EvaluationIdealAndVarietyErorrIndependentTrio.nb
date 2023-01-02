@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[    698883,      17774]
-NotebookOptionsPosition[    674760,      17386]
-NotebookOutlinePosition[    675209,      17404]
-CellTagsIndexPosition[    675166,      17401]
+NotebookDataLength[    695009,      17634]
+NotebookOptionsPosition[    670700,      17246]
+NotebookOutlinePosition[    671148,      17264]
+CellTagsIndexPosition[    671105,      17261]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -16830,54 +16830,54 @@ Cell[BoxData[
  RowBox[{"prevalenceAlgebraicEvaluation", "=", 
   RowBox[{
    RowBox[{
-    RowBox[{"(", 
-     RowBox[{
-      RowBox[{"-", 
+    RowBox[{
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{"-", 
+        RowBox[{"(", 
+         RowBox[{"-", 
+          FractionBox["29957776434081", "1842352775161025296"]}], ")"}]}], 
+       "-", 
+       RowBox[{"Sqrt", "[", 
+        RowBox[{
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"-", 
+            FractionBox["29957776434081", "1842352775161025296"]}], ")"}], 
+          "2"], "-", 
+         RowBox[{"4", "*", 
+          FractionBox["29957776434081", "1842352775161025296"], "*", 
+          
+          FractionBox["5659724374199502787125", 
+           "2500686153042940042298657344"]}]}], "]"}]}], ")"}], "/", 
+     RowBox[{"(", 
+      RowBox[{"2", "*", 
        RowBox[{"(", 
-        RowBox[{"-", 
-         FractionBox["29957776434081", "1842352775161025296"]}], ")"}]}], "-", 
-      RowBox[{"Sqrt", "[", 
-       RowBox[{
-        SuperscriptBox[
-         RowBox[{"(", 
-          RowBox[{"-", 
-           FractionBox["29957776434081", "1842352775161025296"]}], ")"}], 
-         "2"], "-", 
-        RowBox[{"4", "*", 
-         FractionBox["29957776434081", "1842352775161025296"], "*", 
-         FractionBox["5659724374199502787125", 
-          "2500686153042940042298657344"]}]}], "]"}]}], ")"}], "/", 
-    RowBox[{"(", 
-     RowBox[{"2", "*", 
-      RowBox[{"(", 
-       FractionBox["29957776434081", "1842352775161025296"], ")"}]}], ")"}]}],
-    "//", 
+        FractionBox["29957776434081", "1842352775161025296"], ")"}]}], 
+      ")"}]}], "//", "Simplify"}], "//", 
    RowBox[{
     RowBox[{"{", 
      RowBox[{"#", ",", 
       RowBox[{"N", "@", "#"}]}], "}"}], "&"}]}]}]], "Input",
  CellChangeTimes->{{3.881391029477874*^9, 3.88139117410817*^9}, {
-  3.881391543177197*^9, 3.8813915506275663`*^9}},
+  3.881391543177197*^9, 3.8813915506275663`*^9}, {3.881409202864213*^9, 
+  3.881409204762579*^9}},
  CellLabel->
-  "In[547]:=",ExpressionUUID->"b54caf61-a9a5-469b-b643-d36118166b63"],
+  "In[574]:=",ExpressionUUID->"b54caf61-a9a5-469b-b643-d36118166b63"],
 
 Cell[BoxData[
  RowBox[{"{", 
   RowBox[{
-   FractionBox[
-    RowBox[{"921176387580512648", " ", 
-     RowBox[{"(", 
-      RowBox[{
-       FractionBox["29957776434081", "1842352775161025296"], "-", 
-       FractionBox[
-        RowBox[{"9", " ", 
-         SqrtBox["416629916124502529599755188035849"]}], 
-        "16968990235620623488808"]}], ")"}]}], "29957776434081"], ",", 
-   "0.16711443965305098`"}], "}"}]], "Output",
+   RowBox[{
+    FractionBox["1", "2"], "-", 
+    FractionBox["11187722681", 
+     RowBox[{"18421", " ", 
+      SqrtBox["3328641826009"]}]]}], ",", "0.1671144396530509`"}], 
+  "}"}]], "Output",
  CellChangeTimes->{{3.881391141196402*^9, 3.8813911753670387`*^9}, 
-   3.8813915519956207`*^9},
+   3.8813915519956207`*^9, 3.881409206517322*^9},
  CellLabel->
-  "Out[547]=",ExpressionUUID->"a6930320-def6-443f-a49c-0a6f958d0289"]
+  "Out[574]=",ExpressionUUID->"1ecd8e62-cced-4eb2-a48d-d9ff72b4427b"]
 }, Open  ]],
 
 Cell[TextData[{
@@ -16959,72 +16959,81 @@ Cell[BoxData[
   "Out[546]=",ExpressionUUID->"da63e94b-9515-4dca-9551-470ea4d7e7c8"]
 }, Open  ]],
 
-Cell[CellGroupData[{
-
 Cell[BoxData[
  RowBox[{
-  RowBox[{
-   RowBox[{"Transpose", "@", 
-    RowBox[{"{", "\[IndentingNewLine]", 
-     RowBox[{
-      RowBox[{"{", 
+  RowBox[{"comparisonTable", "=", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"Transpose", "@", 
+      RowBox[{"{", "\[IndentingNewLine]", 
        RowBox[{
-       "\"\<evaluationGroundTruth[\!\(\*SubscriptBox[\(P\), \
-\(\[Alpha]\)]\)]\>\"", ",", "\[IndentingNewLine]", 
-        "\"\<majorityVotingEvaluation\>\"", ",", "\[IndentingNewLine]", 
-        "\"\<prevalenceAlgebraicEvaluation\>\""}], "}"}], ",", 
-      "\[IndentingNewLine]", 
-      RowBox[{"{", 
-       RowBox[{
-        RowBox[{
+        RowBox[{"{", 
          RowBox[{
-          RowBox[{"evaluationGroundTruth", "[", 
-           SubscriptBox["P", "\[Alpha]"], "]"}], "//", 
+         "\"\<evaluationGroundTruth[\!\(\*SubscriptBox[\(P\), \
+\(\[Alpha]\)]\)]\>\"", ",", "\[IndentingNewLine]", 
+          "\"\<majorityVotingEvaluation\>\"", ",", "\[IndentingNewLine]", 
+          "\"\<prevalenceAlgebraicEvaluation\>\""}], "}"}], ",", 
+        "\[IndentingNewLine]", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{
+           RowBox[{
+            RowBox[{"evaluationGroundTruth", "[", 
+             SubscriptBox["P", "\[Alpha]"], "]"}], "//", 
+            RowBox[{
+             RowBox[{"{", 
+              RowBox[{"#", ",", 
+               RowBox[{"N", "@", "#"}]}], "}"}], "&"}]}], "//", "Reverse"}], 
+          ",", "\[IndentingNewLine]", 
+          RowBox[{"majorityVotingEvaluation", "//", "Reverse"}], ",", 
+          "\[IndentingNewLine]", 
+          RowBox[{"prevalenceAlgebraicEvaluation", "//", "Reverse"}]}], 
+         "\[IndentingNewLine]", "}"}]}], "}"}]}], "//", 
+     RowBox[{
+      RowBox[{"Grid", "[", 
+       RowBox[{"#", ",", 
+        RowBox[{"Dividers", "->", "All"}], ",", 
+        RowBox[{"Alignment", "->", 
+         RowBox[{"{", "Left", "}"}]}]}], "]"}], "&"}]}], "//", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"Column", "[", 
+      RowBox[{
+       RowBox[{"{", "\[IndentingNewLine]", 
+        RowBox[{
+         RowBox[{"StringJoin", "[", "\[IndentingNewLine]", 
           RowBox[{
            RowBox[{"{", 
-            RowBox[{"#", ",", 
-             RowBox[{"N", "@", "#"}]}], "}"}], "&"}]}], "//", "Reverse"}], 
-        ",", "\[IndentingNewLine]", 
-        RowBox[{"majorityVotingEvaluation", "//", "Reverse"}], ",", 
-        "\[IndentingNewLine]", 
-        RowBox[{"prevalenceAlgebraicEvaluation", "//", "Reverse"}]}], 
-       "\[IndentingNewLine]", "}"}]}], "}"}]}], "//", 
-   RowBox[{
-    RowBox[{"Grid", "[", 
-     RowBox[{"#", ",", 
-      RowBox[{"Dividers", "->", "All"}], ",", 
-      RowBox[{"Alignment", "->", 
-       RowBox[{"{", "Left", "}"}]}]}], "]"}], "&"}]}], "//", 
-  "\[IndentingNewLine]", 
-  RowBox[{
-   RowBox[{"Column", "[", 
-    RowBox[{
-     RowBox[{"{", "\[IndentingNewLine]", 
-      RowBox[{
-       RowBox[{"StringJoin", "[", "\[IndentingNewLine]", 
-        RowBox[{
-         RowBox[{"{", 
-          RowBox[{
-          "\"\<Algebraic evaluation is not just different than majority \
+            RowBox[{
+            "\"\<Algebraic evaluation is not just different than majority \
 voting, it is better.\>\"", ",", "\[IndentingNewLine]", 
-           "\"\<The majority vote estimate of the \[Alpha] label obtained \
+             "\"\<The majority vote estimate of the \[Alpha] label obtained \
 using three binary classifiers\>\"", ",", "\[IndentingNewLine]", 
-           "\"\<tested on an unlabeled subset of UCI Adult is compared here \
+             "\"\<tested on an unlabeled subset of UCI Adult is compared here \
 to the actual prevalence\>\"", ",", "\[IndentingNewLine]", 
-           "\"\<of the label in the test sample. Majority voting is off by \
+             "\"\<of the label in the test sample. Majority voting is off by \
 about 6%.\>\"", ",", "\n", "                ", 
-           "\"\<In contrast, algebraic evaluation yields an estimate that is \
-off by about 1%.\>\""}], "}"}], "//", 
-         RowBox[{
-          RowBox[{"Riffle", "[", 
-           RowBox[{"#", ",", "\"\<\\n\>\""}], "]"}], "&"}]}], "]"}], ",", 
-       "#"}], "}"}], ",", 
-     RowBox[{"Alignment", "->", "Center"}]}], "]"}], "&"}]}]], "Input",
+             "\"\<In contrast, algebraic evaluation yields an estimate that \
+is off by about 1%.\>\""}], "}"}], "//", 
+           RowBox[{
+            RowBox[{"Riffle", "[", 
+             RowBox[{"#", ",", "\"\<\\n\>\""}], "]"}], "&"}]}], "]"}], ",", 
+         "#"}], "}"}], ",", 
+       RowBox[{"Alignment", "->", "Center"}]}], "]"}], "&"}]}]}], 
+  ";"}]], "Input",
  CellChangeTimes->{{3.881391618750135*^9, 3.88139185545122*^9}, {
   3.8813918994310703`*^9, 3.881392523802464*^9}, {3.8813925687607813`*^9, 
-  3.881392569541984*^9}, {3.8813926002643957`*^9, 3.881392610590781*^9}},
+  3.881392569541984*^9}, {3.8813926002643957`*^9, 3.881392610590781*^9}, {
+  3.881408790442717*^9, 3.881408797153576*^9}},
  CellLabel->
-  "In[567]:=",ExpressionUUID->"c07e317e-c173-40ee-90fc-2f64184c554d"],
+  "In[575]:=",ExpressionUUID->"c07e317e-c173-40ee-90fc-2f64184c554d"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData["comparisonTable"], "Input",
+ CellChangeTimes->{{3.8814088008244677`*^9, 3.881408802979151*^9}},
+ CellLabel->
+  "In[576]:=",ExpressionUUID->"e16581c5-9cc0-452b-b165-c0be4e9923e3"],
 
 Cell[BoxData[
  TagBox[GridBox[{
@@ -17047,17 +17056,12 @@ yields an estimate that is off by about 1%.\"\>"},
            FractionBox["7979", "36842"]}], "}"}]},
         {"\<\"prevalenceAlgebraicEvaluation\"\>", 
          RowBox[{"{", 
-          RowBox[{"0.16711443965305098`", ",", 
-           FractionBox[
-            RowBox[{"921176387580512648", " ", 
-             RowBox[{"(", 
-              RowBox[{
-               FractionBox["29957776434081", "1842352775161025296"], "-", 
-               FractionBox[
-                RowBox[{"9", " ", 
-                 SqrtBox["416629916124502529599755188035849"]}], 
-                "16968990235620623488808"]}], ")"}]}], "29957776434081"]}], 
-          "}"}]}
+          RowBox[{"0.1671144396530509`", ",", 
+           RowBox[{
+            FractionBox["1", "2"], "-", 
+            FractionBox["11187722681", 
+             RowBox[{"18421", " ", 
+              SqrtBox["3328641826009"]}]]}]}], "}"}]}
        },
        AutoDelete->False,
        GridBoxAlignment->{"Columns" -> {{Left}}},
@@ -17069,10 +17073,31 @@ yields an estimate that is off by about 1%.\"\>"},
    GridBoxAlignment->{"Columns" -> {{Center}}},
    GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}],
   "Column"]], "Output",
- CellChangeTimes->{3.8813925703830137`*^9, 3.881392615350425*^9},
+ CellChangeTimes->{3.881408803866564*^9, 3.881409231888636*^9},
  CellLabel->
-  "Out[567]=",ExpressionUUID->"c33184fc-d60a-4b66-bc22-1823c7b73a75"]
-}, {2}]],
+  "Out[576]=",ExpressionUUID->"33dc0c25-7d10-40c2-baaa-075853776cde"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Export", "[", 
+  RowBox[{
+  "\"\<../../Dropbox/Twitter/AEvsMVUCIAdultComparison.png\>\"", ",", 
+   "comparisonTable", ",", 
+   RowBox[{"ImageSize", "->", "2400"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.8814088079931726`*^9, 3.881408866610298*^9}, {
+  3.881408942238077*^9, 3.881408945646842*^9}},
+ CellLabel->
+  "In[577]:=",ExpressionUUID->"3a9f961c-2c28-4653-ad9c-1ffafc0ea985"],
+
+Cell[BoxData["\<\"../../Dropbox/Twitter/AEvsMVUCIAdultComparison.png\"\>"], \
+"Output",
+ CellChangeTimes->{3.881408868809623*^9, 3.881408947102804*^9, 
+  3.881409260187949*^9},
+ CellLabel->
+  "Out[577]=",ExpressionUUID->"492f58f1-7d28-4cd3-94fb-8a309a8fa438"]
+}, Open  ]],
 
 Cell[CellGroupData[{
 
@@ -17087,34 +17112,26 @@ Training theory have. Inference and decision are two different things. The \
 same applies in Evaluation land. There is a decision side to using the crowd \
 - majority voting. There is an inference side to using the crowd - algebraic \
 evaluation. This is vividly demonstrated by the algebra above that displays \
-the estimate the majority voting makes for the prevalence of the alpha label \
-in the test sample. Along side it is the result of all our algebraic efforts \
+the estimate majority voting makes for the prevalence of the alpha label in \
+the test sample. Along side it is the result of all our algebraic efforts \
 preceding it. The two estimates are nothing like each other.\
 \>", "Text",
  CellChangeTimes->{{3.881139940734667*^9, 3.8811401391313677`*^9}, 
    3.881140175275318*^9, {3.8813926419553833`*^9, 3.881392658934314*^9}, {
-   3.881392850687646*^9, 
-   3.8813928547427607`*^9}},ExpressionUUID->"668ae76a-0f81-429d-9a3e-\
-ceb07de5b5ba"],
+   3.881392850687646*^9, 3.8813928547427607`*^9}, {3.881570851375616*^9, 
+   3.8815709506145782`*^9}},ExpressionUUID->"668ae76a-0f81-429d-9a3e-\
+ceb07de5b5ba"]
+}, Open  ]]
+}, Open  ]],
 
 Cell[CellGroupData[{
 
-Cell[BoxData[
- RowBox[{"Export", "[", 
-  RowBox[{"\"\<EvaluationIdealAndVarietyErorrIndependentTrio.pdf\>\"", ",", 
-   RowBox[{"EvaluationNotebook", "[", "]"}]}], "]"}]], "Input",
- CellChangeTimes->{{3.881041722566513*^9, 3.881041732274413*^9}, 
-   3.881044769016779*^9},
- CellLabel->
-  "In[474]:=",ExpressionUUID->"75546c54-d565-4748-9446-673b45db8a50"],
+Cell["Algebraic evaluation of classifier label accuracy", "Subsection",
+ CellChangeTimes->{{3.881483149223206*^9, 
+  3.8814831635118732`*^9}},ExpressionUUID->"d9b16f23-b9a6-4abc-813b-\
+8ab8966a0e33"],
 
-Cell[BoxData["\<\"EvaluationIdealAndVarietyErorrIndependentTrio.pdf\"\>"], \
-"Output",
- CellChangeTimes->{3.881044775082488*^9, 3.881045534247136*^9, 
-  3.8810456148957863`*^9, 3.881045717157504*^9},
- CellLabel->
-  "Out[474]=",ExpressionUUID->"e9039c88-9060-4407-aade-78da43efcca5"]
-}, Open  ]],
+Cell["", "Text",ExpressionUUID->"5ca5c54f-04ff-4be4-b300-6e8371da8678"],
 
 Cell[CellGroupData[{
 
@@ -17145,247 +17162,90 @@ Cell[BoxData[
  CellChangeTimes->{{3.88035313223096*^9, 3.88035315880947*^9}},
  CellLabel->
   "Out[438]=",ExpressionUUID->"95ede25c-5192-4221-9c8b-3d34e098ff37"]
+}, Open  ]]
+}, Open  ]]
 }, Open  ]],
 
 Cell[CellGroupData[{
 
-Cell[BoxData[
- RowBox[{
-  RowBox[{"(", 
-   RowBox[{
-    RowBox[{"4", " ", 
-     SubscriptBox["f", 
-      RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Beta]"}]], " ", 
-     SubscriptBox["f", 
-      RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Beta]"}]], " ", 
-     SubscriptBox["f", 
-      RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}]]}], "+", 
-    RowBox[{"4", " ", 
-     SubscriptBox["f", 
-      RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Beta]"}]], " ", 
-     SubscriptBox["f", 
-      RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Beta]"}]], " ", 
-     SubscriptBox["f", 
-      RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "+", 
-    RowBox[{"4", " ", 
-     SubscriptBox["f", 
-      RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Beta]"}]], " ", 
-     SubscriptBox["f", 
-      RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}]], " ", 
-     SubscriptBox["f", 
-      RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "+", 
-    RowBox[{"4", " ", 
-     SubscriptBox["f", 
-      RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Beta]"}]], " ", 
-     SubscriptBox["f", 
-      RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}]], " ", 
-     SubscriptBox["f", 
-      RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "+", 
-    SubsuperscriptBox["f", 
-     RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}], "2"], "+", 
-    RowBox[{"4", " ", 
-     SubscriptBox["f", 
-      RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Beta]"}]], " ", 
-     SubsuperscriptBox["f", 
-      RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}], "2"]}], "+", 
-    RowBox[{"4", " ", 
-     SubscriptBox["f", 
-      RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Beta]"}]], " ", 
-     SubsuperscriptBox["f", 
-      RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}], "2"]}], "+", 
-    RowBox[{"4", " ", 
-     SubscriptBox["f", 
-      RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}]], " ", 
-     SubsuperscriptBox["f", 
-      RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}], "2"]}], "+", 
-    RowBox[{"4", " ", 
-     SubsuperscriptBox["f", 
-      RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}], "3"]}]}], ")"}], "//", 
-  RowBox[{
-   RowBox[{"PolynomialReduce", "[", 
-    RowBox[{"#", ",", 
-     RowBox[{"{", " ", 
-      RowBox[{"(", 
-       RowBox[{
-        SubscriptBox["f", 
-         RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Beta]"}]], "+", 
-        SubscriptBox["f", 
-         RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], ")"}], "}"}],
-      ",", "votePatternFrequencies"}], "]"}], "&"}]}]], "Input",
- CellChangeTimes->{{3.8802780929838333`*^9, 3.880278104810302*^9}, {
-  3.8803531072911663`*^9, 3.880353125047969*^9}, {3.880353165883931*^9, 
-  3.880353189547296*^9}},
- CellLabel->
-  "In[439]:=",ExpressionUUID->"1d8c99e5-482e-4132-9e93-9aaed51c9a97"],
+Cell["When is algebraic evaluation warranted?", "Section",
+ CellChangeTimes->{{3.8815709676728697`*^9, 
+  3.8815709798097878`*^9}},ExpressionUUID->"17aa81b7-da50-4f23-875f-\
+3fe22201edcb"],
 
-Cell[BoxData[
- RowBox[{"{", 
-  RowBox[{
-   RowBox[{"{", 
-    RowBox[{
-     RowBox[{"4", " ", 
-      SubscriptBox["f", 
-       RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Beta]"}]], " ", 
-      SubscriptBox["f", 
-       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}]]}], "+", 
-     RowBox[{"4", " ", 
-      SubscriptBox["f", 
-       RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Beta]"}]], " ", 
-      SubscriptBox["f", 
-       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "+", 
-     RowBox[{"4", " ", 
-      SubscriptBox["f", 
-       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}]], " ", 
-      SubscriptBox["f", 
-       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "+", 
-     RowBox[{"4", " ", 
-      SubsuperscriptBox["f", 
-       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}], "2"]}]}], "}"}], 
-   ",", 
-   SubsuperscriptBox["f", 
-    RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}], "2"]}], 
-  "}"}]], "Output",
- CellChangeTimes->{3.8803531910931664`*^9},
- CellLabel->
-  "Out[439]=",ExpressionUUID->"c5070bd2-79e6-4e38-98f8-b83c640504ae"]
-}, Open  ]],
+Cell["\<\
+The example we have been using from a single test of three binary classifiers \
+trained on UCI Adult was picked for various reasons. Let us summarize them:\
+\>", "Text",
+ CellChangeTimes->{{3.8815709827304792`*^9, 
+  3.881571022286476*^9}},ExpressionUUID->"80d5d61c-ec02-4d41-b27c-\
+4fafae2cdac2"],
 
-Cell[CellGroupData[{
+Cell["\<\
+We are using the UCI Adult dataset. If the prized label was common, why do AI \
+to identify it? The economic utility of using AI in a business lies in \
+detecting the rare, valuable thing. Common valuable things, like air, need no \
+detector. They are there for the picking. UCI Adult has the \
+\[OpenCurlyDoubleQuote]0\[CloseCurlyDoubleQuote] label with a prevalence of \
+about 30% - the adults that had an income greater than $50K in the income tax \
+returns pool that was used to build the detection features. This long tail \
+skew is common in nature and technological settings. The converse, by the \
+way, is possible. It may be that the rare thing is the dangerous thing. You \
+are detecting carbon monoxide (CO) in a bedroom, for example. Mathematically \
+both cases are essentially identically and it is just a matter of accounting \
+how you transform one (detecting a valuable thing) to the other (detecting a \
+dangerous thing). For the purposes of our discussion, let us continue with \
+the rosier outlook - we are trying to detect a positive thing.\
+\>", "ItemNumbered",
+ CellChangeTimes->{{3.881650576883237*^9, 3.881650856250143*^9}, {
+  3.881650895334515*^9, 3.881650946756982*^9}, {3.8816512740716343`*^9, 
+  3.8816514750837812`*^9}},ExpressionUUID->"6e572e5f-04f4-40cd-81e6-\
+b7459cbb4cd3"],
 
-Cell[BoxData[
- RowBox[{"FixedPoint", "[", 
-  RowBox[{
-   RowBox[{
-    RowBox[{"RewritePolynomials", "[", 
-     RowBox[{"#", ",", 
-      RowBox[{"{", " ", 
-       RowBox[{
-        RowBox[{
-         RowBox[{"(", 
-          RowBox[{
-           SubscriptBox["f", 
-            RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}]], "+", 
-           SubscriptBox["f", 
-            RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], ")"}], "->", 
-         SubscriptBox["f", 
-          RowBox[{"1", ",", "2", ",", "\[Beta]"}]]}], ",", 
-        "\[IndentingNewLine]", 
-        RowBox[{
-         RowBox[{"(", 
-          RowBox[{
-           SubscriptBox["f", 
-            RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Beta]"}]], "+", 
-           SubscriptBox["f", 
-            RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], ")"}], "->", 
-         SubscriptBox["f", 
-          RowBox[{"1", ",", "3", ",", "\[Beta]"}]]}], ",", 
-        RowBox[{
-         RowBox[{"(", 
-          RowBox[{
-           SubscriptBox["f", 
-            RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Beta]"}]], "+", 
-           SubscriptBox["f", 
-            RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], ")"}], "->", 
-         SubscriptBox["f", 
-          RowBox[{"2", ",", "3", ",", "\[Beta]"}]]}]}], "}"}]}], "]"}], "&"}],
-    ",", 
-   RowBox[{"(", 
-    RowBox[{
-     RowBox[{"4", " ", 
-      SubscriptBox["f", 
-       RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Beta]"}]], " ", 
-      SubscriptBox["f", 
-       RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Beta]"}]], " ", 
-      SubscriptBox["f", 
-       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}]]}], "+", 
-     RowBox[{"4", " ", 
-      SubscriptBox["f", 
-       RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Beta]"}]], " ", 
-      SubscriptBox["f", 
-       RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Beta]"}]], " ", 
-      SubscriptBox["f", 
-       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "+", 
-     RowBox[{"4", " ", 
-      SubscriptBox["f", 
-       RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Beta]"}]], " ", 
-      SubscriptBox["f", 
-       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}]], " ", 
-      SubscriptBox["f", 
-       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "+", 
-     RowBox[{"4", " ", 
-      SubscriptBox["f", 
-       RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Beta]"}]], " ", 
-      SubscriptBox["f", 
-       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}]], " ", 
-      SubscriptBox["f", 
-       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}]]}], "+", 
-     SubsuperscriptBox["f", 
-      RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}], "2"], "+", 
-     RowBox[{"4", " ", 
-      SubscriptBox["f", 
-       RowBox[{"\[Alpha]", ",", "\[Beta]", ",", "\[Beta]"}]], " ", 
-      SubsuperscriptBox["f", 
-       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}], "2"]}], "+", 
-     RowBox[{"4", " ", 
-      SubscriptBox["f", 
-       RowBox[{"\[Beta]", ",", "\[Alpha]", ",", "\[Beta]"}]], " ", 
-      SubsuperscriptBox["f", 
-       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}], "2"]}], "+", 
-     RowBox[{"4", " ", 
-      SubscriptBox["f", 
-       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Alpha]"}]], " ", 
-      SubsuperscriptBox["f", 
-       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}], "2"]}], "+", 
-     RowBox[{"4", " ", 
-      SubsuperscriptBox["f", 
-       RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}], "3"]}]}], ")"}]}],
-   "]"}]], "Input",
- CellChangeTimes->{{3.8803532542620163`*^9, 3.880353263371409*^9}, {
-  3.880353294736272*^9, 3.880353318591465*^9}, {3.880353348915475*^9, 
-  3.8803533675914593`*^9}, {3.880353405925606*^9, 3.880353440974416*^9}},
- CellLabel->
-  "In[442]:=",ExpressionUUID->"5ee2c358-5c82-4d12-aef7-bf29eb6fdbbb"],
+Cell["\<\
+If you were looking for diamonds or gold, the prevalence would be even rarer. \
+This rarity of the valuable label in binary classification means that average \
+performance or the \[OpenCurlyDoubleQuote]exam grade\[CloseCurlyDoubleQuote] \
+is not so useful. The best detectors are good at finding the rare thing \
+without letting too much of the common stuff through. The run we have been \
+using through out this notebooks has the feature that one of the detectors is \
+malfunctioning - it has 21% accuracy of detecting the \[Alpha] label. This \
+run mimics an important business failure mode - a detector has flipped on the \
+rare label. This is the reason that the algebraic evaluation is much better \
+than majority voting. If all the classifiers were working correctly then \
+majority voting would be closer to the actual prevalence and algebraic \
+evaluation would be marginally better. If everything is working okay, there \
+is no advantage to using algebraic evaluation over using majority voting. \
+Both algorithms would output assessments that would lead to marginally \
+different outcomes that upon deployment may not be measurable or repeatable.\
+\>", "ItemNumbered",
+ CellChangeTimes->{{3.881650576883237*^9, 3.881650856250143*^9}, {
+  3.881650895334515*^9, 3.881650921619108*^9}, {3.881650952917848*^9, 
+  3.881651098074417*^9}, {3.881651138952516*^9, 3.881651248006138*^9}, {
+  3.8816515114276543`*^9, 
+  3.88165170030263*^9}},ExpressionUUID->"ae17776f-ee99-4a2e-9be2-\
+f87c8cf8ae0e"],
 
-Cell[BoxData[
- RowBox[{
-  RowBox[{"4", " ", 
-   SubscriptBox["f", 
-    RowBox[{"1", ",", "2", ",", "\[Beta]"}]], " ", 
-   SubscriptBox["f", 
-    RowBox[{"1", ",", "3", ",", "\[Beta]"}]], " ", 
-   SubscriptBox["f", 
-    RowBox[{"2", ",", "3", ",", "\[Beta]"}]]}], "+", 
-  SubsuperscriptBox["f", 
-   RowBox[{"\[Beta]", ",", "\[Beta]", ",", "\[Beta]"}], "2"]}]], "Output",
- CellChangeTimes->{3.8803533280859003`*^9, 3.8803533828640738`*^9, 
-  3.880353448148484*^9},
- CellLabel->
-  "Out[442]=",ExpressionUUID->"8550d7dd-628e-4510-b7f3-9ae9799feeb4"]
-}, Open  ]],
-
-Cell[CellGroupData[{
-
-Cell[BoxData[
- RowBox[{"Export", "[", 
-  RowBox[{"\"\<EvaluationIdealAndVarietyErorrIndependentTrio.pdf\>\"", ",", 
-   RowBox[{"EvaluationNotebook", "[", "]"}]}], "]"}]], "Input",
- CellLabel->
-  "In[569]:=",ExpressionUUID->"05dd2cb4-db45-4613-94fe-3003f2b589a1"],
-
-Cell[BoxData["\<\"EvaluationIdealAndVarietyErorrIndependentTrio.pdf\"\>"], \
-"Output",
- CellChangeTimes->{
-  3.881045748645342*^9, {3.881392902966262*^9, 3.881392917743814*^9}},
- CellLabel->
-  "Out[569]=",ExpressionUUID->"db9b1eef-3170-4821-8f32-df3f209f1849"]
-}, Open  ]]
-}, Open  ]]
-}, Open  ]]
+Cell["\<\
+The test was successful. But only because we know what the ground truth \
+answer is. We have confirmed, using the correct label for the dataset, that \
+for this test run, the classifiers are nearly error independent. But this is \
+still not quite what we would need to increase our safety upon deployments. \
+How would we know, on a given test whether the classifiers were error \
+independent enough for us to trust the outcome of this simple evaluation \
+model? We need more that the independent model to solve this engineering \
+problem. This is the subject of another notebook - \
+ErrorDependencyAndHowToMeasureIt.nb\
+\>", "ItemNumbered",
+ CellChangeTimes->{{3.881650576883237*^9, 3.881650690742402*^9}, {
+  3.881651748446608*^9, 3.881651826321669*^9}, {3.881651856923122*^9, 
+  3.881652032350522*^9}},ExpressionUUID->"6d533bf5-8cb3-48ae-a523-\
+3b6d1e858794"]
 }, Open  ]]
 }, Open  ]]
 },
-WindowSize->{1395, 882},
-WindowMargins->{{238, Automatic}, {Automatic, 24}},
+WindowSize->{1272, 917},
+WindowMargins->{{238, Automatic}, {4, Automatic}},
 PrintingCopies->1,
 PrintingPageRange->{1, Automatic},
 FrontEndVersion->"13.1 for Mac OS X ARM (64-bit) (June 16, 2022)",
@@ -17407,11 +17267,11 @@ Cell[CellGroupData[{
 Cell[580, 22, 236, 6, 200, "Title",ExpressionUUID->"29955daf-01cd-4fcb-bae4-b31c33b32906"],
 Cell[CellGroupData[{
 Cell[841, 32, 157, 3, 84, "Section",ExpressionUUID->"cfcc22cd-6c56-4439-b0bd-f5f657cbab6b"],
-Cell[1001, 37, 1511, 24, 274, "Text",ExpressionUUID->"ef8202ac-beed-4046-9382-e6a1e9c61684"]
+Cell[1001, 37, 1511, 24, 303, "Text",ExpressionUUID->"ef8202ac-beed-4046-9382-e6a1e9c61684"]
 }, Open  ]],
 Cell[CellGroupData[{
 Cell[2549, 66, 219, 5, 84, "Section",ExpressionUUID->"26697b35-35f1-4bb2-911b-f7e819fd94e0"],
-Cell[2771, 73, 1129, 17, 159, "Text",ExpressionUUID->"59b48089-8f3d-4587-9524-888d94a66bba"],
+Cell[2771, 73, 1129, 17, 188, "Text",ExpressionUUID->"59b48089-8f3d-4587-9524-888d94a66bba"],
 Cell[CellGroupData[{
 Cell[3925, 94, 224, 5, 67, "Subsection",ExpressionUUID->"0fa8a40e-7e8f-4b49-a722-2308777a2285"],
 Cell[4152, 101, 665, 11, 73, "Text",ExpressionUUID->"ba358991-b2cc-44ad-aee7-9d420cfdbc7b"],
@@ -17723,57 +17583,57 @@ Cell[590861, 15378, 3319, 93, 74, "Output",ExpressionUUID->"73f044b1-75b5-4a7d-9
 }, Open  ]],
 Cell[CellGroupData[{
 Cell[594217, 15476, 1007, 28, 64, "Input",ExpressionUUID->"3c12a6d0-cb08-4d47-8102-81369a148de7"],
-Cell[595227, 15506, 55517, 1226, 929, "Output",ExpressionUUID->"227318a8-165a-4878-bc0b-12ff69caa8ba"]
+Cell[595227, 15506, 55517, 1226, 985, "Output",ExpressionUUID->"227318a8-165a-4878-bc0b-12ff69caa8ba"]
 }, Open  ]],
 Cell[650759, 16735, 763, 21, 73, "Text",ExpressionUUID->"9860cf5d-f5ea-4082-b46a-abba1f9f37e8"],
 Cell[CellGroupData[{
 Cell[651547, 16760, 291, 5, 64, "Input",ExpressionUUID->"b1b11592-05c3-4ff0-b284-0006c31a5dd9"],
-Cell[651841, 16767, 1394, 37, 60, "Output",ExpressionUUID->"82b4fac7-908d-4b77-98aa-d3017a8162be"],
+Cell[651841, 16767, 1394, 37, 107, "Output",ExpressionUUID->"82b4fac7-908d-4b77-98aa-d3017a8162be"],
 Cell[653238, 16806, 716, 17, 119, "Output",ExpressionUUID->"cecdb11f-fe19-418e-b822-30ff8dfa104e"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[653991, 16828, 1149, 33, 136, "Input",ExpressionUUID->"b54caf61-a9a5-469b-b643-d36118166b63"],
-Cell[655143, 16863, 599, 16, 72, "Output",ExpressionUUID->"a6930320-def6-443f-a49c-0a6f958d0289"]
+Cell[653991, 16828, 1274, 37, 186, "Input",ExpressionUUID->"b54caf61-a9a5-469b-b643-d36118166b63"],
+Cell[655268, 16867, 433, 12, 85, "Output",ExpressionUUID->"1ecd8e62-cced-4eb2-a48d-d9ff72b4427b"]
 }, Open  ]],
-Cell[655757, 16882, 440, 11, 44, "Text",ExpressionUUID->"2963c499-99d3-4924-93ad-a0ee22c41481"],
+Cell[655716, 16882, 440, 11, 44, "Text",ExpressionUUID->"2963c499-99d3-4924-93ad-a0ee22c41481"],
 Cell[CellGroupData[{
-Cell[656222, 16897, 850, 22, 40, "Input",ExpressionUUID->"869b7c2b-333c-45c0-9574-5edfc01e900a"],
-Cell[657075, 16921, 300, 8, 60, "Output",ExpressionUUID->"36f3f613-86ab-4b2a-ae29-c0b3a991252c"]
+Cell[656181, 16897, 850, 22, 40, "Input",ExpressionUUID->"869b7c2b-333c-45c0-9574-5edfc01e900a"],
+Cell[657034, 16921, 300, 8, 60, "Output",ExpressionUUID->"36f3f613-86ab-4b2a-ae29-c0b3a991252c"]
 }, Open  ]],
-Cell[657390, 16932, 192, 3, 44, "Text",ExpressionUUID->"5ca94310-2ee2-44da-80aa-f65c0fee20de"],
+Cell[657349, 16932, 192, 3, 44, "Text",ExpressionUUID->"5ca94310-2ee2-44da-80aa-f65c0fee20de"],
 Cell[CellGroupData[{
-Cell[657607, 16939, 370, 10, 37, "Input",ExpressionUUID->"4b933382-760d-494b-afa1-174c3038584e"],
-Cell[657980, 16951, 273, 7, 60, "Output",ExpressionUUID->"da63e94b-9515-4dca-9551-470ea4d7e7c8"]
+Cell[657566, 16939, 370, 10, 37, "Input",ExpressionUUID->"4b933382-760d-494b-afa1-174c3038584e"],
+Cell[657939, 16951, 273, 7, 60, "Output",ExpressionUUID->"da63e94b-9515-4dca-9551-470ea4d7e7c8"]
 }, Open  ]],
+Cell[658227, 16961, 2871, 67, 428, "Input",ExpressionUUID->"c07e317e-c173-40ee-90fc-2f64184c554d"],
 Cell[CellGroupData[{
-Cell[658290, 16963, 2661, 63, 428, "Input",ExpressionUUID->"c07e317e-c173-40ee-90fc-2f64184c554d"],
-Cell[660954, 17028, 2005, 45, 271, "Output",ExpressionUUID->"c33184fc-d60a-4b66-bc22-1823c7b73a75"]
-}, {2}]],
-Cell[CellGroupData[{
-Cell[662993, 17078, 196, 3, 56, "Subsubsection",ExpressionUUID->"5c354faa-7f5e-4cd7-8088-23aaa9bcc738"],
-Cell[663192, 17083, 882, 14, 131, "Text",ExpressionUUID->"668ae76a-0f81-429d-9a3e-ceb07de5b5ba"],
-Cell[CellGroupData[{
-Cell[664099, 17101, 354, 7, 37, "Input",ExpressionUUID->"75546c54-d565-4748-9446-673b45db8a50"],
-Cell[664456, 17110, 282, 5, 42, "Output",ExpressionUUID->"e9039c88-9060-4407-aade-78da43efcca5"]
+Cell[661123, 17032, 192, 3, 37, "Input",ExpressionUUID->"e16581c5-9cc0-452b-b165-c0be4e9923e3"],
+Cell[661318, 17037, 1773, 40, 257, "Output",ExpressionUUID->"33dc0c25-7d10-40c2-baaa-075853776cde"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[664775, 17120, 199, 3, 37, "Input",ExpressionUUID->"36154e25-7c4b-4a28-8a4d-15d8a5854550"],
-Cell[664977, 17125, 900, 21, 45, "Output",ExpressionUUID->"95ede25c-5192-4221-9c8b-3d34e098ff37"]
+Cell[663128, 17082, 406, 9, 37, "Input",ExpressionUUID->"3a9f961c-2c28-4653-ad9c-1ffafc0ea985"],
+Cell[663537, 17093, 259, 5, 42, "Output",ExpressionUUID->"492f58f1-7d28-4cd3-94fb-8a309a8fa438"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[665914, 17151, 2771, 67, 72, "Input",ExpressionUUID->"1d8c99e5-482e-4132-9e93-9aaed51c9a97"],
-Cell[668688, 17220, 1084, 29, 47, "Output",ExpressionUUID->"c5070bd2-79e6-4e38-98f8-b83c640504ae"]
+Cell[663833, 17103, 196, 3, 56, "Subsubsection",ExpressionUUID->"5c354faa-7f5e-4cd7-8088-23aaa9bcc738"],
+Cell[664032, 17108, 926, 14, 159, "Text",ExpressionUUID->"668ae76a-0f81-429d-9a3e-ceb07de5b5ba"]
+}, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[669809, 17254, 3777, 92, 130, "Input",ExpressionUUID->"5ee2c358-5c82-4d12-aef7-bf29eb6fdbbb"],
-Cell[673589, 17348, 545, 14, 47, "Output",ExpressionUUID->"8550d7dd-628e-4510-b7f3-9ae9799feeb4"]
-}, Open  ]],
+Cell[665007, 17128, 199, 3, 67, "Subsection",ExpressionUUID->"d9b16f23-b9a6-4abc-813b-8ab8966a0e33"],
+Cell[665209, 17133, 71, 0, 44, "Text",ExpressionUUID->"5ca5c54f-04ff-4be4-b300-6e8371da8678"],
 Cell[CellGroupData[{
-Cell[674171, 17367, 262, 5, 37, "Input",ExpressionUUID->"05dd2cb4-db45-4613-94fe-3003f2b589a1"],
-Cell[674436, 17374, 260, 5, 42, "Output",ExpressionUUID->"db9b1eef-3170-4821-8f32-df3f209f1849"]
+Cell[665305, 17137, 199, 3, 37, "Input",ExpressionUUID->"36154e25-7c4b-4a28-8a4d-15d8a5854550"],
+Cell[665507, 17142, 900, 21, 45, "Output",ExpressionUUID->"95ede25c-5192-4221-9c8b-3d34e098ff37"]
 }, Open  ]]
 }, Open  ]]
-}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[666468, 17170, 188, 3, 84, "Section",ExpressionUUID->"17aa81b7-da50-4f23-875f-3fe22201edcb"],
+Cell[666659, 17175, 307, 6, 73, "Text",ExpressionUUID->"80d5d61c-ec02-4d41-b27c-4fafae2cdac2"],
+Cell[666969, 17183, 1317, 19, 198, "ItemNumbered",ExpressionUUID->"6e572e5f-04f4-40cd-81e6-b7459cbb4cd3"],
+Cell[668289, 17204, 1508, 22, 224, "ItemNumbered",ExpressionUUID->"ae17776f-ee99-4a2e-9be2-f87c8cf8ae0e"],
+Cell[669800, 17228, 872, 14, 145, "ItemNumbered",ExpressionUUID->"6d533bf5-8cb3-48ae-a523-3b6d1e858794"]
 }, Open  ]]
 }, Open  ]]
 }
