@@ -153,6 +153,44 @@ is,
 
 $$ P_\alpha (P_{1,\alpha} - f_\alpha) - (1 - P_\alpha) (P_{1,\beta} - f_\beta).$$
 
+We can conclude that the evaluation variety for a single binary classifier must
+be a two-dimensional surface in the three dimensional space of the sample
+statistics. This is the two-dimensional surface shown in the figure at the top
+of this document.
+
+## Conclusions and next steps
+
+What have we accomplished? What are our next steps in applying algebraic
+geometry to the task of evaluating binary classifiers on unlabeled data?
+
+1. We set out to evaluate a single binary classifier on unlabeled data. We
+found out that we could not get a point estimate for the performance of
+the classifier. The best we could do is to define a 2-d surface in the sample
+statistics 3-d space. Algebraic evaluation reduced our uncertainty of the
+classifiers performance from a 3-d cube to a 2-d surface.
+
+2. Note that at no point did we need to specify any distribution or make
+any assumptions about how the classifier made the decisions or how difficult
+the items were in the dataset. Purely algebraic considerations lead us to
+the discovery of a 2-d surface in the 3-d unknown sample statistics space
+that must contain the true evaluation values.
+
+3. Once we go beyond the trivial ensemble, we must consider the topic of error
+independence for ensembles of noisy binary classifiers. How do we define
+error independence when we are not using measure theory? How does error
+correlation on the sample affect our ability to carry out the evaluation?
+
+4. Handling non-zero error correlation is the most important practical problem
+when one considers using algebraic evaluation. The current state of the field
+is as follows:
+ -- Three error independent binary classifiers allow us to obtain an exact
+ algebraic solution that consists of just two zero-dimensional surfaces (points)
+ in the evaluation space.
+ -- The Groebner basis for three, arbitrarily correlated classifiers is possible.
+ -- The combination of the Groebner basis assuming error independence along with
+ the arbitrarily correlated basis allows us to do Taylor expansions around
+ the error independent model. This allows us to consider engineering evaluation
+ ensembles that hover around error independence.
 
 [^1]: Working with sample statistics such as, $P_{1,\alpha}$, the frequency of
 times the classifier labeled $\alpha$ items correctly, raises a possible source
