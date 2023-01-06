@@ -184,11 +184,11 @@ correlation on the sample affect our ability to carry out the evaluation?
 when one considers using algebraic evaluation. The current state of the field
 is as follows:
 
- -- Three error independent binary classifiers allow us to obtain an exact
+ * Three error independent binary classifiers allow us to obtain an exact
  algebraic solution that consists of just two zero-dimensional surfaces (points)
  in the evaluation space.
- -- The Groebner basis for three, arbitrarily correlated classifiers is possible.
- -- The combination of the Groebner basis assuming error independence along with
+ * The Groebner basis for three, arbitrarily correlated classifiers is possible.
+ * The combination of the Groebner basis assuming error independence along with
  the arbitrarily correlated basis allows us to do Taylor expansions around
  the error independent model. This allows us to consider engineering evaluation
  ensembles that hover around error independence.
