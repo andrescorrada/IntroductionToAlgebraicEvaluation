@@ -146,7 +146,12 @@ polynomials are always zero on exactly the same geometric object? Given
 some finite polynomial set that defines the surface where the polynomials
 are zero, how many other polynomias are zero there also?
 
-This is the celebrated Hilbert Basis Theorem.
+This is the celebrated Hilbert Basis Theorem - every polynomial ideal can
+be finitely generated. One way to find such a basis is to calculate the
+Groebner basis. The result for our evaluation of a single binary classifiers
+is,
+
+$$ P_\alpha (P_{1,\alpha} - f_\alpha) - (1 - P_\alpha) (P_{1,\beta} - f_\beta).$$
 
 
 [^1]: Working with sample statistics such as, $P_{1,\alpha}$, the frequency of
