@@ -183,7 +183,6 @@ correlation on the sample affect our ability to carry out the evaluation?
 4. Handling non-zero error correlation is the most important practical problem
 when one considers using algebraic evaluation. The current state of the field
 is as follows:
-
  * Three error independent binary classifiers allow us to obtain an exact
  algebraic solution that consists of just two zero-dimensional surfaces (points)
  in the evaluation space.
