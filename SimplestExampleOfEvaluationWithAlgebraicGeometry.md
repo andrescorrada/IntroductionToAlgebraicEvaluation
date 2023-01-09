@@ -2,7 +2,7 @@
 
 The machinery of algebraic geometry is complicated and mostly unfamiliar
 to ML experts. This explanation is the simplest way to construct an evaluation
-that can then illustrate all the relevant algebraic concepts and how they allow
+that illustrates the relevant algebraic concepts and how they allow
 us to grade noisy judges on unlabeled data.
 
 The work that will be accomplished here can be summarized in this single image,
