@@ -434,8 +434,8 @@ if __name__ == '__main__':
     votingFrequencies = ProjectToVotingPatternFrequenciesExact(adultLabelCounts)
     print(votingFrequencies)
 
-    print(ClassifiersObservedLabelFrequencies(byPatternCounts))
-    print(ClassifiersObservedLabelFrequencies2(votingFrequencies))
+    # print(ClassifiersObservedLabelFrequencies(byPatternCounts))
+    # print(ClassifiersObservedLabelFrequencies2(votingFrequencies))
     print("A numerical demonstration that the 2nd moment for either label.")
     print(PairsFrequencyMoment(byPatternCounts))
     print(PairsFrequencyMoment2(byPatternCounts))
