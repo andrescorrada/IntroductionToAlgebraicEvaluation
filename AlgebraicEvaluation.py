@@ -2,6 +2,8 @@
 """Basic utilities for carrying out algebraic evaluation of binary classifiers.
 Contains code for evaluating an ensemble of three error-independent judges."""
 
+import math
+
 # The mathematics of evaluating finite samples is, by construction, one
 # of estimating integer fractions. We import this module so we can create
 # two versions of every computation - the exact one using integer ratios,
@@ -384,7 +386,7 @@ def ClassifiersObservedLabelFrequencies2(votingFrequencies):
 # To whet the readers appetite, we point out that this moment has algebraic
 # and engineering significance - it defines a "blindspot" in this algebraic
 # evaluator. This is an important topic we gloss over now.
-def PairsFrequencyMoment(byPatternCounts):
+def PairsFrequencyMomentDifference(byPatternCounts):
     """Calculates the pair moment that defines the pair error correlation
     blindspots."""
     clfs = ClassifiersObservedLabelFrequencies(byPatternCounts)
@@ -401,6 +403,17 @@ def PairsFrequencyMoment(byPatternCounts):
                         clfs[1]['b']*clfs[3]['b']),
                  (2,3):(sum(vf[vp] for vp in pairVotingPatterns[(2,3)][('b','b')]) -
                         clfs[2]['b']*clfs[3]['b'])}}
+
+def PairsFrequencyMoment(byPatternCounts):
+    """Calculates the frequency a pair votes in agreement."""
+    clfs = ClassifiersObservedLabelFrequencies(byPatternCounts)
+    vf = ByPatternCountsToFrequenciesExact(byPatternCounts)
+    return {'a':{(1,2):(sum(vf[vp] for vp in pairVotingPatterns[(1,2)][('a','a')])),
+                 (1,3):(sum(vf[vp] for vp in pairVotingPatterns[(1,3)][('a','a')])),
+                 (2,3):(sum(vf[vp] for vp in pairVotingPatterns[(2,3)][('a','a')]))},
+            'b':{(1,2):(sum(vf[vp] for vp in pairVotingPatterns[(1,2)][('b','b')])),
+                 (1,3):(sum(vf[vp] for vp in pairVotingPatterns[(1,3)][('b','b')])),
+                 (2,3):(sum(vf[vp] for vp in pairVotingPatterns[(2,3)][('b','b')]))}}
 
 def PairsFrequencyMoment2(byPatternCounts):
     """Function meant to illustrate, via numerical equality, that the 2nd moment is
@@ -424,22 +437,89 @@ def TrioFrequencyMoment(byPatternCounts):
     needed for algebraic evaluation using the error indepedent model."""
     return 1
 
+# We now begin defining the coefficients of the prevalence quadratic.
+# The work in the Mathematica notebook dedicated to the independent
+# evaluator shows that we can create an Elimination Ideal - a sort of
+# algebraic ladder where your 1st equation solves for a single one of
+# your unknown vars.
+# Arbitrarily, but also because it seems symmetric to the task, the choice
+# made here is for an elimination ideal that sorts with a polynomiail for
+# the alpha label prevalence. That polynomial happens to be a quadratic,
+# a(...)*P_alpha^2 + b(...)P_alpha + c(...)
+# and we are interested in the values of P_alpha that make this polynomial
+# identically zero - the evaluation variety in the P_alpha space.
+#
+# The polynomial of voting moments associated with the a coefficient:
+#
+def prevalenceEvaluationQuadraticACoefficient(evalDataSketch):
+    """Calculates the "a" coefficient associated with the evaluation
+    of the sample prevalence for the alpha label."""
+    return -prevalenceEvaluationQuadraticBCoefficient(evalDataSketch)
+
+def prevalenceEvaluationQuadraticBCoefficient(evalDataSketch):
+    """Calculates the "b" coefficient associated with the evaluation
+    of the sample prevalence for the alpha label."""
+    clfs = ClassifiersObservedLabelFrequencies(evalDataSketch)
+    pms = PairsFrequencyMoment(evalDataSketch)
+    vf = ByPatternCountsToFrequenciesExact(evalDataSketch)
+    fbbb = vf[('b','b','b')]
+    terms1 = ((clfs[1]['b']**2)*(pms['b'][(2,3)]**2) \
+             + (clfs[2]['b']**2)*(pms['b'][(1,3)]**2) \
+             + (clfs[3]['b']**2)*(pms['b'][(1,2)]**2) )
+    terms2 = -2*(clfs[1]['b']*clfs[2]['b']*pms['b'][(1,3)]*pms['b'][(2,3)] \
+              + clfs[2]['b']*clfs[3]['b']*pms['b'][(1,2)]*pms['b'][(1,3)] \
+              + clfs[1]['b']*clfs[3]['b']*pms['b'][(1,2)]*pms['b'][(2,3)])
+    terms3 = 4*(pms['b'][(1,2)]*pms['b'][(1,3)]*pms['b'][(2,3)])
+    terms4 = fbbb*(4*clfs[1]['b']*clfs[2]['b']*clfs[3]['b'] + fbbb)
+    terms5 = -2*fbbb*(clfs[1]['b']*pms['b'][(2,3)]  \
+                    + clfs[2]['b']*pms['b'][(1,3)]  \
+                    + clfs[3]['b']*pms['b'][(1,2)])
+    return terms1 + terms2 + terms3 + terms4 + terms5
+
+def prevalenceEvaluationQuadraticCCoefficient(evalDataSketch):
+    """Calculates the "c" coefficient associated with the evaluation
+    of the sample prevalence for the alpha label."""
+    pairMoments = PairsFrequencyMomentDifference(evalDataSketch)
+    return pairMoments['b'][(1,2)]*pairMoments['b'][(1,3)]*pairMoments['b'][(2,3)]
+
+def alphaPrevalencAlgebraicEstimate(evalDataSketch):
+    """Calculates the prevalence of the alpha label."""
+    b = prevalenceEvaluationQuadraticBCoefficient(evalDataSketch)
+    c = prevalenceEvaluationQuadraticCCoefficient(evalDataSketch)
+    sqrTerm = math.sqrt(1-4*c/b)/2
+    return [Fraction(1,2) + sqrTerm, Fraction(1,2) - sqrTerm]
 
 if __name__ == '__main__':
-    print(adultLabelCounts)
 
-    byPatternCounts = ProjectToVotingPatternCounts(adultLabelCounts)
-    print(byPatternCounts)
+    print("The evaluation observed voting patterns by true label - the ground truth.")
+    print(adultLabelCounts,"\n")
 
+
+    print("""During unlabeled evaluation we only get to observe the voting patterns,
+    without knowing the true label of each voting instance.""")
+    evalDataSketch = ProjectToVotingPatternCounts(adultLabelCounts)
+    print(evalDataSketch,"\n")
+
+
+    print("""To carry out the evaluation we need the relative frequnecy of the
+    voting patterns.""")
     votingFrequencies = ProjectToVotingPatternFrequenciesExact(adultLabelCounts)
-    print(votingFrequencies)
+    print(votingFrequencies, "\n")
 
-    # print(ClassifiersObservedLabelFrequencies(byPatternCounts))
-    # print(ClassifiersObservedLabelFrequencies2(votingFrequencies))
-    print("A numerical demonstration that the 2nd moment for either label.")
-    print(PairsFrequencyMoment(byPatternCounts))
-    print(PairsFrequencyMoment2(byPatternCounts))
-    print(ClassifiersLabelAccuraciesExact(adultLabelCounts))
+    print("""To estimate the prevalence of the alpha label, we need the
+    coefficients of the prevalence quadratic:""")
+    print("1. The 'a' coefficient for the quadratic:")
+    print(prevalenceEvaluationQuadraticACoefficient(evalDataSketch), "\n")
+    print("2. The 'b' coefficient for the quadratic:")
+    print(prevalenceEvaluationQuadraticBCoefficient(evalDataSketch), "\n")
+    print("3. The 'c' coefficient for the quadratic:")
+    print(prevalenceEvaluationQuadraticCCoefficient(evalDataSketch), "\n")
+
+
+    print("Algebraic estimate of alpha label prevalence: ")
+    print(alphaPrevalencAlgebraicEstimate(evalDataSketch))
+
     # The test run picked for this code comes from a trio of classifiers
     # that have, in fact, very small pair error correlations.
+    print("Ground truth values: ")
     print(GroundTruthSampleStatistics(adultLabelCounts))
