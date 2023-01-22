@@ -489,6 +489,13 @@ def alphaPrevalencAlgebraicEstimate(evalDataSketch):
     sqrTerm = math.sqrt(1-4*c/b)/2
     return [Fraction(1,2) + sqrTerm, Fraction(1,2) - sqrTerm]
 
+def GTAlphaPrevalence(byTrueLabelCounts):
+    """Given ground truth knowledge of the noisy classifiers, calculate
+    the true prevalence of the alpha label."""
+    nA = sum(c for c in byTrueLabelCounts['a'].values())
+    nB = sum(c for c in byTrueLabelCounts['b'].values())
+    return Fraction(nA,nA+nB)
+
 if __name__ == '__main__':
 
     print("The evaluation observed voting patterns by true label - the ground truth.")
@@ -501,7 +508,7 @@ if __name__ == '__main__':
     print(evalDataSketch,"\n")
 
 
-    print("""To carry out the evaluation we need the relative frequnecy of the
+    print("""To carry out the evaluation we need the relative frequency of the
     voting patterns.""")
     votingFrequencies = ProjectToVotingPatternFrequenciesExact(adultLabelCounts)
     print(votingFrequencies, "\n")
@@ -516,8 +523,10 @@ if __name__ == '__main__':
     print(prevalenceEvaluationQuadraticCCoefficient(evalDataSketch), "\n")
 
 
-    print("Algebraic estimate of alpha label prevalence: ")
+    print("Algebraic estimates of alpha label prevalence: ")
     print(alphaPrevalencAlgebraicEstimate(evalDataSketch))
+    trueAPrevalence = GTAlphaPrevalence(adultLabelCounts)
+    print("The true alpha label prevalence is: ", trueAPrevalence, " or: ",float(trueAPrevalence))
 
     # The test run picked for this code comes from a trio of classifiers
     # that have, in fact, very small pair error correlations.
