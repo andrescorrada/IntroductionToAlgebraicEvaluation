@@ -97,3 +97,9 @@ All of this connects to Regnault because when you make maps or practically do
 any science you face the same problems he had with his instruments - how do
 I evaluate the quality of my instruments without further theory about how they
 work?
+
+## Are we doing philosophy or engineering?
+
+Behind Regnault's empirical process there is a desire to measure or perceive
+reality directly - unmediated by further theory or interpretation of what we
+are observing. Chang's discussion of Regnault in his book chides
