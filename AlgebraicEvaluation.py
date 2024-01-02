@@ -373,22 +373,23 @@ def ClassifiersObservedLabelFrequencies2(votingFrequencies):
 # familiar to experienced readers. And yet, care must be taken to not
 # infuse notions of probability distributions to this algebraic approach.
 # The second moment we are going to calculate is something like:
-# f_1a_2a - (f_1a)(f_2a)
+# f_a1_a2 - (f_a1)(f_a2)
 # This is very similar to the test for independence in a probabilistic
 # context if you interpret the "f"s as probabilities. But they are not.
 # And this becomes obvious when one is able to prove the following
 # equality that tells us there is only one of these quantities to calculate
 # because the label designation does not matter! In other words, it is
-# universally true that f_1a_2a - (f_1a)(f_2a) = f_1b_2b - (f_1b)(f_2b)
+# universally true that f_a1_a2 - (f_a1)(f_a2) = f_b1_b2 - (f_b1)(f_b2)
 # This mathematical equality for voting pattern frequencies is another
 # example of how one must tread lightly in Evaluation Land when one has built
 # years of intuition in Training Land.
 # To whet the readers appetite, we point out that this moment has algebraic
 # and engineering significance - it defines a "blindspot" in this algebraic
 # evaluator. This is an important topic we gloss over now.
+
 def PairsFrequencyMomentDifference(byPatternCounts):
-    """Calculates the pair moment that defines the pair error correlation
-    blindspots."""
+    """Calculates the pair frequency moment difference for all pairs in
+    the trio."""
     clfs = ClassifiersObservedLabelFrequencies(byPatternCounts)
     vf = ByPatternCountsToFrequenciesExact(byPatternCounts)
     return {'a':{(1,2):(sum(vf[vp] for vp in pairVotingPatterns[(1,2)][('a','a')]) -
@@ -404,9 +405,8 @@ def PairsFrequencyMomentDifference(byPatternCounts):
                  (2,3):(sum(vf[vp] for vp in pairVotingPatterns[(2,3)][('b','b')]) -
                         clfs[2]['b']*clfs[3]['b'])}}
 
-def PairsFrequencyMoment(byPatternCounts):
+def PairsFrequencyAgreement(byPatternCounts):
     """Calculates the frequency a pair votes in agreement."""
-    clfs = ClassifiersObservedLabelFrequencies(byPatternCounts)
     vf = ByPatternCountsToFrequenciesExact(byPatternCounts)
     return {'a':{(1,2):(sum(vf[vp] for vp in pairVotingPatterns[(1,2)][('a','a')])),
                  (1,3):(sum(vf[vp] for vp in pairVotingPatterns[(1,3)][('a','a')])),
@@ -432,10 +432,21 @@ def PairsFrequencyMoment2(byPatternCounts):
 # polynomial equations that relate observable frequencies to unknown sample
 # statistics). See the accompanying Mathematica notebook if you are interested
 # in the details of this mathematics.
+# Various general remarks can be made to justify its algebraic form:
+# 1. It is symmetric in all three of the classifiers.
+# 2. it is a cubic in observed frequency variables but degree 6 in
+#    evalutaion variables space.
 def TrioFrequencyMoment(byPatternCounts):
     """Calculates the 3rd frequency moment of a trio of binary classifiers
     needed for algebraic evaluation using the error indepedent model."""
-    return 1
+    clfs = ClassifiersObservedLabelFrequencies(byPatternCounts)
+    productFreqB = clfs[1]['b']*clfs[2]['b']*clfs[3]['b']
+    
+    pfmds = PairsFrequencyMomentDifference(byPatternCounts)
+    sumProd = clfs[1]['b']*pfmds['b'][(2,3)] + \
+        clfs[2]['b']*pfmds['b'][(1,3)] + \
+            clfs[3]['b']*pfmds['b'][(1,2)]
+    return productFreqB + sumProd
 
 # We now begin defining the coefficients of the prevalence quadratic.
 # The work in the Mathematica notebook dedicated to the independent
@@ -460,7 +471,7 @@ def prevalenceEvaluationQuadraticBCoefficient(evalDataSketch):
     """Calculates the "b" coefficient associated with the evaluation
     of the sample prevalence for the alpha label."""
     clfs = ClassifiersObservedLabelFrequencies(evalDataSketch)
-    pms = PairsFrequencyMoment(evalDataSketch)
+    pms = PairsFrequencyAgreement(evalDataSketch)
     vf = ByPatternCountsToFrequenciesExact(evalDataSketch)
     fbbb = vf[('b','b','b')]
     terms1 = ((clfs[1]['b']**2)*(pms['b'][(2,3)]**2) \
