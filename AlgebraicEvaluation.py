@@ -21,40 +21,45 @@ from fractions import Fraction
 #    how well purely algebraic evaluation works.
 # 2. The 2nd version of the data structure is the data that we would observe
 #    in the unlabeled setting where one would want to use this approach. The
-#    counts for each voting pattern are now a sum over all possible true labels.
-#    The examples that follow are voting pattern counts actually observed when
-#    we trained a set of binary classifiers on two public datasets: UCI adult
-#    and mushroom
+#    counts for each voting pattern are now a sum over all possible true
+#    labels. The examples that follow are voting pattern counts actually
+#    observed when we trained a set of binary classifiers on two public
+#    datasets: UCI adul and mushroom.
 
 # Note on label conventions: The labels are, of course, arbitrary. Nonetheless,
 # the use of '0' and '1' is not an optimal choice if we want to avoid confusion
 # between labels and numbers. In particular, the mathematics of algebraic
-# evaluation is based on moments of the correctness of the classifiers decisions.
-# One and zero are used to carry out the calculations of these moments. To avoid
-# any possible confusion from the indicator functions and the labels, we use
-# 'a' and 'b' to denote the two possible labels.
+# evaluation is based on moments of the correctness of the classifiers
+# decisions. One and zero are used to carry out the calculations of these
+# moments. To avoid any possible confusion from the indicator functions and the
+# labels, we use 'a' and 'b' to denote the two possible labels.
 
 # These counts were obtained in Mathematica using classifiers trained
 # on the following features: {(2,4,14),(3,9,11),(6,8,13)}
 # The algorithms used by each classifier were: (RandomForest, NeuralNetwork,
 # LogisticRegression)
 adultLabelCounts = {
-'a': {('a', 'a', 'a'): 715,
-      ('a', 'a', 'b'): 161,
-      ('a', 'b', 'a'): 2406,
-      ('a', 'b', 'b'): 455,
-      ('b', 'a', 'a'): 290,
-      ('b', 'a', 'b'): 94,
-      ('b', 'b', 'a'): 1335,
-      ('b', 'b', 'b'): 231},
-'b': {('a', 'a', 'a'): 271,
-      ('a', 'a', 'b'): 469,
-      ('a', 'b', 'a'): 3395,
-      ('a', 'b', 'b'): 7517,
-      ('b', 'a', 'a'): 272,
-      ('b', 'a', 'b'): 399,
-      ('b', 'b', 'a'): 6377,
-      ('b', 'b', 'b'): 12455}}
+    "a": {
+        ("a", "a", "a"): 715,
+        ("a", "a", "b"): 161,
+        ("a", "b", "a"): 2406,
+        ("a", "b", "b"): 455,
+        ("b", "a", "a"): 290,
+        ("b", "a", "b"): 94,
+        ("b", "b", "a"): 1335,
+        ("b", "b", "b"): 231,
+    },
+    "b": {
+        ("a", "a", "a"): 271,
+        ("a", "a", "b"): 469,
+        ("a", "b", "a"): 3395,
+        ("a", "b", "b"): 7517,
+        ("b", "a", "a"): 272,
+        ("b", "a", "b"): 399,
+        ("b", "b", "a"): 6377,
+        ("b", "b", "b"): 12455,
+    },
+}
 
 # The ground truth of the voting pattern counts shown above is the
 # ultimate goal of the algebraic evaluation in Data Engine's current
@@ -78,21 +83,29 @@ adultLabelCounts = {
 # when you did not have the true labels, let's write a function that projects
 # the by-true-label counts into just, by-voting-pattern counts - the only thing
 # one can observe in the unlabeled case.
-binaryTrioVotingPatterns = (('a', 'a', 'a'),
-                            ('a', 'a', 'b'),
-                            ('a', 'b', 'a'),
-                            ('a', 'b', 'b'),
-                            ('b', 'a', 'a'),
-                            ('b', 'a', 'b'),
-                            ('b', 'b', 'a'),
-                            ('b', 'b', 'b'))
+binaryTrioVotingPatterns = (
+    ("a", "a", "a"),
+    ("a", "a", "b"),
+    ("a", "b", "a"),
+    ("a", "b", "b"),
+    ("b", "a", "a"),
+    ("b", "a", "b"),
+    ("b", "b", "a"),
+    ("b", "b", "b"),
+)
+
 
 def ProjectToVotingPatternCounts(byTrueLabelCounts):
-    """Projects by-true-label voting pattern counts to by-voting-pattern counts."""
-    return {votingPattern:(
-                    byTrueLabelCounts['a'][votingPattern] +
-                    byTrueLabelCounts['b'][votingPattern]) for \
-                    votingPattern in binaryTrioVotingPatterns}
+    """Projects by-true-label voting pattern counts to by-voting-pattern
+    counts."""
+    return {
+        votingPattern: (
+            byTrueLabelCounts["a"][votingPattern]
+            + byTrueLabelCounts["b"][votingPattern]
+        )
+        for votingPattern in binaryTrioVotingPatterns
+    }
+
 
 # We have now constructed the "easy" 1/2 half of setting up an
 # algebraic evaluation. We have 8 voting pattern counts. Can we use
@@ -106,34 +119,47 @@ def ProjectToVotingPatternCounts(byTrueLabelCounts):
 # frequencies - "38% of the time we saw (a,b,a), etc." So let's start by
 # computing those voting pattern frequencies
 
+
 # The exact computation based on using integer ratios
 def ProjectToVotingPatternFrequenciesExact(byTrueLabelCounts):
     """Computes observed voting pattern frequencies."""
     byPatternCounts = ProjectToVotingPatternCounts(byTrueLabelCounts)
     sizeOfTestSet = sum(byPatternCounts.values())
-    return {vp:Fraction(byPatternCounts[vp],sizeOfTestSet)
-            for vp in byPatternCounts.keys()}
+    return {
+        vp: Fraction(byPatternCounts[vp], sizeOfTestSet)
+        for vp in byPatternCounts.keys()
+    }
+
 
 def ByPatternCountsToFrequenciesExact(byPatternCounts):
     """Computes observerd voting pattern frequencies from
     observed voting pattern counts."""
     sizeOfTestSet = sum(byPatternCounts.values())
-    return {vp:Fraction(byPatternCounts[vp],sizeOfTestSet)
-            for vp in byPatternCounts.keys()}
+    return {
+        vp: Fraction(byPatternCounts[vp], sizeOfTestSet)
+        for vp in byPatternCounts.keys()
+    }
+
 
 def ProjectToVotingPatternFrequenciesFP(byTrueLabelCounts):
     """Same as the exact computation, but using floating point
     numbers."""
     byPatternCounts = ProjectToVotingPatternCounts(byTrueLabelCounts)
     sizeOfTestSet = sum(byPatternCounts.values())
-    return {vp:byPatternCounts[vp]/sizeOfTestSet
-            for vp in byPatternCounts.keys()}
+    return {
+        vp: byPatternCounts[vp] / sizeOfTestSet
+        for vp in byPatternCounts.keys()
+    }
+
 
 def ProjectToVotingPatternFrequenciesFP2(byPatternCounts):
     """Same as above, but we start from the projected by-pattern counts."""
     sizeOfTestSet = sum(byPatternCounts.values())
-    return {vp:byPatternCounts[vp]/sizeOfTestSet
-            for vp in byPatternCounts.keys()}
+    return {
+        vp: byPatternCounts[vp] / sizeOfTestSet
+        for vp in byPatternCounts.keys()
+    }
+
 
 # The known unknowns : All the sample statistics that are needed to
 # write exact polynomials of the observed voting frequencies.
@@ -169,59 +195,48 @@ def ProjectToVotingPatternFrequenciesFP2(byPatternCounts):
 # patterns where each classifier votes a given label.
 
 # The patterns for classifier 1
-c1VotesA = (('a', 'a', 'a'),
-            ('a', 'a', 'b'),
-            ('a', 'b', 'a'),
-            ('a', 'b', 'b'))
-c1VotesB = (('b', 'a', 'a'),
-            ('b', 'a', 'b'),
-            ('b', 'b', 'a'),
-            ('b', 'b', 'b'))
+c1VotesA = (("a", "a", "a"), ("a", "a", "b"), ("a", "b", "a"), ("a", "b", "b"))
+c1VotesB = (("b", "a", "a"), ("b", "a", "b"), ("b", "b", "a"), ("b", "b", "b"))
 # The patterns for classifier 2
-c2VotesA = (('a', 'a', 'a'),
-            ('a', 'a', 'b'),
-            ('b', 'a', 'a'),
-            ('b', 'a', 'b'))
-c2VotesB = (('a', 'b', 'a'),
-            ('a', 'b', 'b'),
-            ('b', 'b', 'a'),
-            ('b', 'b', 'b'))
+c2VotesA = (("a", "a", "a"), ("a", "a", "b"), ("b", "a", "a"), ("b", "a", "b"))
+c2VotesB = (("a", "b", "a"), ("a", "b", "b"), ("b", "b", "a"), ("b", "b", "b"))
 # The patterns for classifier 3
-c3VotesA = (('a', 'a', 'a'),
-            ('a', 'b', 'a'),
-            ('b', 'a', 'a'),
-            ('b', 'b', 'a'))
-c3VotesB = (('a', 'a', 'b'),
-            ('a', 'b', 'b'),
-            ('b', 'a', 'b'),
-            ('b', 'b', 'b'))
+c3VotesA = (("a", "a", "a"), ("a", "b", "a"), ("b", "a", "a"), ("b", "b", "a"))
+c3VotesB = (("a", "a", "b"), ("a", "b", "b"), ("b", "a", "b"), ("b", "b", "b"))
+
 
 def ClassifiersLabelAccuraciesExact(byTrueLabelCounts):
     """Given the by-true label voting pattern counts, calculates the observed
     by-label accuracies of a trio of classifiers."""
-    aTestSize = sum(byTrueLabelCounts['a'].values())
-    bTestSize = sum(byTrueLabelCounts['b'].values())
-    return {1:{
-               'a': Fraction(sum({byTrueLabelCounts['a'][vp]
-                                    for vp in c1VotesA}),
-                             aTestSize),
-               'b': Fraction(sum({byTrueLabelCounts['b'][vp]
-                                    for vp in c1VotesB}),
-                             bTestSize)},
-            2:{
-               'a': Fraction(sum({byTrueLabelCounts['a'][vp]
-                                    for vp in c2VotesA}),
-                             aTestSize),
-               'b': Fraction(sum({byTrueLabelCounts['b'][vp]
-                                    for vp in c2VotesB}),
-                                    bTestSize)},
-            3:{
-               'a': Fraction(sum({byTrueLabelCounts['a'][vp]
-                                    for vp in c3VotesA}),
-                             aTestSize),
-               'b': Fraction(sum({byTrueLabelCounts['b'][vp]
-                                    for vp in c3VotesB}),
-                             bTestSize)}}
+    aTestSize = sum(byTrueLabelCounts["a"].values())
+    bTestSize = sum(byTrueLabelCounts["b"].values())
+    return {
+        1: {
+            "a": Fraction(
+                sum({byTrueLabelCounts["a"][vp] for vp in c1VotesA}), aTestSize
+            ),
+            "b": Fraction(
+                sum({byTrueLabelCounts["b"][vp] for vp in c1VotesB}), bTestSize
+            ),
+        },
+        2: {
+            "a": Fraction(
+                sum({byTrueLabelCounts["a"][vp] for vp in c2VotesA}), aTestSize
+            ),
+            "b": Fraction(
+                sum({byTrueLabelCounts["b"][vp] for vp in c2VotesB}), bTestSize
+            ),
+        },
+        3: {
+            "a": Fraction(
+                sum({byTrueLabelCounts["a"][vp] for vp in c3VotesA}), aTestSize
+            ),
+            "b": Fraction(
+                sum({byTrueLabelCounts["b"][vp] for vp in c3VotesB}), bTestSize
+            ),
+        },
+    }
+
 
 # We now encounter our 1st error correlation -
 # the pair sample error correlation.
@@ -240,28 +255,32 @@ def ClassifiersLabelAccuraciesExact(byTrueLabelCounts):
 # To help us carry out the calculation, we enumerate the possible
 # ways a pair can vote in terms of the trio votes.
 pairVotingPatterns = {
-    (1,2):{
-      ('a', 'a'):(('a', 'a', 'a'), ('a', 'a', 'b')),
-      ('a', 'b'):(('a', 'b', 'a'), ('a', 'b', 'b')),
-      ('b', 'a'):(('b', 'a', 'a'), ('b', 'a', 'b')),
-      ('b', 'b'):(('b', 'b', 'a'), ('b', 'b', 'b'))},
-    (1,3):{
-      ('a', 'a'):(('a', 'a', 'a'), ('a', 'b', 'a')),
-      ('a', 'b'):(('a', 'a', 'b'), ('a', 'b', 'b')),
-      ('b', 'a'):(('b', 'a', 'a'), ('b', 'b', 'a')),
-      ('b', 'b'):(('b', 'a', 'b'), ('b', 'b', 'b'))},
-    (2,3):{
-      ('a', 'a'):(('a', 'a', 'a'), ('b', 'a', 'a')),
-      ('a', 'b'):(('a', 'a', 'b'), ('a', 'a', 'b')),
-      ('b', 'a'):(('a', 'b', 'a'), ('b', 'b', 'a')),
-      ('b', 'b'):(('a', 'b', 'b'), ('b', 'b', 'b'))},
+    (1, 2): {
+        ("a", "a"): (("a", "a", "a"), ("a", "a", "b")),
+        ("a", "b"): (("a", "b", "a"), ("a", "b", "b")),
+        ("b", "a"): (("b", "a", "a"), ("b", "a", "b")),
+        ("b", "b"): (("b", "b", "a"), ("b", "b", "b")),
+    },
+    (1, 3): {
+        ("a", "a"): (("a", "a", "a"), ("a", "b", "a")),
+        ("a", "b"): (("a", "a", "b"), ("a", "b", "b")),
+        ("b", "a"): (("b", "a", "a"), ("b", "b", "a")),
+        ("b", "b"): (("b", "a", "b"), ("b", "b", "b")),
+    },
+    (2, 3): {
+        ("a", "a"): (("a", "a", "a"), ("b", "a", "a")),
+        ("a", "b"): (("a", "a", "b"), ("a", "a", "b")),
+        ("b", "a"): (("a", "b", "a"), ("b", "b", "a")),
+        ("b", "b"): (("a", "b", "b"), ("b", "b", "b")),
+    },
 }
+
 
 def ClassifierPairByLabelErrorCorrelations(byTrueLabelCounts, pair):
     """Calculates the by-label pair error correlation for two
     binary classifiers"""
-    aTestSize = sum(byTrueLabelCounts['a'].values())
-    bTestSize = sum(byTrueLabelCounts['b'].values())
+    aTestSize = sum(byTrueLabelCounts["a"].values())
+    bTestSize = sum(byTrueLabelCounts["b"].values())
 
     (ci, cj) = pair
     ca = ClassifiersLabelAccuraciesExact(byTrueLabelCounts)
@@ -269,40 +288,91 @@ def ClassifierPairByLabelErrorCorrelations(byTrueLabelCounts, pair):
     cjAccuracies = ca[cj]
 
     return {
-        'a':(
+        "a": (
             # They are both correct
-            (1-ciAccuracies['a'])*(1-cjAccuracies['a'])*\
-            sum({byTrueLabelCounts['a'][vp]
-            for vp in pairVotingPatterns[pair][('a','a')]}) +
+            (1 - ciAccuracies["a"])
+            * (1 - cjAccuracies["a"])
+            * sum(
+                {
+                    byTrueLabelCounts["a"][vp]
+                    for vp in pairVotingPatterns[pair][("a", "a")]
+                }
+            )
+            +
             # C_i is correct, C_j is incorrect
-            (1-ciAccuracies['a'])*(0-cjAccuracies['a'])*\
-            sum({byTrueLabelCounts['a'][vp]
-            for vp in pairVotingPatterns[pair][('a','b')]}) +
+            (1 - ciAccuracies["a"])
+            * (0 - cjAccuracies["a"])
+            * sum(
+                {
+                    byTrueLabelCounts["a"][vp]
+                    for vp in pairVotingPatterns[pair][("a", "b")]
+                }
+            )
+            +
             # C_i is incorrect, C_j is correct
-            (0-ciAccuracies['a'])*(1-cjAccuracies['a'])*\
-            sum({byTrueLabelCounts['a'][vp]
-            for vp in pairVotingPatterns[pair][('b','a')]}) +
+            (0 - ciAccuracies["a"])
+            * (1 - cjAccuracies["a"])
+            * sum(
+                {
+                    byTrueLabelCounts["a"][vp]
+                    for vp in pairVotingPatterns[pair][("b", "a")]
+                }
+            )
+            +
             # C_i and C_j are incorrect
-            (0-ciAccuracies['a'])*(0-cjAccuracies['a'])*\
-            sum({byTrueLabelCounts['a'][vp]
-            for vp in pairVotingPatterns[pair][('b','b')]}))/aTestSize,
-        'b':(
-        # They are both correct
-        (1-ciAccuracies['b'])*(1-cjAccuracies['b'])*\
-        sum({byTrueLabelCounts['b'][vp]
-        for vp in pairVotingPatterns[pair][('b','b')]}) +
-        # C_i is correct, C_j is incorrect
-        (1-ciAccuracies['b'])*(0-cjAccuracies['b'])*\
-        sum({byTrueLabelCounts['b'][vp]
-        for vp in pairVotingPatterns[pair][('b','a')]}) +
-        # C_i is incorrect, C_j is correct
-        (0-ciAccuracies['b'])*(1-cjAccuracies['b'])*\
-        sum({byTrueLabelCounts['b'][vp]
-        for vp in pairVotingPatterns[pair][('a','b')]}) +
-        # C_i and C_j are incorrect
-        (0-ciAccuracies['b'])*(0-cjAccuracies['b'])*\
-        sum({byTrueLabelCounts['b'][vp]
-        for vp in pairVotingPatterns[pair][('a','a')]}))/bTestSize}
+            (0 - ciAccuracies["a"])
+            * (0 - cjAccuracies["a"])
+            * sum(
+                {
+                    byTrueLabelCounts["a"][vp]
+                    for vp in pairVotingPatterns[pair][("b", "b")]
+                }
+            )
+        )
+        / aTestSize,
+        "b": (
+            # They are both correct
+            (1 - ciAccuracies["b"])
+            * (1 - cjAccuracies["b"])
+            * sum(
+                {
+                    byTrueLabelCounts["b"][vp]
+                    for vp in pairVotingPatterns[pair][("b", "b")]
+                }
+            )
+            +
+            # C_i is correct, C_j is incorrect
+            (1 - ciAccuracies["b"])
+            * (0 - cjAccuracies["b"])
+            * sum(
+                {
+                    byTrueLabelCounts["b"][vp]
+                    for vp in pairVotingPatterns[pair][("b", "a")]
+                }
+            )
+            +
+            # C_i is incorrect, C_j is correct
+            (0 - ciAccuracies["b"])
+            * (1 - cjAccuracies["b"])
+            * sum(
+                {
+                    byTrueLabelCounts["b"][vp]
+                    for vp in pairVotingPatterns[pair][("a", "b")]
+                }
+            )
+            +
+            # C_i and C_j are incorrect
+            (0 - ciAccuracies["b"])
+            * (0 - cjAccuracies["b"])
+            * sum(
+                {
+                    byTrueLabelCounts["b"][vp]
+                    for vp in pairVotingPatterns[pair][("a", "a")]
+                }
+            )
+        )
+        / bTestSize,
+    }
 
 
 def GroundTruthSampleStatistics(byTrueLabelCounts):
@@ -310,12 +380,14 @@ def GroundTruthSampleStatistics(byTrueLabelCounts):
     set of sample statistics needed to have an exact polynomial representation
     of the observed voting patterns by three binary classifiers."""
     return {
-    "accuracies":ClassifiersLabelAccuraciesExact(byTrueLabelCounts),
-    "pair-error-correlations":{
-      pair:ClassifierPairByLabelErrorCorrelations(byTrueLabelCounts,pair) for
-      pair in ((1,2),(1,3),(2,3))}
+        "accuracies": ClassifiersLabelAccuraciesExact(byTrueLabelCounts),
+        "pair-error-correlations": {
+            pair: ClassifierPairByLabelErrorCorrelations(
+                byTrueLabelCounts, pair
+            )
+            for pair in ((1, 2), (1, 3), (2, 3))
+        },
     }
-
 
 
 # The first moments of the observable frequencies we are about to encounter are
@@ -329,45 +401,50 @@ def GroundTruthSampleStatistics(byTrueLabelCounts):
 # cannot possibly be correct - a somewhat trivial universal statement that
 # illustrates how evaluation is easier than training.
 
+
 def ClassifiersObservedLabelFrequencies(byPatternCounts):
     """Calculates the label frequencies noisily counted by the three
     classifiers."""
     totalTestSize = sum(byPatternCounts.values())
-    return {1:{
-                'a':Fraction(
-                      sum({byPatternCounts[pt] for
-                           pt in c1VotesA}),
-                      totalTestSize),
-                'b':Fraction(
-                      sum({byPatternCounts[pt] for
-                           pt in c1VotesB}),
-                      totalTestSize)},
-            2:{
-                'a':Fraction(
-                      sum({byPatternCounts[pt] for
-                           pt in c2VotesA}),
-                      totalTestSize),
-                'b':Fraction(
-                      sum({byPatternCounts[pt] for
-                           pt in c2VotesB}),
-                      totalTestSize)},
-            3:{
-                'a':Fraction(
-                      sum({byPatternCounts[pt] for
-                           pt in c3VotesA}),
-                      totalTestSize),
-                'b':Fraction(
-                      sum({byPatternCounts[pt] for
-                           pt in c3VotesB}),
-                      totalTestSize)}}
+    return {
+        1: {
+            "a": Fraction(
+                sum({byPatternCounts[pt] for pt in c1VotesA}), totalTestSize
+            ),
+            "b": Fraction(
+                sum({byPatternCounts[pt] for pt in c1VotesB}), totalTestSize
+            ),
+        },
+        2: {
+            "a": Fraction(
+                sum({byPatternCounts[pt] for pt in c2VotesA}), totalTestSize
+            ),
+            "b": Fraction(
+                sum({byPatternCounts[pt] for pt in c2VotesB}), totalTestSize
+            ),
+        },
+        3: {
+            "a": Fraction(
+                sum({byPatternCounts[pt] for pt in c3VotesA}), totalTestSize
+            ),
+            "b": Fraction(
+                sum({byPatternCounts[pt] for pt in c3VotesB}), totalTestSize
+            ),
+        },
+    }
+
 
 def ClassifiersObservedLabelFrequencies2(votingFrequencies):
     """Convenience function to compare the numerical loss associated
     with going from exact integer ratios to the inexact algebra of
     of the floating point system."""
-    return {1:{
-                'a':sum({votingFrequencies[pt] for pt in c1VotesA}),
-                'b':sum({votingFrequencies[pt] for pt in c1VotesB})}}
+    return {
+        1: {
+            "a": sum({votingFrequencies[pt] for pt in c1VotesA}),
+            "b": sum({votingFrequencies[pt] for pt in c1VotesB}),
+        }
+    }
+
 
 # The second group of voting pattern frequency moments should also be
 # familiar to experienced readers. And yet, care must be taken to not
@@ -387,51 +464,101 @@ def ClassifiersObservedLabelFrequencies2(votingFrequencies):
 # and engineering significance - it defines a "blindspot" in this algebraic
 # evaluator. This is an important topic we gloss over now.
 
+
 def PairsFrequencyMomentDifference(byPatternCounts):
     """Calculates the pair frequency moment difference for all pairs in
     the trio."""
     clfs = ClassifiersObservedLabelFrequencies(byPatternCounts)
     vf = ByPatternCountsToFrequenciesExact(byPatternCounts)
-    return {'a':{(1,2):(sum(vf[vp] for vp in pairVotingPatterns[(1,2)][('a','a')]) -
-                        clfs[1]['a']*clfs[2]['a']),
-                 (1,3):(sum(vf[vp] for vp in pairVotingPatterns[(1,3)][('a','a')]) -
-                        clfs[1]['a']*clfs[3]['a']),
-                 (2,3):(sum(vf[vp] for vp in pairVotingPatterns[(2,3)][('a','a')]) -
-                        clfs[2]['a']*clfs[3]['a'])},
-            'b':{(1,2):(sum(vf[vp] for vp in pairVotingPatterns[(1,2)][('b','b')]) -
-                        clfs[1]['b']*clfs[2]['b']),
-                 (1,3):(sum(vf[vp] for vp in pairVotingPatterns[(1,3)][('b','b')]) -
-                        clfs[1]['b']*clfs[3]['b']),
-                 (2,3):(sum(vf[vp] for vp in pairVotingPatterns[(2,3)][('b','b')]) -
-                        clfs[2]['b']*clfs[3]['b'])}}
+    return {
+        "a": {
+            (1, 2): (
+                sum(vf[vp] for vp in pairVotingPatterns[(1, 2)][("a", "a")])
+                - clfs[1]["a"] * clfs[2]["a"]
+            ),
+            (1, 3): (
+                sum(vf[vp] for vp in pairVotingPatterns[(1, 3)][("a", "a")])
+                - clfs[1]["a"] * clfs[3]["a"]
+            ),
+            (2, 3): (
+                sum(vf[vp] for vp in pairVotingPatterns[(2, 3)][("a", "a")])
+                - clfs[2]["a"] * clfs[3]["a"]
+            ),
+        },
+        "b": {
+            (1, 2): (
+                sum(vf[vp] for vp in pairVotingPatterns[(1, 2)][("b", "b")])
+                - clfs[1]["b"] * clfs[2]["b"]
+            ),
+            (1, 3): (
+                sum(vf[vp] for vp in pairVotingPatterns[(1, 3)][("b", "b")])
+                - clfs[1]["b"] * clfs[3]["b"]
+            ),
+            (2, 3): (
+                sum(vf[vp] for vp in pairVotingPatterns[(2, 3)][("b", "b")])
+                - clfs[2]["b"] * clfs[3]["b"]
+            ),
+        },
+    }
+
 
 def PairsFrequencyAgreement(byPatternCounts):
     """Calculates the frequency a pair votes in agreement."""
     vf = ByPatternCountsToFrequenciesExact(byPatternCounts)
-    return {'a':{(1,2):(sum(vf[vp] for vp in pairVotingPatterns[(1,2)][('a','a')])),
-                 (1,3):(sum(vf[vp] for vp in pairVotingPatterns[(1,3)][('a','a')])),
-                 (2,3):(sum(vf[vp] for vp in pairVotingPatterns[(2,3)][('a','a')]))},
-            'b':{(1,2):(sum(vf[vp] for vp in pairVotingPatterns[(1,2)][('b','b')])),
-                 (1,3):(sum(vf[vp] for vp in pairVotingPatterns[(1,3)][('b','b')])),
-                 (2,3):(sum(vf[vp] for vp in pairVotingPatterns[(2,3)][('b','b')]))}}
+    return {
+        "a": {
+            (1, 2): (
+                sum(vf[vp] for vp in pairVotingPatterns[(1, 2)][("a", "a")])
+            ),
+            (1, 3): (
+                sum(vf[vp] for vp in pairVotingPatterns[(1, 3)][("a", "a")])
+            ),
+            (2, 3): (
+                sum(vf[vp] for vp in pairVotingPatterns[(2, 3)][("a", "a")])
+            ),
+        },
+        "b": {
+            (1, 2): (
+                sum(vf[vp] for vp in pairVotingPatterns[(1, 2)][("b", "b")])
+            ),
+            (1, 3): (
+                sum(vf[vp] for vp in pairVotingPatterns[(1, 3)][("b", "b")])
+            ),
+            (2, 3): (
+                sum(vf[vp] for vp in pairVotingPatterns[(2, 3)][("b", "b")])
+            ),
+        },
+    }
+
 
 def PairsFrequencyMoment2(byPatternCounts):
-    """Function meant to illustrate, via numerical equality, that the 2nd moment is
-    the same for either of the two labels."""
+    """Function meant to illustrate, via numerical equality, that the 2nd
+    moment is the same for either of the two labels."""
     clfs = ClassifiersObservedLabelFrequencies(byPatternCounts)
     vf = ProjectToVotingPatternFrequenciesFP2(byPatternCounts)
-    return {(1,2):((vf[('b','b','a')] + vf[('b','b','b')]) - clfs[1]['b']*clfs[2]['b']),
-            (1,3):((vf[('b','a','b')] + vf[('b','b','b')]) - clfs[1]['b']*clfs[3]['b']),
-            (2,3):((vf[('a','b','b')] + vf[('b','b','b')]) - clfs[2]['b']*clfs[3]['b'])}
+    return {
+        (1, 2): (
+            (vf[("b", "b", "a")] + vf[("b", "b", "b")])
+            - clfs[1]["b"] * clfs[2]["b"]
+        ),
+        (1, 3): (
+            (vf[("b", "a", "b")] + vf[("b", "b", "b")])
+            - clfs[1]["b"] * clfs[3]["b"]
+        ),
+        (2, 3): (
+            (vf[("a", "b", "b")] + vf[("b", "b", "b")])
+            - clfs[2]["b"] * clfs[3]["b"]
+        ),
+    }
+
 
 # The last voting pattern frequency moment we need is one for which we have no
-# intuition. It is a polynomial of the observed voting frequencies that involves
-# all three classifiers. Its origin can only be elucidated by going thru the
-# algebraic geometry needed for computing the "evaluation variety" (a geometric
-# surface in sample statistics space) from the "evaluation ideal" (the set of
-# polynomial equations that relate observable frequencies to unknown sample
-# statistics). See the accompanying Mathematica notebook if you are interested
-# in the details of this mathematics.
+# intuition. It is a polynomial of the observed voting frequencies that
+# involves all three classifiers. Its origin can only be elucidated by going
+# thru the surface in sample statistics space) from the "evaluation ideal"
+# (the set of polynomial equations that relate observable frequencies to
+#  unknown sample statistics). See the accompanying Mathematica notebook
+# if you are interested in the details of this mathematics.
 # Various general remarks can be made to justify its algebraic form:
 # 1. It is symmetric in all three of the classifiers.
 # 2. it is a cubic in observed frequency variables but degree 6 in
@@ -440,13 +567,16 @@ def TrioFrequencyMoment(byPatternCounts):
     """Calculates the 3rd frequency moment of a trio of binary classifiers
     needed for algebraic evaluation using the error indepedent model."""
     clfs = ClassifiersObservedLabelFrequencies(byPatternCounts)
-    productFreqB = clfs[1]['b']*clfs[2]['b']*clfs[3]['b']
-    
+    productFreqB = clfs[1]["b"] * clfs[2]["b"] * clfs[3]["b"]
+
     pfmds = PairsFrequencyMomentDifference(byPatternCounts)
-    sumProd = clfs[1]['b']*pfmds['b'][(2,3)] + \
-        clfs[2]['b']*pfmds['b'][(1,3)] + \
-            clfs[3]['b']*pfmds['b'][(1,2)]
+    sumProd = (
+        clfs[1]["b"] * pfmds["b"][(2, 3)]
+        + clfs[2]["b"] * pfmds["b"][(1, 3)]
+        + clfs[3]["b"] * pfmds["b"][(1, 2)]
+    )
     return productFreqB + sumProd
+
 
 # We now begin defining the coefficients of the prevalence quadratic.
 # The work in the Mathematica notebook dedicated to the independent
@@ -462,70 +592,78 @@ def TrioFrequencyMoment(byPatternCounts):
 #
 # The polynomial of voting moments associated with the a coefficient:
 #
+def prevalenceEvaluationQuadraticBCoefficient(evalDataSketch):
+    """Calculates the "a" coefficient associated with the evaluation
+    of the sample prevalence for the alpha label."""
+    return -prevalenceEvaluationQuadraticACoefficient(evalDataSketch)
+
+
 def prevalenceEvaluationQuadraticACoefficient(evalDataSketch):
     """Calculates the "a" coefficient associated with the evaluation
     of the sample prevalence for the alpha label."""
-    return -prevalenceEvaluationQuadraticBCoefficient(evalDataSketch)
-
-def prevalenceEvaluationQuadraticBCoefficient(evalDataSketch):
-    """Calculates the "b" coefficient associated with the evaluation
-    of the sample prevalence for the alpha label."""
-    clfs = ClassifiersObservedLabelFrequencies(evalDataSketch)
-    pms = PairsFrequencyAgreement(evalDataSketch)
+    # clfs = ClassifiersObservedLabelFrequencies(evalDataSketch)
+    pfmds = PairsFrequencyMomentDifference(evalDataSketch)
     vf = ByPatternCountsToFrequenciesExact(evalDataSketch)
-    fbbb = vf[('b','b','b')]
-    terms1 = ((clfs[1]['b']**2)*(pms['b'][(2,3)]**2) \
-             + (clfs[2]['b']**2)*(pms['b'][(1,3)]**2) \
-             + (clfs[3]['b']**2)*(pms['b'][(1,2)]**2) )
-    terms2 = -2*(clfs[1]['b']*clfs[2]['b']*pms['b'][(1,3)]*pms['b'][(2,3)] \
-              + clfs[2]['b']*clfs[3]['b']*pms['b'][(1,2)]*pms['b'][(1,3)] \
-              + clfs[1]['b']*clfs[3]['b']*pms['b'][(1,2)]*pms['b'][(2,3)])
-    terms3 = 4*(pms['b'][(1,2)]*pms['b'][(1,3)]*pms['b'][(2,3)])
-    terms4 = fbbb*(4*clfs[1]['b']*clfs[2]['b']*clfs[3]['b'] + fbbb)
-    terms5 = -2*fbbb*(clfs[1]['b']*pms['b'][(2,3)]  \
-                    + clfs[2]['b']*pms['b'][(1,3)]  \
-                    + clfs[3]['b']*pms['b'][(1,2)])
-    return terms1 + terms2 + terms3 + terms4 + terms5
+    fbbb = vf[("b", "b", "b")]
+    diff1 = fbbb - TrioFrequencyMoment(evalDataSketch)
+    prodFDs = pfmds["b"][(1, 2)] * pfmds["b"][(1, 3)] * pfmds["b"][(2, 3)]
+    return diff1**2 + 4 * prodFDs
+
 
 def prevalenceEvaluationQuadraticCCoefficient(evalDataSketch):
     """Calculates the "c" coefficient associated with the evaluation
     of the sample prevalence for the alpha label."""
     pairMoments = PairsFrequencyMomentDifference(evalDataSketch)
-    return pairMoments['b'][(1,2)]*pairMoments['b'][(1,3)]*pairMoments['b'][(2,3)]
+    return (
+        -pairMoments["b"][(1, 2)]
+        * pairMoments["b"][(1, 3)]
+        * pairMoments["b"][(2, 3)]
+    )
+
 
 def alphaPrevalencAlgebraicEstimate(evalDataSketch):
     """Calculates the prevalence of the alpha label."""
     b = prevalenceEvaluationQuadraticBCoefficient(evalDataSketch)
     c = prevalenceEvaluationQuadraticCCoefficient(evalDataSketch)
-    sqrTerm = math.sqrt(1-4*c/b)/2
-    return [Fraction(1,2) + sqrTerm, Fraction(1,2) - sqrTerm]
+    sqrTerm = math.sqrt(1 - 4 * c / b) / 2
+    return [Fraction(1, 2) + sqrTerm, Fraction(1, 2) - sqrTerm]
+
 
 def GTAlphaPrevalence(byTrueLabelCounts):
     """Given ground truth knowledge of the noisy classifiers, calculate
     the true prevalence of the alpha label."""
-    nA = sum(c for c in byTrueLabelCounts['a'].values())
-    nB = sum(c for c in byTrueLabelCounts['b'].values())
-    return Fraction(nA,nA+nB)
-
-if __name__ == '__main__':
-
-    print("The evaluation observed voting patterns by true label - the ground truth.")
-    print(adultLabelCounts,"\n")
+    nA = sum(c for c in byTrueLabelCounts["a"].values())
+    nB = sum(c for c in byTrueLabelCounts["b"].values())
+    return Fraction(nA, nA + nB)
 
 
-    print("""During unlabeled evaluation we only get to observe the voting patterns,
-    without knowing the true label of each voting instance.""")
+if __name__ == "__main__":
+    print(
+        """The evaluation observed voting patterns by true label -
+        the ground truth."""
+    )
+    print(adultLabelCounts, "\n")
+
+    print(
+        """During unlabeled evaluation we only get to observe the voting
+        patterns, without knowing the true label of each voting instance."""
+    )
     evalDataSketch = ProjectToVotingPatternCounts(adultLabelCounts)
-    print(evalDataSketch,"\n")
+    print(evalDataSketch, "\n")
 
-
-    print("""To carry out the evaluation we need the relative frequency of the
-    voting patterns.""")
-    votingFrequencies = ProjectToVotingPatternFrequenciesExact(adultLabelCounts)
+    print(
+        """To carry out the evaluation we need the relative frequency of the
+    voting patterns."""
+    )
+    votingFrequencies = ProjectToVotingPatternFrequenciesExact(
+        adultLabelCounts
+    )
     print(votingFrequencies, "\n")
 
-    print("""To estimate the prevalence of the alpha label, we need the
-    coefficients of the prevalence quadratic:""")
+    print(
+        """To estimate the prevalence of the alpha label, we need the
+    coefficients of the prevalence quadratic:"""
+    )
     print("1. The 'a' coefficient for the quadratic:")
     print(prevalenceEvaluationQuadraticACoefficient(evalDataSketch), "\n")
     print("2. The 'b' coefficient for the quadratic:")
@@ -533,11 +671,15 @@ if __name__ == '__main__':
     print("3. The 'c' coefficient for the quadratic:")
     print(prevalenceEvaluationQuadraticCCoefficient(evalDataSketch), "\n")
 
-
     print("Algebraic estimates of alpha label prevalence: ")
     print(alphaPrevalencAlgebraicEstimate(evalDataSketch))
     trueAPrevalence = GTAlphaPrevalence(adultLabelCounts)
-    print("The true alpha label prevalence is: ", trueAPrevalence, " or: ",float(trueAPrevalence))
+    print(
+        "The true alpha label prevalence is: ",
+        trueAPrevalence,
+        " or: ",
+        float(trueAPrevalence),
+    )
 
     # The test run picked for this code comes from a trio of classifiers
     # that have, in fact, very small pair error correlations.
