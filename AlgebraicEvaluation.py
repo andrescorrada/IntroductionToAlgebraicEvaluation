@@ -38,7 +38,7 @@ from fractions import Fraction
 # on the following features: {(2,4,14),(3,9,11),(6,8,13)}
 # The algorithms used by each classifier were: (RandomForest, NeuralNetwork,
 # LogisticRegression)
-adultLabelCounts = {
+uciadult_label_counts = {
     "a": {
         ("a", "a", "a"): 715,
         ("a", "a", "b"): 161,
@@ -83,7 +83,7 @@ adultLabelCounts = {
 # when you did not have the true labels, let's write a function that projects
 # the by-true-label counts into just, by-voting-pattern counts - the only thing
 # one can observe in the unlabeled case.
-binaryTrioVotingPatterns = (
+trio_vote_patterns = (
     ("a", "a", "a"),
     ("a", "a", "b"),
     ("a", "b", "a"),
@@ -95,15 +95,15 @@ binaryTrioVotingPatterns = (
 )
 
 
-def ProjectToVotingPatternCounts(byTrueLabelCounts):
+def project_to_voting_pattern_counts(by_true_label_counts):
     """Projects by-true-label voting pattern counts to by-voting-pattern
     counts."""
     return {
-        votingPattern: (
-            byTrueLabelCounts["a"][votingPattern]
-            + byTrueLabelCounts["b"][votingPattern]
+        voting_pattern: (
+            by_true_label_counts["a"][voting_pattern]
+            + by_true_label_counts["b"][voting_pattern]
         )
-        for votingPattern in binaryTrioVotingPatterns
+        for voting_pattern in trio_vote_patterns
     }
 
 
@@ -121,43 +121,43 @@ def ProjectToVotingPatternCounts(byTrueLabelCounts):
 
 
 # The exact computation based on using integer ratios
-def ProjectToVotingPatternFrequenciesExact(byTrueLabelCounts):
+def project_to_voting_frequencies_exact(by_true_label_counts):
     """Computes observed voting pattern frequencies."""
-    byPatternCounts = ProjectToVotingPatternCounts(byTrueLabelCounts)
-    sizeOfTestSet = sum(byPatternCounts.values())
+    by_voting_counts = project_to_voting_pattern_counts(by_true_label_counts)
+    size_of_test = sum(by_voting_counts.values())
     return {
-        vp: Fraction(byPatternCounts[vp], sizeOfTestSet)
-        for vp in byPatternCounts.keys()
+        vp: Fraction(by_voting_counts[vp], size_of_test)
+        for vp in by_voting_counts.keys()
     }
 
 
-def ByPatternCountsToFrequenciesExact(byPatternCounts):
+def pattern_counts_to_frequencies_exact(by_voting_counts):
     """Computes observerd voting pattern frequencies from
     observed voting pattern counts."""
-    sizeOfTestSet = sum(byPatternCounts.values())
+    size_of_test = sum(by_voting_counts.values())
     return {
-        vp: Fraction(byPatternCounts[vp], sizeOfTestSet)
-        for vp in byPatternCounts.keys()
+        vp: Fraction(by_voting_counts[vp], size_of_test)
+        for vp in by_voting_counts.keys()
     }
 
 
-def ProjectToVotingPatternFrequenciesFP(byTrueLabelCounts):
+def project_to_voting_frequencies_fp(by_true_label_counts):
     """Same as the exact computation, but using floating point
     numbers."""
-    byPatternCounts = ProjectToVotingPatternCounts(byTrueLabelCounts)
-    sizeOfTestSet = sum(byPatternCounts.values())
+    by_voting_counts = project_to_voting_pattern_counts(by_true_label_counts)
+    size_of_test = sum(by_voting_counts.values())
     return {
-        vp: byPatternCounts[vp] / sizeOfTestSet
-        for vp in byPatternCounts.keys()
+        vp: by_voting_counts[vp] / size_of_test
+        for vp in by_voting_counts.keys()
     }
 
 
-def ProjectToVotingPatternFrequenciesFP2(byPatternCounts):
+def project_to_voting_frequencies_fp2(by_voting_counts):
     """Same as above, but we start from the projected by-pattern counts."""
-    sizeOfTestSet = sum(byPatternCounts.values())
+    size_of_test = sum(by_voting_counts.values())
     return {
-        vp: byPatternCounts[vp] / sizeOfTestSet
-        for vp in byPatternCounts.keys()
+        vp: by_voting_counts[vp] / size_of_test
+        for vp in by_voting_counts.keys()
     }
 
 
@@ -195,44 +195,80 @@ def ProjectToVotingPatternFrequenciesFP2(byPatternCounts):
 # patterns where each classifier votes a given label.
 
 # The patterns for classifier 1
-c1VotesA = (("a", "a", "a"), ("a", "a", "b"), ("a", "b", "a"), ("a", "b", "b"))
-c1VotesB = (("b", "a", "a"), ("b", "a", "b"), ("b", "b", "a"), ("b", "b", "b"))
+c1_a_votes = (
+    ("a", "a", "a"),
+    ("a", "a", "b"),
+    ("a", "b", "a"),
+    ("a", "b", "b"),
+)
+c1_b_votes = (
+    ("b", "a", "a"),
+    ("b", "a", "b"),
+    ("b", "b", "a"),
+    ("b", "b", "b"),
+)
 # The patterns for classifier 2
-c2VotesA = (("a", "a", "a"), ("a", "a", "b"), ("b", "a", "a"), ("b", "a", "b"))
-c2VotesB = (("a", "b", "a"), ("a", "b", "b"), ("b", "b", "a"), ("b", "b", "b"))
+c2_a_votes = (
+    ("a", "a", "a"),
+    ("a", "a", "b"),
+    ("b", "a", "a"),
+    ("b", "a", "b"),
+)
+c2_b_votes = (
+    ("a", "b", "a"),
+    ("a", "b", "b"),
+    ("b", "b", "a"),
+    ("b", "b", "b"),
+)
 # The patterns for classifier 3
-c3VotesA = (("a", "a", "a"), ("a", "b", "a"), ("b", "a", "a"), ("b", "b", "a"))
-c3VotesB = (("a", "a", "b"), ("a", "b", "b"), ("b", "a", "b"), ("b", "b", "b"))
+c3_a_votes = (
+    ("a", "a", "a"),
+    ("a", "b", "a"),
+    ("b", "a", "a"),
+    ("b", "b", "a"),
+)
+c3_b_votes = (
+    ("a", "a", "b"),
+    ("a", "b", "b"),
+    ("b", "a", "b"),
+    ("b", "b", "b"),
+)
 
 
-def ClassifiersLabelAccuraciesExact(byTrueLabelCounts):
+def classifiers_label_accuracies(by_true_label_counts):
     """Given the by-true label voting pattern counts, calculates the observed
     by-label accuracies of a trio of classifiers."""
-    aTestSize = sum(byTrueLabelCounts["a"].values())
-    bTestSize = sum(byTrueLabelCounts["b"].values())
+    a_test_size = sum(by_true_label_counts["a"].values())
+    b_test_size = sum(by_true_label_counts["b"].values())
     return {
         1: {
             "a": Fraction(
-                sum({byTrueLabelCounts["a"][vp] for vp in c1VotesA}), aTestSize
+                sum({by_true_label_counts["a"][vp] for vp in c1_a_votes}),
+                a_test_size,
             ),
             "b": Fraction(
-                sum({byTrueLabelCounts["b"][vp] for vp in c1VotesB}), bTestSize
+                sum({by_true_label_counts["b"][vp] for vp in c1_b_votes}),
+                b_test_size,
             ),
         },
         2: {
             "a": Fraction(
-                sum({byTrueLabelCounts["a"][vp] for vp in c2VotesA}), aTestSize
+                sum({by_true_label_counts["a"][vp] for vp in c2_a_votes}),
+                a_test_size,
             ),
             "b": Fraction(
-                sum({byTrueLabelCounts["b"][vp] for vp in c2VotesB}), bTestSize
+                sum({by_true_label_counts["b"][vp] for vp in c2_b_votes}),
+                b_test_size,
             ),
         },
         3: {
             "a": Fraction(
-                sum({byTrueLabelCounts["a"][vp] for vp in c3VotesA}), aTestSize
+                sum({by_true_label_counts["a"][vp] for vp in c3_a_votes}),
+                a_test_size,
             ),
             "b": Fraction(
-                sum({byTrueLabelCounts["b"][vp] for vp in c3VotesB}), bTestSize
+                sum({by_true_label_counts["b"][vp] for vp in c3_b_votes}),
+                b_test_size,
             ),
         },
     }
@@ -254,7 +290,7 @@ def ClassifiersLabelAccuraciesExact(byTrueLabelCounts):
 #
 # To help us carry out the calculation, we enumerate the possible
 # ways a pair can vote in terms of the trio votes.
-pairVotingPatterns = {
+pair_vote_patterns = {
     (1, 2): {
         ("a", "a"): (("a", "a", "a"), ("a", "a", "b")),
         ("a", "b"): (("a", "b", "a"), ("a", "b", "b")),
@@ -276,115 +312,113 @@ pairVotingPatterns = {
 }
 
 
-def ClassifierPairByLabelErrorCorrelations(byTrueLabelCounts, pair):
+def pair_error_correlations(by_true_label_counts, pair):
     """Calculates the by-label pair error correlation for two
     binary classifiers"""
-    aTestSize = sum(byTrueLabelCounts["a"].values())
-    bTestSize = sum(byTrueLabelCounts["b"].values())
+    a_test_size = sum(by_true_label_counts["a"].values())
+    b_test_size = sum(by_true_label_counts["b"].values())
 
     (ci, cj) = pair
-    ca = ClassifiersLabelAccuraciesExact(byTrueLabelCounts)
-    ciAccuracies = ca[ci]
-    cjAccuracies = ca[cj]
+    ca = classifiers_label_accuracies(by_true_label_counts)
+    ci_accuracies = ca[ci]
+    cj_accuracies = ca[cj]
 
     return {
         "a": (
             # They are both correct
-            (1 - ciAccuracies["a"])
-            * (1 - cjAccuracies["a"])
+            (1 - ci_accuracies["a"])
+            * (1 - cj_accuracies["a"])
             * sum(
                 {
-                    byTrueLabelCounts["a"][vp]
-                    for vp in pairVotingPatterns[pair][("a", "a")]
+                    by_true_label_counts["a"][vp]
+                    for vp in pair_vote_patterns[pair][("a", "a")]
                 }
             )
             +
             # C_i is correct, C_j is incorrect
-            (1 - ciAccuracies["a"])
-            * (0 - cjAccuracies["a"])
+            (1 - ci_accuracies["a"])
+            * (0 - cj_accuracies["a"])
             * sum(
                 {
-                    byTrueLabelCounts["a"][vp]
-                    for vp in pairVotingPatterns[pair][("a", "b")]
+                    by_true_label_counts["a"][vp]
+                    for vp in pair_vote_patterns[pair][("a", "b")]
                 }
             )
             +
             # C_i is incorrect, C_j is correct
-            (0 - ciAccuracies["a"])
-            * (1 - cjAccuracies["a"])
+            (0 - ci_accuracies["a"])
+            * (1 - cj_accuracies["a"])
             * sum(
                 {
-                    byTrueLabelCounts["a"][vp]
-                    for vp in pairVotingPatterns[pair][("b", "a")]
+                    by_true_label_counts["a"][vp]
+                    for vp in pair_vote_patterns[pair][("b", "a")]
                 }
             )
             +
             # C_i and C_j are incorrect
-            (0 - ciAccuracies["a"])
-            * (0 - cjAccuracies["a"])
+            (0 - ci_accuracies["a"])
+            * (0 - cj_accuracies["a"])
             * sum(
                 {
-                    byTrueLabelCounts["a"][vp]
-                    for vp in pairVotingPatterns[pair][("b", "b")]
+                    by_true_label_counts["a"][vp]
+                    for vp in pair_vote_patterns[pair][("b", "b")]
                 }
             )
         )
-        / aTestSize,
+        / a_test_size,
         "b": (
             # They are both correct
-            (1 - ciAccuracies["b"])
-            * (1 - cjAccuracies["b"])
+            (1 - ci_accuracies["b"])
+            * (1 - cj_accuracies["b"])
             * sum(
                 {
-                    byTrueLabelCounts["b"][vp]
-                    for vp in pairVotingPatterns[pair][("b", "b")]
+                    by_true_label_counts["b"][vp]
+                    for vp in pair_vote_patterns[pair][("b", "b")]
                 }
             )
             +
             # C_i is correct, C_j is incorrect
-            (1 - ciAccuracies["b"])
-            * (0 - cjAccuracies["b"])
+            (1 - ci_accuracies["b"])
+            * (0 - cj_accuracies["b"])
             * sum(
                 {
-                    byTrueLabelCounts["b"][vp]
-                    for vp in pairVotingPatterns[pair][("b", "a")]
+                    by_true_label_counts["b"][vp]
+                    for vp in pair_vote_patterns[pair][("b", "a")]
                 }
             )
             +
             # C_i is incorrect, C_j is correct
-            (0 - ciAccuracies["b"])
-            * (1 - cjAccuracies["b"])
+            (0 - ci_accuracies["b"])
+            * (1 - cj_accuracies["b"])
             * sum(
                 {
-                    byTrueLabelCounts["b"][vp]
-                    for vp in pairVotingPatterns[pair][("a", "b")]
+                    by_true_label_counts["b"][vp]
+                    for vp in pair_vote_patterns[pair][("a", "b")]
                 }
             )
             +
             # C_i and C_j are incorrect
-            (0 - ciAccuracies["b"])
-            * (0 - cjAccuracies["b"])
+            (0 - ci_accuracies["b"])
+            * (0 - cj_accuracies["b"])
             * sum(
                 {
-                    byTrueLabelCounts["b"][vp]
-                    for vp in pairVotingPatterns[pair][("a", "a")]
+                    by_true_label_counts["b"][vp]
+                    for vp in pair_vote_patterns[pair][("a", "a")]
                 }
             )
         )
-        / bTestSize,
+        / b_test_size,
     }
 
 
-def GroundTruthSampleStatistics(byTrueLabelCounts):
+def ground_truth_statistics(by_true_label_counts):
     """Given the by-true label voting pattern counts, calculates the complete
     set of sample statistics needed to have an exact polynomial representation
     of the observed voting patterns by three binary classifiers."""
     return {
-        "accuracies": ClassifiersLabelAccuraciesExact(byTrueLabelCounts),
+        "accuracies": classifiers_label_accuracies(by_true_label_counts),
         "pair-error-correlations": {
-            pair: ClassifierPairByLabelErrorCorrelations(
-                byTrueLabelCounts, pair
-            )
+            pair: pair_error_correlations(by_true_label_counts, pair)
             for pair in ((1, 2), (1, 3), (2, 3))
         },
     }
@@ -402,46 +436,46 @@ def GroundTruthSampleStatistics(byTrueLabelCounts):
 # illustrates how evaluation is easier than training.
 
 
-def ClassifiersObservedLabelFrequencies(byPatternCounts):
+def label_frequencies_classifiers(by_voting_counts):
     """Calculates the label frequencies noisily counted by the three
     classifiers."""
-    totalTestSize = sum(byPatternCounts.values())
+    totalTestSize = sum(by_voting_counts.values())
     return {
         1: {
             "a": Fraction(
-                sum({byPatternCounts[pt] for pt in c1VotesA}), totalTestSize
+                sum({by_voting_counts[pt] for pt in c1_a_votes}), totalTestSize
             ),
             "b": Fraction(
-                sum({byPatternCounts[pt] for pt in c1VotesB}), totalTestSize
+                sum({by_voting_counts[pt] for pt in c1_b_votes}), totalTestSize
             ),
         },
         2: {
             "a": Fraction(
-                sum({byPatternCounts[pt] for pt in c2VotesA}), totalTestSize
+                sum({by_voting_counts[pt] for pt in c2_a_votes}), totalTestSize
             ),
             "b": Fraction(
-                sum({byPatternCounts[pt] for pt in c2VotesB}), totalTestSize
+                sum({by_voting_counts[pt] for pt in c2_b_votes}), totalTestSize
             ),
         },
         3: {
             "a": Fraction(
-                sum({byPatternCounts[pt] for pt in c3VotesA}), totalTestSize
+                sum({by_voting_counts[pt] for pt in c3_a_votes}), totalTestSize
             ),
             "b": Fraction(
-                sum({byPatternCounts[pt] for pt in c3VotesB}), totalTestSize
+                sum({by_voting_counts[pt] for pt in c3_b_votes}), totalTestSize
             ),
         },
     }
 
 
-def ClassifiersObservedLabelFrequencies2(votingFrequencies):
+def label_frequencies_classifiers2(voting_frequencies):
     """Convenience function to compare the numerical loss associated
     with going from exact integer ratios to the inexact algebra of
     of the floating point system."""
     return {
         1: {
-            "a": sum({votingFrequencies[pt] for pt in c1VotesA}),
-            "b": sum({votingFrequencies[pt] for pt in c1VotesB}),
+            "a": sum({voting_frequencies[pt] for pt in c1_a_votes}),
+            "b": sum({voting_frequencies[pt] for pt in c1_b_votes}),
         }
     }
 
@@ -465,77 +499,77 @@ def ClassifiersObservedLabelFrequencies2(votingFrequencies):
 # evaluator. This is an important topic we gloss over now.
 
 
-def PairsFrequencyMomentDifference(byPatternCounts):
+def frequency_moments_pairs(by_voting_counts):
     """Calculates the pair frequency moment difference for all pairs in
     the trio."""
-    clfs = ClassifiersObservedLabelFrequencies(byPatternCounts)
-    vf = ByPatternCountsToFrequenciesExact(byPatternCounts)
+    clfs = label_frequencies_classifiers(by_voting_counts)
+    vf = pattern_counts_to_frequencies_exact(by_voting_counts)
     return {
         "a": {
             (1, 2): (
-                sum(vf[vp] for vp in pairVotingPatterns[(1, 2)][("a", "a")])
+                sum(vf[vp] for vp in pair_vote_patterns[(1, 2)][("a", "a")])
                 - clfs[1]["a"] * clfs[2]["a"]
             ),
             (1, 3): (
-                sum(vf[vp] for vp in pairVotingPatterns[(1, 3)][("a", "a")])
+                sum(vf[vp] for vp in pair_vote_patterns[(1, 3)][("a", "a")])
                 - clfs[1]["a"] * clfs[3]["a"]
             ),
             (2, 3): (
-                sum(vf[vp] for vp in pairVotingPatterns[(2, 3)][("a", "a")])
+                sum(vf[vp] for vp in pair_vote_patterns[(2, 3)][("a", "a")])
                 - clfs[2]["a"] * clfs[3]["a"]
             ),
         },
         "b": {
             (1, 2): (
-                sum(vf[vp] for vp in pairVotingPatterns[(1, 2)][("b", "b")])
+                sum(vf[vp] for vp in pair_vote_patterns[(1, 2)][("b", "b")])
                 - clfs[1]["b"] * clfs[2]["b"]
             ),
             (1, 3): (
-                sum(vf[vp] for vp in pairVotingPatterns[(1, 3)][("b", "b")])
+                sum(vf[vp] for vp in pair_vote_patterns[(1, 3)][("b", "b")])
                 - clfs[1]["b"] * clfs[3]["b"]
             ),
             (2, 3): (
-                sum(vf[vp] for vp in pairVotingPatterns[(2, 3)][("b", "b")])
+                sum(vf[vp] for vp in pair_vote_patterns[(2, 3)][("b", "b")])
                 - clfs[2]["b"] * clfs[3]["b"]
             ),
         },
     }
 
 
-def PairsFrequencyAgreement(byPatternCounts):
+def pairs_agreement_frequencies(by_voting_counts):
     """Calculates the frequency a pair votes in agreement."""
-    vf = ByPatternCountsToFrequenciesExact(byPatternCounts)
+    vf = pattern_counts_to_frequencies_exact(by_voting_counts)
     return {
         "a": {
             (1, 2): (
-                sum(vf[vp] for vp in pairVotingPatterns[(1, 2)][("a", "a")])
+                sum(vf[vp] for vp in pair_vote_patterns[(1, 2)][("a", "a")])
             ),
             (1, 3): (
-                sum(vf[vp] for vp in pairVotingPatterns[(1, 3)][("a", "a")])
+                sum(vf[vp] for vp in pair_vote_patterns[(1, 3)][("a", "a")])
             ),
             (2, 3): (
-                sum(vf[vp] for vp in pairVotingPatterns[(2, 3)][("a", "a")])
+                sum(vf[vp] for vp in pair_vote_patterns[(2, 3)][("a", "a")])
             ),
         },
         "b": {
             (1, 2): (
-                sum(vf[vp] for vp in pairVotingPatterns[(1, 2)][("b", "b")])
+                sum(vf[vp] for vp in pair_vote_patterns[(1, 2)][("b", "b")])
             ),
             (1, 3): (
-                sum(vf[vp] for vp in pairVotingPatterns[(1, 3)][("b", "b")])
+                sum(vf[vp] for vp in pair_vote_patterns[(1, 3)][("b", "b")])
             ),
             (2, 3): (
-                sum(vf[vp] for vp in pairVotingPatterns[(2, 3)][("b", "b")])
+                sum(vf[vp] for vp in pair_vote_patterns[(2, 3)][("b", "b")])
             ),
         },
     }
 
 
-def PairsFrequencyMoment2(byPatternCounts):
+def pairs_frequency_moments2(by_voting_counts):
     """Function meant to illustrate, via numerical equality, that the 2nd
     moment is the same for either of the two labels."""
-    clfs = ClassifiersObservedLabelFrequencies(byPatternCounts)
-    vf = ProjectToVotingPatternFrequenciesFP2(byPatternCounts)
+    clfs = label_frequencies_classifiers(by_voting_counts)
+    vf = project_to_voting_frequencies_fp2(by_voting_counts)
     return {
         (1, 2): (
             (vf[("b", "b", "a")] + vf[("b", "b", "b")])
@@ -563,13 +597,13 @@ def PairsFrequencyMoment2(byPatternCounts):
 # 1. It is symmetric in all three of the classifiers.
 # 2. it is a cubic in observed frequency variables but degree 6 in
 #    evalutaion variables space.
-def TrioFrequencyMoment(byPatternCounts):
+def trio_frequency_moment(by_voting_counts):
     """Calculates the 3rd frequency moment of a trio of binary classifiers
     needed for algebraic evaluation using the error indepedent model."""
-    clfs = ClassifiersObservedLabelFrequencies(byPatternCounts)
+    clfs = label_frequencies_classifiers(by_voting_counts)
     productFreqB = clfs[1]["b"] * clfs[2]["b"] * clfs[3]["b"]
 
-    pfmds = PairsFrequencyMomentDifference(byPatternCounts)
+    pfmds = frequency_moments_pairs(by_voting_counts)
     sumProd = (
         clfs[1]["b"] * pfmds["b"][(2, 3)]
         + clfs[2]["b"] * pfmds["b"][(1, 3)]
@@ -592,48 +626,47 @@ def TrioFrequencyMoment(byPatternCounts):
 #
 # The polynomial of voting moments associated with the a coefficient:
 #
-def prevalenceEvaluationQuadraticBCoefficient(evalDataSketch):
+def prevalence_b_coefficientt(eval_data_sketch):
     """Calculates the "a" coefficient associated with the evaluation
     of the sample prevalence for the alpha label."""
-    return -prevalenceEvaluationQuadraticACoefficient(evalDataSketch)
+    return -prevalence_a_coefficient(eval_data_sketch)
 
 
-def prevalenceEvaluationQuadraticACoefficient(evalDataSketch):
+def prevalence_a_coefficient(eval_data_sketch):
     """Calculates the "a" coefficient associated with the evaluation
     of the sample prevalence for the alpha label."""
-    # clfs = ClassifiersObservedLabelFrequencies(evalDataSketch)
-    pfmds = PairsFrequencyMomentDifference(evalDataSketch)
-    vf = ByPatternCountsToFrequenciesExact(evalDataSketch)
+    pfmds = frequency_moments_pairs(eval_data_sketch)
+    vf = pattern_counts_to_frequencies_exact(eval_data_sketch)
     fbbb = vf[("b", "b", "b")]
-    diff1 = fbbb - TrioFrequencyMoment(evalDataSketch)
+    diff1 = fbbb - trio_frequency_moment(eval_data_sketch)
     prodFDs = pfmds["b"][(1, 2)] * pfmds["b"][(1, 3)] * pfmds["b"][(2, 3)]
     return diff1**2 + 4 * prodFDs
 
 
-def prevalenceEvaluationQuadraticCCoefficient(evalDataSketch):
+def prevalence_c_coefficient(eval_data_sketch):
     """Calculates the "c" coefficient associated with the evaluation
     of the sample prevalence for the alpha label."""
-    pairMoments = PairsFrequencyMomentDifference(evalDataSketch)
+    pair_moments = frequency_moments_pairs(eval_data_sketch)
     return (
-        -pairMoments["b"][(1, 2)]
-        * pairMoments["b"][(1, 3)]
-        * pairMoments["b"][(2, 3)]
+        -pair_moments["b"][(1, 2)]
+        * pair_moments["b"][(1, 3)]
+        * pair_moments["b"][(2, 3)]
     )
 
 
-def alphaPrevalencAlgebraicEstimate(evalDataSketch):
+def alpha_prevalence_estimate(eval_data_sketch):
     """Calculates the prevalence of the alpha label."""
-    b = prevalenceEvaluationQuadraticBCoefficient(evalDataSketch)
-    c = prevalenceEvaluationQuadraticCCoefficient(evalDataSketch)
+    b = prevalence_b_coefficientt(eval_data_sketch)
+    c = prevalence_c_coefficient(eval_data_sketch)
     sqrTerm = math.sqrt(1 - 4 * c / b) / 2
     return [Fraction(1, 2) + sqrTerm, Fraction(1, 2) - sqrTerm]
 
 
-def GTAlphaPrevalence(byTrueLabelCounts):
+def gt_alpha_prevalence(by_true_label_counts):
     """Given ground truth knowledge of the noisy classifiers, calculate
     the true prevalence of the alpha label."""
-    nA = sum(c for c in byTrueLabelCounts["a"].values())
-    nB = sum(c for c in byTrueLabelCounts["b"].values())
+    nA = sum(c for c in by_true_label_counts["a"].values())
+    nB = sum(c for c in by_true_label_counts["b"].values())
     return Fraction(nA, nA + nB)
 
 
@@ -642,38 +675,38 @@ if __name__ == "__main__":
         """The evaluation observed voting patterns by true label -
         the ground truth."""
     )
-    print(adultLabelCounts, "\n")
+    print(uciadult_label_counts, "\n")
 
     print(
         """During unlabeled evaluation we only get to observe the voting
         patterns, without knowing the true label of each voting instance."""
     )
-    evalDataSketch = ProjectToVotingPatternCounts(adultLabelCounts)
-    print(evalDataSketch, "\n")
+    data_sketch = project_to_voting_pattern_counts(uciadult_label_counts)
+    print(data_sketch, "\n")
 
     print(
         """To carry out the evaluation we need the relative frequency of the
     voting patterns."""
     )
-    votingFrequencies = ProjectToVotingPatternFrequenciesExact(
-        adultLabelCounts
+    observed_frequencies = project_to_voting_frequencies_exact(
+        uciadult_label_counts
     )
-    print(votingFrequencies, "\n")
+    print(observed_frequencies, "\n")
 
     print(
         """To estimate the prevalence of the alpha label, we need the
     coefficients of the prevalence quadratic:"""
     )
     print("1. The 'a' coefficient for the quadratic:")
-    print(prevalenceEvaluationQuadraticACoefficient(evalDataSketch), "\n")
+    print(prevalence_a_coefficient(data_sketch), "\n")
     print("2. The 'b' coefficient for the quadratic:")
-    print(prevalenceEvaluationQuadraticBCoefficient(evalDataSketch), "\n")
+    print(prevalence_b_coefficientt(data_sketch), "\n")
     print("3. The 'c' coefficient for the quadratic:")
-    print(prevalenceEvaluationQuadraticCCoefficient(evalDataSketch), "\n")
+    print(prevalence_c_coefficient(data_sketch), "\n")
 
     print("Algebraic estimates of alpha label prevalence: ")
-    print(alphaPrevalencAlgebraicEstimate(evalDataSketch))
-    trueAPrevalence = GTAlphaPrevalence(adultLabelCounts)
+    print(alpha_prevalence_estimate(data_sketch))
+    trueAPrevalence = gt_alpha_prevalence(uciadult_label_counts)
     print(
         "The true alpha label prevalence is: ",
         trueAPrevalence,
@@ -684,4 +717,4 @@ if __name__ == "__main__":
     # The test run picked for this code comes from a trio of classifiers
     # that have, in fact, very small pair error correlations.
     print("Ground truth values: ")
-    print(GroundTruthSampleStatistics(adultLabelCounts))
+    print(ground_truth_statistics(uciadult_label_counts))
