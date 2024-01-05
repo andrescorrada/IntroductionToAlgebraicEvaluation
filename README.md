@@ -1,15 +1,26 @@
 # Introduction To Algebraic Evaluation
 
-Algebraic evaluation is the grading of noisy of judges on unlabeled data via
-purely algebraic approaches. These algebraic approaches do not require the use
-of probability theory or detailed knowledge of the domain in which the judges
-are working.
+Algebraic evaluation is logic of evaluating noisy agents on unlabeled data.
+Starting from simple algebraic equations that connect the statistics of correctness of these agents to their actual responses in a given test, a set of algebraic
+postulates - universally true for any test results - can be constructed.
+This treats the evaluation of human or machine agents as an inverse problem where we must go from statistics of their observed agreements **and** disagreements to infering their statitistic of correctness given those observations.
+
+By constructing, these algebraic postulates do not contain any probability theory. Otherwise, they would not be postulates. Any probability theory would require that we specify hyperparameters for it. The theorems and conclusions using any model of probability one uses to evaluate agents would, by construction, be invalid when the assumption of the theory applying to the domain fails - the OOD problem.
+
+The algebraic postulates, and their associated logic of consistency, we will be discussing here can be encanpsulated by the acronym - **NTQR**.
+1. N: the number of classifiers in the group being tested.
+2. T: the number of tests those classifiers took.
+3. Q: the number of questions each of those tests contained.
+4. R: the number of responses that were possible in each of the questions.
+
+The easiest case to consider is the one of evaluating noisy binary classifiers. If we are going to construct postulates for the evaluation of an ensemble of classifiers, we must also confine ourselves to "black-box" methods. Any use of internals related to how the classifiers made their decisions would have the OOD problem of the type of agent involved in the evaluation. For example, methods used to evaluate neural networks could not be used to evaluate a mix of humans and neural networks.
 
 Evaluation is the forgotten twin of learning. AI researchers and their work
 currently focuses on just one side of the learning process - training. As such,
-they have missed many of the benefits of algebraic evaluation. This repository
-means to correct that by providing code and instruction on the mathematics and
-engineering of algebraic evaluators.
+they have missed many of the benefits of considering the theory of evaluation.
+In particular, the notion that there exists a logic of consistency whenever we are evaluating ensembles of noisy decisions makers on any finite test.
+
+There have been tentative understandings of this logic in the work of some ML researchers. Most notably the agreement equations of Platanios. But the full scope of the mathematics of treating evaluation as a data streaming problem with its own logic is not even understood to exist. This repository means to correct that by providing code and instruction on the mathematics and engineering of using NTQR logic to evaluate noisy human or machine decision makers.
 
 ## Why purely algebraic evaluation?
 
