@@ -1,6 +1,6 @@
 # Introduction To Algebraic Evaluation
 
-Algebraic evaluation is logic of evaluating noisy agents on unlabeled data.
+Algebraic evaluation is the logic of evaluating noisy agents on unlabeled data.
 Starting from simple algebraic equations that connect the statistics of
 correctness of these agents to their actual responses in a given test, a set of
 algebraic postulates - universally true for any test results - can be
