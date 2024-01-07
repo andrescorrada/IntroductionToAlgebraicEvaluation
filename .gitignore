@@ -1,3 +1,10 @@
+# Emacs temp files
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
