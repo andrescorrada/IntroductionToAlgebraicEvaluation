@@ -1,6 +1,15 @@
 #! /usr/bin/env Python
-"""Basic utilities for carrying out algebraic evaluation of binary classifiers.
-Contains code for evaluating an ensemble of three error-independent judges."""
+"""Purely algebraic evaluator of error independent binary classifiers.
+
+Classes:
+    ObservedVoteCounts
+    ByLabelVoteCounts
+
+Functions:
+    
+Misc variables:
+    uciadult_label_counts
+    """
 
 import math
 
@@ -9,36 +18,19 @@ import math
 # two versions of every computation - the exact one using integer ratios,
 # and the one using the default floating point numbers
 from fractions import Fraction
+from typing_extensions import Literal, Mapping
 
-# The basic data structure of algebraic evaluation contains the number of
-# times an ensemble of judges votes a certain way. In the case of binary
-# classification for three judges, there are 8 possible ways they could vote.
-# There are two versions of these counts.
-# 1. The 1st version is the ``ground truth" version. It contains information
-#    that is not available during unlabeled evaluation. Namely, the count of
-#    of the pattern by true label. This code uses this version because we are
-#    evaluating algebraic evaluation! In other words, our goal is to verify
-#    how well purely algebraic evaluation works.
-# 2. The 2nd version of the data structure is the data that we would observe
-#    in the unlabeled setting where one would want to use this approach. The
-#    counts for each voting pattern are now a sum over all possible true
-#    labels. The examples that follow are voting pattern counts actually
-#    observed when we trained a set of binary classifiers on two public
-#    datasets: UCI adul and mushroom.
+# Types
+Label = Literal["a", "b"]
 
-# Note on label conventions: The labels are, of course, arbitrary. Nonetheless,
-# the use of '0' and '1' is not an optimal choice if we want to avoid confusion
-# between labels and numbers. In particular, the mathematics of algebraic
-# evaluation is based on moments of the correctness of the classifiers
-# decisions. One and zero are used to carry out the calculations of these
-# moments. To avoid any possible confusion from the indicator functions and the
-# labels, we use 'a' and 'b' to denote the two possible labels.
+# Vote counts are what we see when we have unlabeled data.
+VoteCounts = Mapping[tuple[Label], int]
 
-# These counts were obtained in Mathematica using classifiers trained
-# on the following features: {(2,4,14),(3,9,11),(6,8,13)}
-# The algorithms used by each classifier were: (RandomForest, NeuralNetwork,
-# LogisticRegression)
-uciadult_label_counts = {
+# Label vote counts, vote counts by true label, are only available
+# when we are carrying out experiments on labeled data.
+LabelVoteCounts = Mapping[Label, VoteCounts]
+
+uciadult_label_counts: LabelVoteCounts = {
     "a": {
         ("a", "a", "a"): 715,
         ("a", "a", "b"): 161,
@@ -61,29 +53,8 @@ uciadult_label_counts = {
     },
 }
 
-# The ground truth of the voting pattern counts shown above is the
-# ultimate goal of the algebraic evaluation in Data Engine's current
-# GrounSeer technology. It is not the only possible test you may want
-# to impose on your classifiers. For example, your domain may involve
-# sequential data so you would be interested in sequence errors, not
-# just the sequence of length 1 voting patterns shown here.
-#
-# The difficulty of evaluating noisy judges on unlabeled data is that we are
-# not able to see the true labels or values for the data. This is a fundamental
-# problem that needs to be solved so we can use it where it really matters -
-# to increase the safety of deployed AI agents.
-#
-# Instead, we see a projected count. Any given voting pattern, say (a,b,a),
-# is the sum of over the true labels. This is a glimpse into the algebra of
-# of evaluation. These "by-label" voting pattern counts can be rewritten
-# as polynomials of more familiar "grades" one would want to know for an
-# ensemble of classifiers - by-label accuracies for each classifier, etc.
-#
-# So to aid in creating a simulacrum of how algebraic evaluation would occur
-# when you did not have the true labels, let's write a function that projects
-# the by-true-label counts into just, by-voting-pattern counts - the only thing
-# one can observe in the unlabeled case.
-trio_vote_patterns = (
+# Three binary classifiers have eight possible voting patterns
+trio_vote_patterns: tuple[tuple[Label]] = (
     ("a", "a", "a"),
     ("a", "a", "b"),
     ("a", "b", "a"),
@@ -95,35 +66,22 @@ trio_vote_patterns = (
 )
 
 
-def project_to_voting_pattern_counts(by_true_label_counts):
+def to_vote_counts(by_label_counts: LabelVoteCounts) -> VoteCounts:
     """Projects by-true-label voting pattern counts to by-voting-pattern
     counts."""
     return {
         voting_pattern: (
-            by_true_label_counts["a"][voting_pattern]
-            + by_true_label_counts["b"][voting_pattern]
+            by_label_counts["a"].get(voting_pattern, 0)
+            + by_label_counts["b"].get(voting_pattern, 0)
         )
         for voting_pattern in trio_vote_patterns
     }
 
 
-# We have now constructed the "easy" 1/2 half of setting up an
-# algebraic evaluation. We have 8 voting pattern counts. Can we use
-# them to reverse engineer the performance of the classifiers?
-#
-# Python is not an algebraic language. What is trivial to show, thru
-# built-in functions in Mathematica, is extremely hard if not impossible
-# in Python. So the following set of functions cannot be motivated
-# here by direct appeal to the their origin in the algebra. They are, in
-# effect moment functions of the observable counts when viewed as normalized
-# frequencies - "38% of the time we saw (a,b,a), etc." So let's start by
-# computing those voting pattern frequencies
-
-
-# The exact computation based on using integer ratios
-def project_to_voting_frequencies_exact(by_true_label_counts):
+def to_voting_frequency_fractions(by_label_counts: LabelVoteCounts) -> \
+        Mapping[tuple[Label], Fraction]:
     """Computes observed voting pattern frequencies."""
-    by_voting_counts = project_to_voting_pattern_counts(by_true_label_counts)
+    by_voting_counts = to_vote_counts(by_label_counts)
     size_of_test = sum(by_voting_counts.values())
     return {
         vp: Fraction(by_voting_counts[vp], size_of_test)
@@ -141,10 +99,10 @@ def pattern_counts_to_frequencies_exact(by_voting_counts):
     }
 
 
-def project_to_voting_frequencies_fp(by_true_label_counts):
+def project_to_voting_frequencies_fp(by_label_counts):
     """Same as the exact computation, but using floating point
     numbers."""
-    by_voting_counts = project_to_voting_pattern_counts(by_true_label_counts)
+    by_voting_counts = to_vote_counts(by_label_counts)
     size_of_test = sum(by_voting_counts.values())
     return {
         vp: by_voting_counts[vp] / size_of_test
@@ -235,39 +193,39 @@ c3_b_votes = (
 )
 
 
-def classifiers_label_accuracies(by_true_label_counts):
+def classifiers_label_accuracies(by_label_counts):
     """Given the by-true label voting pattern counts, calculates the observed
     by-label accuracies of a trio of classifiers."""
-    a_test_size = sum(by_true_label_counts["a"].values())
-    b_test_size = sum(by_true_label_counts["b"].values())
+    a_test_size = sum(by_label_counts["a"].values())
+    b_test_size = sum(by_label_counts["b"].values())
     return {
         1: {
             "a": Fraction(
-                sum({by_true_label_counts["a"][vp] for vp in c1_a_votes}),
+                sum({by_label_counts["a"][vp] for vp in c1_a_votes}),
                 a_test_size,
             ),
             "b": Fraction(
-                sum({by_true_label_counts["b"][vp] for vp in c1_b_votes}),
+                sum({by_label_counts["b"][vp] for vp in c1_b_votes}),
                 b_test_size,
             ),
         },
         2: {
             "a": Fraction(
-                sum({by_true_label_counts["a"][vp] for vp in c2_a_votes}),
+                sum({by_label_counts["a"][vp] for vp in c2_a_votes}),
                 a_test_size,
             ),
             "b": Fraction(
-                sum({by_true_label_counts["b"][vp] for vp in c2_b_votes}),
+                sum({by_label_counts["b"][vp] for vp in c2_b_votes}),
                 b_test_size,
             ),
         },
         3: {
             "a": Fraction(
-                sum({by_true_label_counts["a"][vp] for vp in c3_a_votes}),
+                sum({by_label_counts["a"][vp] for vp in c3_a_votes}),
                 a_test_size,
             ),
             "b": Fraction(
-                sum({by_true_label_counts["b"][vp] for vp in c3_b_votes}),
+                sum({by_label_counts["b"][vp] for vp in c3_b_votes}),
                 b_test_size,
             ),
         },
@@ -312,14 +270,14 @@ pair_vote_patterns = {
 }
 
 
-def pair_error_correlations(by_true_label_counts, pair):
+def pair_error_correlations(by_label_counts, pair):
     """Calculates the by-label pair error correlation for two
     binary classifiers"""
-    a_test_size = sum(by_true_label_counts["a"].values())
-    b_test_size = sum(by_true_label_counts["b"].values())
+    a_test_size = sum(by_label_counts["a"].values())
+    b_test_size = sum(by_label_counts["b"].values())
 
     (ci, cj) = pair
-    ca = classifiers_label_accuracies(by_true_label_counts)
+    ca = classifiers_label_accuracies(by_label_counts)
     ci_accuracies = ca[ci]
     cj_accuracies = ca[cj]
 
@@ -330,7 +288,7 @@ def pair_error_correlations(by_true_label_counts, pair):
             * (1 - cj_accuracies["a"])
             * sum(
                 {
-                    by_true_label_counts["a"][vp]
+                    by_label_counts["a"][vp]
                     for vp in pair_vote_patterns[pair][("a", "a")]
                 }
             )
@@ -340,7 +298,7 @@ def pair_error_correlations(by_true_label_counts, pair):
             * (0 - cj_accuracies["a"])
             * sum(
                 {
-                    by_true_label_counts["a"][vp]
+                    by_label_counts["a"][vp]
                     for vp in pair_vote_patterns[pair][("a", "b")]
                 }
             )
@@ -350,7 +308,7 @@ def pair_error_correlations(by_true_label_counts, pair):
             * (1 - cj_accuracies["a"])
             * sum(
                 {
-                    by_true_label_counts["a"][vp]
+                    by_label_counts["a"][vp]
                     for vp in pair_vote_patterns[pair][("b", "a")]
                 }
             )
@@ -360,7 +318,7 @@ def pair_error_correlations(by_true_label_counts, pair):
             * (0 - cj_accuracies["a"])
             * sum(
                 {
-                    by_true_label_counts["a"][vp]
+                    by_label_counts["a"][vp]
                     for vp in pair_vote_patterns[pair][("b", "b")]
                 }
             )
@@ -372,7 +330,7 @@ def pair_error_correlations(by_true_label_counts, pair):
             * (1 - cj_accuracies["b"])
             * sum(
                 {
-                    by_true_label_counts["b"][vp]
+                    by_label_counts["b"][vp]
                     for vp in pair_vote_patterns[pair][("b", "b")]
                 }
             )
@@ -382,7 +340,7 @@ def pair_error_correlations(by_true_label_counts, pair):
             * (0 - cj_accuracies["b"])
             * sum(
                 {
-                    by_true_label_counts["b"][vp]
+                    by_label_counts["b"][vp]
                     for vp in pair_vote_patterns[pair][("b", "a")]
                 }
             )
@@ -392,7 +350,7 @@ def pair_error_correlations(by_true_label_counts, pair):
             * (1 - cj_accuracies["b"])
             * sum(
                 {
-                    by_true_label_counts["b"][vp]
+                    by_label_counts["b"][vp]
                     for vp in pair_vote_patterns[pair][("a", "b")]
                 }
             )
@@ -402,7 +360,7 @@ def pair_error_correlations(by_true_label_counts, pair):
             * (0 - cj_accuracies["b"])
             * sum(
                 {
-                    by_true_label_counts["b"][vp]
+                    by_label_counts["b"][vp]
                     for vp in pair_vote_patterns[pair][("a", "a")]
                 }
             )
@@ -411,14 +369,14 @@ def pair_error_correlations(by_true_label_counts, pair):
     }
 
 
-def ground_truth_statistics(by_true_label_counts):
+def ground_truth_statistics(by_label_counts):
     """Given the by-true label voting pattern counts, calculates the complete
     set of sample statistics needed to have an exact polynomial representation
     of the observed voting patterns by three binary classifiers."""
     return {
-        "accuracies": classifiers_label_accuracies(by_true_label_counts),
+        "accuracies": classifiers_label_accuracies(by_label_counts),
         "pair-error-correlations": {
-            pair: pair_error_correlations(by_true_label_counts, pair)
+            pair: pair_error_correlations(by_label_counts, pair)
             for pair in ((1, 2), (1, 3), (2, 3))
         },
     }
@@ -662,11 +620,11 @@ def alpha_prevalence_estimate(eval_data_sketch):
     return [Fraction(1, 2) + sqrTerm, Fraction(1, 2) - sqrTerm]
 
 
-def gt_alpha_prevalence(by_true_label_counts):
+def gt_alpha_prevalence(by_label_counts):
     """Given ground truth knowledge of the noisy classifiers, calculate
     the true prevalence of the alpha label."""
-    nA = sum(c for c in by_true_label_counts["a"].values())
-    nB = sum(c for c in by_true_label_counts["b"].values())
+    nA = sum(c for c in by_label_counts["a"].values())
+    nB = sum(c for c in by_label_counts["b"].values())
     return Fraction(nA, nA + nB)
 
 
@@ -681,14 +639,14 @@ if __name__ == "__main__":
         """During unlabeled evaluation we only get to observe the voting
         patterns, without knowing the true label of each voting instance."""
     )
-    data_sketch = project_to_voting_pattern_counts(uciadult_label_counts)
+    data_sketch = to_vote_counts(uciadult_label_counts)
     print(data_sketch, "\n")
 
     print(
         """To carry out the evaluation we need the relative frequency of the
     voting patterns."""
     )
-    observed_frequencies = project_to_voting_frequencies_exact(
+    observed_frequencies = to_voting_frequency_fractions(
         uciadult_label_counts
     )
     print(observed_frequencies, "\n")
