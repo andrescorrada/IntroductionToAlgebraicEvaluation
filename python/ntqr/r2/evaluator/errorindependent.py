@@ -18,13 +18,14 @@ import math
 # two versions of every computation - the exact one using integer ratios,
 # and the one using the default floating point numbers
 from fractions import Fraction
-from typing_extensions import Literal, Mapping
+from typing_extensions import Union, Literal, Mapping
 
 # Types
-Label = Literal["a", "b"]
+Label = Union[Literal["a"], Literal["b"]]
+
 
 # Vote counts are what we see when we have unlabeled data.
-VoteCounts = Mapping[tuple[Label], int]
+VoteCounts = Mapping[tuple[Label, ...], int]
 
 # Label vote counts, vote counts by true label, are only available
 # when we are carrying out experiments on labeled data.
@@ -54,7 +55,7 @@ uciadult_label_counts: LabelVoteCounts = {
 }
 
 # Three binary classifiers have eight possible voting patterns
-trio_vote_patterns: tuple[tuple[Label]] = (
+trio_vote_patterns: tuple[tuple[Label, ...], ...] = (
     ("a", "a", "a"),
     ("a", "a", "b"),
     ("a", "b", "a"),
@@ -79,7 +80,7 @@ def to_vote_counts(by_label_counts: LabelVoteCounts) -> VoteCounts:
 
 
 def to_voting_frequency_fractions(by_label_counts: LabelVoteCounts) -> \
-        Mapping[tuple[Label], Fraction]:
+        Mapping[tuple[Label, ...], Fraction]:
     """Computes observed voting pattern frequencies."""
     by_voting_counts = to_vote_counts(by_label_counts)
     size_of_test = sum(by_voting_counts.values())
