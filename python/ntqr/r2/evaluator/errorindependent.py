@@ -59,6 +59,7 @@ uciadult_label_counts: LabelVoteCounts = {
     },
 }
 
+
 # Some definitions and utilities to help various classes
 
 # Three binary classifiers have eight possible voting patterns
@@ -106,7 +107,7 @@ def votes_match(
     tuple[Votes, ...].
 
     """
-    return bool(
+    return all(
         [
             votes[classifier] == label
             for classifier, label in zip(classifiers, labels)
@@ -205,14 +206,11 @@ class TrioVoteCounts:
 
         """
         vote_frequencies = self.to_frequencies_exact()
-        return Fraction(
-            sum(
-                [
-                    vote_frequencies[votes]
-                    for votes in classifier_label_votes(classifier, label)
-                ]
-            ),
-            self.test_size,
+        return sum(
+            [
+                vote_frequencies[votes]
+                for votes in classifier_label_votes(classifier, label)
+            ]
         )
 
     def pair_label_frequency(
@@ -285,7 +283,7 @@ class TrioVoteCounts:
             for classifier in range(3)
         ]
         prod_frequencies = math.prod(classifier_label_frequencies)
-        pfmds = self.label_pairs_frequency_moments('b')
+        pfmds = self.label_pairs_frequency_moments("b")
         sum_prod = (
             classifier_label_frequencies[0] * pfmds[(1, 2)]
             + classifier_label_frequencies[1] * pfmds[(0, 2)]
@@ -386,7 +384,6 @@ class SupervisedEvaluation:
         }
 
     def prevalences(self):
-        print(self.label_counts)
         test_sizes = self.label_counts.test_sizes
         total = sum(test_sizes.values())
         return {
@@ -489,7 +486,7 @@ class ErrorIndependentEvaluator:
         of the sample prevalence for the alpha label."""
 
         # The coefficient of the square term
-        pfmds = self.vote_counts.label_pairs_frequency_moments('b')
+        pfmds = self.vote_counts.label_pairs_frequency_moments("b")
         vote_frequencies = self.vote_frequencies
         fbbb = vote_frequencies[("b", "b", "b")]
         diff1 = fbbb - self.vote_counts.trio_frequency_moment()
@@ -497,7 +494,8 @@ class ErrorIndependentEvaluator:
         term_coefficients = {
             2: diff1**2 + 4 * prodFDs,
             1: -(diff1**2 + 4 * prodFDs),
-            0: -prodFDs}
+            0: -prodFDs,
+        }
 
         return term_coefficients
 
@@ -511,7 +509,6 @@ class ErrorIndependentEvaluator:
 
 
 if __name__ == "__main__":
-
     print(
         """The evaluation observed voting patterns by true label -
         the ground truth."""
@@ -522,8 +519,9 @@ if __name__ == "__main__":
         """During unlabeled evaluation we only get to observe the voting
         patterns, without knowing the true label of each voting instance."""
     )
-    data_sketch = \
-        TrioLabelVoteCounts(uciadult_label_counts).to_TrioVoteCounts()
+    data_sketch = TrioLabelVoteCounts(
+        uciadult_label_counts
+    ).to_TrioVoteCounts()
     print(data_sketch, "\n")
 
     print(
@@ -551,9 +549,10 @@ if __name__ == "__main__":
     print(error_ind_evaluator.alpha_prevalence_estimate())
 
     gt_evaluation = SupervisedEvaluation(
-        TrioLabelVoteCounts(uciadult_label_counts)).evaluation
+        TrioLabelVoteCounts(uciadult_label_counts)
+    ).evaluation
 
-    trueAPrevalence = gt_evaluation['prevalence']['a']
+    trueAPrevalence = gt_evaluation["prevalence"]["a"]
     print(
         "The true alpha label prevalence is: ",
         trueAPrevalence,
