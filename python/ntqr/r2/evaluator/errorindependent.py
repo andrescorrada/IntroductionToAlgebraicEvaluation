@@ -509,11 +509,14 @@ class ErrorIndependentEvaluator:
 
 
 if __name__ == "__main__":
+
+    from pprint import pprint
+
     print(
         """The evaluation observed voting patterns by true label -
         the ground truth."""
     )
-    print(uciadult_label_counts, "\n")
+    pprint(uciadult_label_counts)
 
     print(
         """During unlabeled evaluation we only get to observe the voting
@@ -522,14 +525,13 @@ if __name__ == "__main__":
     data_sketch = TrioLabelVoteCounts(
         uciadult_label_counts
     ).to_TrioVoteCounts()
-    print(data_sketch, "\n")
 
     print(
         """To carry out the evaluation we need the relative frequency of the
-    voting patterns."""
+        voting patterns."""
     )
     observed_frequencies = data_sketch.to_frequencies_exact()
-    print(observed_frequencies, "\n")
+    pprint(observed_frequencies)
 
     print(
         """To estimate the prevalence of the alpha label, we need the
@@ -539,28 +541,26 @@ if __name__ == "__main__":
     prev_terms = error_ind_evaluator.prevalence_quadratic_terms()
 
     print("1. The 'a' coefficient for the quadratic:")
-    print(prev_terms[2], "\n")
-    print("2. The 'b' coefficient for the quadratic:")
-    print(prev_terms[1], "\n")
-    print("3. The 'c' coefficient for the quadratic:")
-    print(prev_terms[0], "\n")
+    pprint(prev_terms[2])
+    pprint("2. The 'b' coefficient for the quadratic:")
+    pprint(prev_terms[1])
+    pprint("3. The 'c' coefficient for the quadratic:")
+    pprint(prev_terms[0])
 
-    print("Algebraic estimates of alpha label prevalence: ")
-    print(error_ind_evaluator.alpha_prevalence_estimate())
+    pprint("Algebraic estimates of alpha label prevalence: ")
+    pprint(error_ind_evaluator.alpha_prevalence_estimate())
 
     gt_evaluation = SupervisedEvaluation(
         TrioLabelVoteCounts(uciadult_label_counts)
     ).evaluation
 
     trueAPrevalence = gt_evaluation["prevalence"]["a"]
-    print(
-        "The true alpha label prevalence is: ",
-        trueAPrevalence,
-        " or: ",
-        float(trueAPrevalence),
-    )
+    print("The true alpha label prevalence is: ")
+    pprint(trueAPrevalence)
+    print(" or: ")
+    pprint(float(trueAPrevalence))
 
     # The test run picked for this code comes from a trio of classifiers
     # that have, in fact, very small pair error correlations.
-    print("Ground truth values: ")
-    print(gt_evaluation)
+    pprint("Ground truth values: ")
+    pprint(gt_evaluation, sort_dicts=False)
