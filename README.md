@@ -131,7 +131,7 @@ ourselves.
 
 <p> <figure> <img src="img/AlgebraicEvaluation.png" alt="The self-evaluation
 paradigm." height="400"> <figcaption> Figure Caption: <b>Bypassing the
-master/slave relationship of evaluation to make us safer.</b> </figcaption>
+principal/agent relationship of evaluation to make us safer.</b> </figcaption>
 </figure> </p>
 
 ## Guide to the repository
