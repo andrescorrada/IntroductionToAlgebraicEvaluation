@@ -10,18 +10,22 @@ given those observations.
 
 By construction, these algebraic postulates do not contain any probability
 theory. Otherwise, they would not be postulates. Any probability theory would
-require that we specify hyperparameters for it. The theorems and conclusions
-using any model of probability one uses to evaluate agents would, by
-construction, be invalid when the assumption of the theory applying to the
-domain fails - the OOD problem.
+require that we specify hyperparameters for it. This immediately raises the
+possibility of the OOD problem - how do we know the settings of the
+hyperparameters are valid in the given evaluation context? An algebraic approach
+side steps the OOD problem by focusing on estimating sample statistics and
+nothing else.
 
-The algebraic postulates, and their associated logic of consistency, we will be
-discussing here can be summarized by the acronym - **NTQR**.
+Since an algebraic approach has no representation of the domain where the
+noisy algorithms are making their decisions, it can be universal - applicable
+to all evaluations of noisy algorithms on finite tests. The algebraic
+postulates, and their associated logic of consistency, discussed here can be
+summarized by the acronym - **NTQR**.
 
-1. N: the number of classifiers in the group being tested.
-2. T: the number of tests those classifiers took.
-3. Q: the number of questions each of those tests contained.
-4. R: the number of responses that were possible in each of the questions.
+1. **N**: the number of classifiers in the group being tested.
+2. **T**: the number of tests those classifiers took.
+3. **Q**: the number of questions each of those tests contained.
+4. **R**: the number of responses that were possible in each of the questions.
 
 The easiest case to consider is the one of evaluating noisy binary classifiers.
 If we are going to construct postulates for the evaluation of an ensemble of
@@ -71,11 +75,18 @@ evaluation on unlabeled data.
 ## The logic of evaluating agents on unlabeled data
 
 The algebraic postulates presented here are universal. There will never be any
-set of classifiers taking any finite test that violates them. Irrespective of
-how well or badly they did on the test. Irrespective of what domain was used to
-perform the test. Irrespective of what agents where used to carry out the
-evaluation. That universality is what makes them a **logic of evaluation on
-unlabeled data**.
+set of classifiers taking any finite test that violates them.
+  - Irrespective of how well or badly they did on the test.  Irrespective of
+    what domain was used to perform the test.
+  - Irrespective of what agents where used to carry out the evaluation.
+That universality is what makes them a **logic of evaluation on unlabeled data**.
+
+But this logic is not magical. It cannot guarantee that your evaluation will
+work. GIGO also applies to evaluation on unlabeled data. What makes this logic
+useful for safety applications is that it can warn you if the ensemble is not
+good enough to perform a reliable evaluation. This feature alone is what makes
+it capable of providing a guarantee that no probabilistic or representational
+approach to evaluation can match.
 
 ## Binary classification - the case of N,T,Q,R=2 evaluations
 
