@@ -1,15 +1,14 @@
 # Introduction To Algebraic Evaluation
 
 Algebraic evaluation is the logic of evaluating noisy agents on unlabeled data.
-Starting from simple algebraic equations that connect the statistics of
-correctness of these agents to their actual responses in a given test, a set of
-algebraic postulates - universally true for any test results - can be
-constructed. This treats the evaluation of human or machine agents as an inverse
-problem where we must go from statistics of their observed agreements **and**
-disagreements to inferring their statistics of correctness given those
-observations.
+A set of algebraic postulates - universally true for any finite test - can be
+constructed by connecting the responses of the agents to unknown statistics of
+their correctness on the test. This treats the evaluation of human or machine
+agents as an inverse problem where we must go from statistics of their observed
+agreements **and** disagreements to inferring their statistics of correctness
+given those observations.
 
-By constructing, these algebraic postulates do not contain any probability
+By construction, these algebraic postulates do not contain any probability
 theory. Otherwise, they would not be postulates. Any probability theory would
 require that we specify hyperparameters for it. The theorems and conclusions
 using any model of probability one uses to evaluate agents would, by
