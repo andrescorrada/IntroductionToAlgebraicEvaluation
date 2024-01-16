@@ -1,1 +1,14 @@
-"""Evaluate noisy decision makers using logic and algebra.Classes:    BinaryTrioVoteCounts    BinaryTrioLabelVoteCounts    BinaryErrorIndependentEvaluatorFunctions:Misc variables:    __version__    uci_adult_test_example"""__version__ = "0.1"
+"""
+Evaluate noisy decision makers using logic and algebra.
+
+Classes:
+
+Functions:
+
+Misc variables:
+
+    __version__
+    uci_adult_test_example
+"""
+
+__version__ = "0.1"

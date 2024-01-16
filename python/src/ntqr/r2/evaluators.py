@@ -1,4 +1,3 @@
-#! /usr/bin/env Python
 """Purely algebraic evaluator of error independent binary classifiers.
 
 Classes:
@@ -90,8 +89,9 @@ def votes_match(
     labels: Iterable[Label],
 ) -> bool:
     """
-    Returns votes where the classifiers are voting
-    with the given labels
+    Returns True if voting sub-pattern, labels,
+    corresponding to the indices in classifiers
+    matches the trio pattern in votes.
 
     Parameters
     ----------
@@ -100,11 +100,12 @@ def votes_match(
     classifiers : Iterable[int]
         Classifiers to check.
     labels : Iterable[Label]
-        Label voted by each classifier.
+        Label voted by each classifier - the voting
+        sub-pattern we want a trio pattern to match.
 
     Returns
     -------
-    tuple[Votes, ...].
+    bool.
 
     """
     return all(
@@ -118,6 +119,25 @@ def votes_match(
 def classifiers_labels_votes(
     classifiers: Iterable[int], labels: Iterable[Label]
 ) -> tuple[Votes, ...]:
+    """
+    Provides the trio voting patterns that match the
+    voting sub-pattern in labels for the classifiers.
+
+    Parameters
+    ----------
+    classifiers : Iterable[int]
+        The indices of the classifiers in the trio
+        to match.
+    labels : Iterable[Label]
+        Voting sub-pattern by classifiers to match.
+
+    Returns
+    -------
+    tuple[Votes, ...]
+        Tuple of trio voting patterns that matched labels
+        for the classifiers.
+
+    """
     return tuple(
         [
             votes

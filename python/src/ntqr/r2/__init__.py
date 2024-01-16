@@ -19,5 +19,3 @@ for (_, module_name, _) in iter_modules([package_dir]):
         if isclass(attribute):
             # Add the class to this package's variables
             globals()[attribute_name] = attribute
-
-print('at the r2 __init__.py file.')

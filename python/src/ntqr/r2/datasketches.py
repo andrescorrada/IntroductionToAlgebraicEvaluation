@@ -128,6 +128,77 @@ def classifiers_labels_votes(
 
 
 @dataclass(frozen=True)
+class TrioLabelVoteCounts:
+    """
+    Data class for the by-label aligned votes of three binary classifiers.
+
+    Initialized with a Mapping[Label, Mapping[Votes, int]] of the form
+    {'a':
+     {('a', 'a', 'a'): int, ..., ('b', 'b', 'b'):int},
+     'b':
+     {('a', 'a', 'a'): int, ..., ('b', 'b', 'b'):int}}
+    """
+
+    label_vote_counts: Mapping[Label, Mapping[Votes, int]]
+
+    def __post_init__(self):
+        """All labels and vote patterns are set."""
+        object.__setattr__(
+            self,
+            "label_vote_counts",
+            {label:
+             {votes: self.label_vote_counts.get(label, {}).get(votes, 0)
+              for votes in trio_vote_patterns}
+             for label in ('a', 'b')})
+
+    def to_vote_counts(self) -> VoteCounts:
+        """
+        Turn by-label counts into by-vote-pattern counts.
+
+        Using {'a':{..., ('a', 'b', 'a'): x, ...},
+               'b':{..., ('a', 'b', 'a'): y, ...}}
+
+        Returns
+        -------
+              {..., ('a', 'b', 'a'): x+y, ...}
+        """
+        return {
+            votes: sum([
+                self.label_vote_counts[label][votes]
+                for label in ('a', 'b')])
+            for votes in trio_vote_patterns}
+
+    def to_TrioVoteCounts(self):
+        """Return TrioVoteCounts object by summing votes across labels."""
+        return TrioVoteCounts(self.to_vote_counts())
+
+    def to_voting_frequency_fractions(self) -> VoteFrequencies:
+        """
+        Computes observed voting pattern frequencies.
+        """
+        by_voting_counts = self.to_vote_counts()
+        size_of_test = sum(by_voting_counts.values())
+        return {
+            vp: Fraction(by_voting_counts[vp], size_of_test)
+            for vp in by_voting_counts.keys()
+        }
+
+    def to_voting_frequencies_float(self) -> Mapping[Votes, float]:
+        """
+        Same as the exact computation, but using floating point
+        numbers.
+        """
+        by_voting_counts = self.to_vote_counts()
+        size_of_test = sum(by_voting_counts.values())
+        return {
+            vp: by_voting_counts[vp] / size_of_test
+            for vp in by_voting_counts.keys()
+        }
+
+    def __getitem__(self, label):
+        return self.lbl_vote_counts.get(label)
+
+@dataclass(frozen=True)
 class TrioVoteCounts:
     """Dataclass to validate the test counts for three binary classifiers."""
 
@@ -135,10 +206,7 @@ class TrioVoteCounts:
 
     def __post_init__(self):
         """Check that no negative vote counts."""
-        if any(
-                [count for
-                 count in self.vote_counts.values()
-                 if count < 0]):
+        if any([count for count in self.vote_counts.values() if (count < 0)]):
             raise ValueError("No negative vote counts allowed.")
         # Make sure all patterns have a non-negative count.
         self.vote_counts = {vote_pattern: self.vote_counts.get(vote_pattern, 0)
@@ -288,55 +356,3 @@ class TrioVoteCounts:
 # But this conflicts with the semantic meaning of these classes. For this
 # reason alone, the code below contains a constructor of TrioVoteCounts from
 # a TrioLabelVoteCounts object.
-
-
-class TrioLabelVoteCounts:
-    def __init__(self, label_vote_counts: LabelVoteCounts):
-        self.lbl_vote_counts = label_vote_counts
-
-        self.test_sizes = {
-            label: sum(self.lbl_vote_counts[label].values())
-            for label in ("a", "b")
-        }
-
-    def to_vote_counts(self) -> VoteCounts:
-        """
-        Projects by-true-label voting pattern counts to by-voting-pattern
-        counts.
-        """
-        return {
-            voting_pattern: (
-                self.lbl_vote_counts["a"].get(voting_pattern, 0)
-                + self.lbl_vote_counts["b"].get(voting_pattern, 0)
-            )
-            for voting_pattern in trio_vote_patterns
-        }
-
-    def to_TrioVoteCounts(self):
-        return TrioVoteCounts(self.to_vote_counts())
-
-    def to_voting_frequency_fractions(self) -> VoteFrequencies:
-        """
-        Computes observed voting pattern frequencies.
-        """
-        by_voting_counts = self.to_vote_counts()
-        size_of_test = sum(by_voting_counts.values())
-        return {
-            vp: Fraction(by_voting_counts[vp], size_of_test)
-            for vp in by_voting_counts.keys()
-        }
-
-    def to_voting_frequencies_float(self) -> Mapping[Votes, float]:
-        """
-        Same as the exact computation, but using floating point
-        numbers.
-        """
-        by_voting_counts = self.to_vote_counts()
-        size_of_test = sum(by_voting_counts.values())
-        return {
-            vp: by_voting_counts[vp] / size_of_test
-            for vp in by_voting_counts.keys()
-        }
-
-    def __getitem__(self, label):
-        return self.lbl_vote_counts.get(label)

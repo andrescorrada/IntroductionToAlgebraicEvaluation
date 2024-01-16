@@ -4,9 +4,13 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "ntqr"
-authors = [{name = "Andrés Corrada-Emmanuel", 
-            email = "andres.corrada@dataengines.com"}]
+authors = [{name = "Andrés Corrada-Emmanuel",email = "andres.corrada@dataengines.com"}]
 dynamic = ["version", "description"]
 
 [project.urls]
 Home = "https://github.com/andrescorrada/IntroductionToAlgebraicEvaluation"
+
+[project.optional.dependencies]
+doc = [
+    "sphinx>=5.0.2"
+]
