@@ -153,6 +153,11 @@ class TrioLabelVoteCounts:
               for votes in trio_vote_patterns}
              for label in ('a', 'b')})
 
+        object.__setattr__(self,
+                           "test_sizes",
+                           {label: sum(self.label_vote_counts[label].values())
+                            for label in ('a', 'b')})
+
     def to_vote_counts(self) -> VoteCounts:
         """
         Turn by-label counts into by-vote-pattern counts.
@@ -219,7 +224,7 @@ class TrioLabelVoteCounts:
             The aligned vote counts observed for the given label.
 
         """
-        return self.lbl_vote_counts.get(label)
+        return self.label_vote_counts[label]
 
 
 @dataclass(frozen=True)
