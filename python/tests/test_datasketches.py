@@ -38,6 +38,34 @@ uci_freqs = tvc.to_frequencies_exact()
          uci_freqs,
          ('a', 'a', 'a'),
          Fraction(493, 18421)
-     ),))
+     ),
+    (
+         uci_freqs,
+         ('a', 'b', 'a'),
+         Fraction(5801, 36842)
+     )))
 def test_frequency(freqs, votes, freq):
     assert freqs[votes] == freq
+
+
+pair_moments = tvc.label_pairs_frequency_moments('b')
+
+
+@pytest.mark.parametrize("pair_moments, pair, freq", (
+    (
+     pair_moments,
+     (0, 1),
+     Fraction(18432653, 1357332964)
+     ),
+    (
+     pair_moments,
+     (0, 2),
+     Fraction(18272925, 1357332964)
+     ),
+    (
+     pair_moments,
+     (1, 2),
+     Fraction(16803485, 1357332964)
+     )))
+def test_pair_moment(pair_moments, pair, freq):
+    assert pair_moments[pair] == freq
