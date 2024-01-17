@@ -132,6 +132,8 @@ class TrioLabelVoteCounts:
     """
     Data class for the by-label aligned votes of three binary classifiers.
 
+    This class is only useful in an experimental setting where one has
+    observed a test with **labeled** data.
     Initialized with a Mapping[Label, Mapping[Votes, int]] of the form
     {'a':
      {('a', 'a', 'a'): int, ..., ('b', 'b', 'b'):int},
@@ -174,7 +176,11 @@ class TrioLabelVoteCounts:
 
     def to_voting_frequency_fractions(self) -> VoteFrequencies:
         """
-        Computes observed voting pattern frequencies.
+        Compute observed voting pattern frequencies.
+
+        Returns
+        -------
+        Mapping[Votes, Fraction]
         """
         by_voting_counts = self.to_vote_counts()
         size_of_test = sum(by_voting_counts.values())
@@ -185,8 +191,11 @@ class TrioLabelVoteCounts:
 
     def to_voting_frequencies_float(self) -> Mapping[Votes, float]:
         """
-        Same as the exact computation, but using floating point
-        numbers.
+        Compute observed voting frequencies inexactly, as floats.
+
+        Returns
+        -------
+        Mapping[Votes, float]
         """
         by_voting_counts = self.to_vote_counts()
         size_of_test = sum(by_voting_counts.values())
@@ -196,23 +205,61 @@ class TrioLabelVoteCounts:
         }
 
     def __getitem__(self, label):
+        """
+        Return the vote pattern counts for label.
+
+        Parameters
+        ----------
+        label :Label
+            One of 'a' or 'b'.
+
+        Returns
+        -------
+        Mapping[Votes, int]
+            The aligned vote counts observed for the given label.
+
+        """
         return self.lbl_vote_counts.get(label)
+
 
 @dataclass(frozen=True)
 class TrioVoteCounts:
-    """Dataclass to validate the test counts for three binary classifiers."""
+    """Data class to validate the test counts for three binary classifiers.
+
+    Initialized with a Mapping[Votes, int] of the form:
+        {('a', 'a', 'a'): int, ..., ('b', 'b', 'b'):int}
+
+    This is the class that is used for evaluation on unlabeled data where
+    we only have access to the aligned decisions of the binary classifiers
+    and have no knowledge of label of any one item that was classified.
+    """
 
     vote_counts: VoteCounts
 
     def __post_init__(self):
-        """Check that no negative vote counts."""
+        """
+        Check we have counts for a valid evaluation of binary classifiers.
+
+        1. No negative counts.
+        2. Initialize all possible vote patterns by the trio.
+        3. The empty test - all counts zero - is not allowed.
+        """
+        # Make sure all patterns have a non-negative count.
+        object.__setattr__(
+            self,
+            "vote_counts",
+            {vote_pattern: self.vote_counts.get(vote_pattern, 0)
+             for vote_pattern in trio_vote_patterns})
+
         if any([count for count in self.vote_counts.values() if (count < 0)]):
             raise ValueError("No negative vote counts allowed.")
-        # Make sure all patterns have a non-negative count.
-        self.vote_counts = {vote_pattern: self.vote_counts.get(vote_pattern, 0)
-                            for vote_pattern in trio_vote_patterns}
+
+        object.__setattr__(self,
+                           "test_size",
+                           sum(self.vote_counts.values()))
+
         # The empty test is not allowed
-        if sum(self.vote_counts.values()) == 0:
+        if self.test_size == 0:
             raise ValueError("The empty test is not allowed.")
 
     def to_frequencies_exact(self) -> VoteFrequencies:
@@ -222,8 +269,7 @@ class TrioVoteCounts:
         Returns
         -------
         VoteFrequencies:
-            mapping of trio votes to percentage of occurence in the test
-            as Fraction.
+            Maps a trio vote pattern to its Fraction occurence in the test.
         """
         return {
             vp: Fraction(self.vote_counts[vp], self.test_size)
@@ -232,11 +278,13 @@ class TrioVoteCounts:
 
     def to_frequencies_float(self) -> Mapping[Votes, float]:
         """
-        Compute observerd voting pattern frequencies as inexact floats.
+        Compute observerd voting pattern frequencies, inexactly, as floats.
 
         Returns
         -------
-        Mapping[Votes, float]
+        Mapping[Votes, float]:
+            Maps a trio vote pattern to its percentage occurence in the test
+            as an inexact float.
 
         """
         return {
@@ -259,7 +307,9 @@ class TrioVoteCounts:
 
         Returns
         -------
-        Fraction(label_vote_counts, test_size)
+        Fraction(label_vote_counts, test_size):
+            The Fraction of times the classifier voted the label when
+            classifying items in the test.
 
         """
         vote_frequencies = self.to_frequencies_exact()
@@ -285,7 +335,9 @@ class TrioVoteCounts:
 
         Returns
         -------
-        Fraction
+        Fraction:
+            The Fraction of times a pair of classifiers voted with the
+            same label when classifying items in the test.
 
         """
         vote_frequencies = self.to_frequencies_exact()
@@ -302,6 +354,13 @@ class TrioVoteCounts:
         """
         Calculate the label classifier pair frequency moment.
 
+        If (i, j) = pair, then this is -
+
+            f_{label_i, label_j} - f_{label_i} * f_{label_j}
+
+        The fraction of times the classifier pair voted with the same label
+        minus the product of their individual label voting frequencies.
+
         Parameters
         ----------
         pair : Iterable(int, int)
@@ -311,7 +370,8 @@ class TrioVoteCounts:
 
         Returns
         -------
-        The pair frequency as a Fraction object
+        Fraction:
+            The pair frequency moment as a Fraction object
         """
         label_frequencies = [
             self.classifier_label_frequency(classifier, label)
@@ -331,8 +391,11 @@ class TrioVoteCounts:
         }
 
     def trio_frequency_moment(self) -> Fraction:
-        """Calculates the 3rd frequency moment of a trio of binary classifiers
-        needed for algebraic evaluation using the error indepedent model."""
+        """
+        Calculate the 3rd frequency moment of a trio of binary classifiers.
+
+        Don't ask.
+        """
         classifier_label_frequencies = [
             self.classifier_label_frequency(classifier, "b")
             for classifier in range(3)
@@ -345,14 +408,3 @@ class TrioVoteCounts:
             + classifier_label_frequencies[2] * pfmds[(0, 1)]
         )
         return prod_frequencies + sum_prod
-
-
-# TODO: the operation of turning integer counts to percentages of observations
-# ocurrs in both TrioVoteCounts and TrioLabelVoteCounts. We should be careful
-# to not cross semantic meanings so the classes make sense as denoting
-# the observed votes in a test and the unknown label counts.
-# Parallel to this is the type of these things. As data structures, it
-# would make sense for TrioVoteCounts to be used by the TrioLabelVoteCounts.
-# But this conflicts with the semantic meaning of these classes. For this
-# reason alone, the code below contains a constructor of TrioVoteCounts from
-# a TrioLabelVoteCounts object.
