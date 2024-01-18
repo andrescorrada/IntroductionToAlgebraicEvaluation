@@ -326,13 +326,47 @@ class MajorityVotingEvaluation:
         """
         self.vote_counts = vote_counts
         self.vote_frequencies = self.vote_counts.to_frequencies_exact()
+        self.labels = ("a", "b")
 
         self.majority_vote_patterns = {
             label: [
                 votes for votes in trio_vote_patterns if votes.count(label) > 1
             ]
-            for label in ("a", "b")
+            for label in self.labels
         }
+
+        self.evaluation = {
+            "prevalence": self.prevalences(),
+            "accuracies": [
+                {
+                    label: self.classifier_label_accuracy(classifier, label)
+                    for label in self.labels
+                }
+                for classifier in range(3)
+            ],
+        }
+
+    def prevalences(self):
+        """Compute label prevalences in the test."""
+        return {
+            label: sum(
+                [
+                    self.vote_frequencies[vp]
+                    for vp in self.majority_vote_patterns[label]
+                ]
+            )
+            for label in self.labels
+        }
+
+    def classifier_label_accuracy(self, classifier, label):
+        """Compute the label accuracy for classifier."""
+        return sum(
+            [
+                self.vote_frequencies[vp]
+                for vp in self.majority_vote_patterns[label]
+                if vp[classifier] == label
+            ]
+        )
 
 
 if __name__ == "__main__":

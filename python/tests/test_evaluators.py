@@ -68,3 +68,19 @@ def test_majorityevaluation():
     mv_eval = MajorityVotingEvaluation(tvc)
 
     assert isinstance(mv_eval, MajorityVotingEvaluation)
+
+
+def test_mv_evaluation():
+    mv_eval = MajorityVotingEvaluation(tvc)
+
+    assert mv_eval.evaluation == {
+        "accuracies": [
+            {"a": Fraction(7417, 36842), "b": Fraction(1607, 2834)},
+            {"a": Fraction(1089, 18421), "b": Fraction(14185, 18421)},
+            {"a": Fraction(7349, 36842), "b": Fraction(1627, 2834)},
+        ],
+        "prevalence": {
+            "a": Fraction(7979, 36842),
+            "b": Fraction(28863, 36842),
+        },
+    }
