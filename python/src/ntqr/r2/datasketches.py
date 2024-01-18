@@ -7,7 +7,7 @@ import math
 # and the one using the default floating point numbers
 from fractions import Fraction
 from typing_extensions import Union, Literal, Mapping, Iterable
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 # Types
 Label = Union[Literal["a"], Literal["b"]]
@@ -148,15 +148,23 @@ class TrioLabelVoteCounts:
         object.__setattr__(
             self,
             "label_vote_counts",
-            {label:
-             {votes: self.label_vote_counts.get(label, {}).get(votes, 0)
-              for votes in trio_vote_patterns}
-             for label in ('a', 'b')})
+            {
+                label: {
+                    votes: self.label_vote_counts.get(label, {}).get(votes, 0)
+                    for votes in trio_vote_patterns
+                }
+                for label in ("a", "b")
+            },
+        )
 
-        object.__setattr__(self,
-                           "test_sizes",
-                           {label: sum(self.label_vote_counts[label].values())
-                            for label in ('a', 'b')})
+        object.__setattr__(
+            self,
+            "test_sizes",
+            {
+                label: sum(self.label_vote_counts[label].values())
+                for label in ("a", "b")
+            },
+        )
 
     def to_vote_counts(self) -> VoteCounts:
         """
@@ -170,10 +178,11 @@ class TrioLabelVoteCounts:
               {..., ('a', 'b', 'a'): x+y, ...}
         """
         return {
-            votes: sum([
-                self.label_vote_counts[label][votes]
-                for label in ('a', 'b')])
-            for votes in trio_vote_patterns}
+            votes: sum(
+                [self.label_vote_counts[label][votes] for label in ("a", "b")]
+            )
+            for votes in trio_vote_patterns
+        }
 
     def to_TrioVoteCounts(self):
         """Return TrioVoteCounts object by summing votes across labels."""
@@ -253,15 +262,16 @@ class TrioVoteCounts:
         object.__setattr__(
             self,
             "vote_counts",
-            {vote_pattern: self.vote_counts.get(vote_pattern, 0)
-             for vote_pattern in trio_vote_patterns})
+            {
+                vote_pattern: self.vote_counts.get(vote_pattern, 0)
+                for vote_pattern in trio_vote_patterns
+            },
+        )
 
         if any([count for count in self.vote_counts.values() if (count < 0)]):
             raise ValueError("No negative vote counts allowed.")
 
-        object.__setattr__(self,
-                           "test_size",
-                           sum(self.vote_counts.values()))
+        object.__setattr__(self, "test_size", sum(self.vote_counts.values()))
 
         # The empty test is not allowed
         if self.test_size == 0:

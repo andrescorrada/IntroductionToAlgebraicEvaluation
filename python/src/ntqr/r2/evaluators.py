@@ -223,11 +223,36 @@ class SupervisedEvaluation:
 
 class ErrorIndependentEvaluation:
     """
-    Evaluates three binary classifiers assuming they are error independent.
+    Evaluate three binary classifiers assuming they are error independent.
 
-    WARNING: 'error independence' is defined here as an empirical quantity
-    that is only defined for any given test. Classifiers error independent
-    in one test, may not be so in another.
+    Warnings:
+    --------
+        A. The ntqr package uses a notion of 'error independence' that is
+    different than the one most familiar in the ML/AI community. There are
+    many notions of independence in mathematics. In the context of ML/AI
+    papers/discussions, the term 'error independence' is taken to be:
+        1. Functional independence of distributions: P(x, y) = P(x)P(y)
+    The one used in the ntqr package is sample defined since there is no
+    probability theory used in its logic. For that reason, you must define a
+    set of error correlation parameters. 'Error independence' in the ntqr
+    package means:
+        2. pair_label_correlations = 0, trio_label_correlations = 0, ...
+    It is best to think of 'error independence' in the ntqr package as a
+    property that belongs to the classifiers AND the test they took.
+
+        B. This class currently assumes that the observed classifier
+    vote counts supplied by the user are not fake. The set of all valid
+    observations from a classification test is much smaller than the set
+    of all sets of eight positive integers. Future versions of the ntqr
+    package will implement the algebraic geometry needed to detect when
+    TrioVoteCounts objects are not explainable as observations from a
+    classification test.
+
+    The error independent solution can fail if, in fact, the classifiers
+    are highly correlated on the test being evaluated. Tests can fail.
+    There are two exceptions that will be raised.
+        1. PrevalenceImaginaryException
+        2. NoSolutionException
     """
 
     def __init__(self, vote_counts: TrioVoteCounts):
@@ -268,6 +293,46 @@ class ErrorIndependentEvaluation:
         c = coeffs[0]
         sqrTerm = math.sqrt(1 - 4 * c / b) / 2
         return [Fraction(1, 2) + sqrTerm, Fraction(1, 2) - sqrTerm]
+
+
+class MajorityVotingEvaluation:
+    """
+    Evaluate three binary classifiers using majority voting.
+
+    Majority voting can be used to carry out evaluation algebraically.
+    Its major drawback is that it assumes that the crowd is always right,
+    as a consequence it cannot minimize its errors when the classifiers
+    are error independent in the test.
+    Its main virtue is that it is simple and rock solid - always returns
+    a seemingly sensible result.
+    """
+
+    def __init__(self, vote_counts: TrioVoteCounts):
+        """
+        Initialize data structures.
+
+        TODO: Implement detection that the TrioVoteCounts are not generated
+        by a classification test.
+
+        Parameters
+        ----------
+        vote_counts : TrioVoteCounts
+            Label decision counts for the aligned trio of classifiers.
+
+        Returns
+        -------
+        None.
+
+        """
+        self.vote_counts = vote_counts
+        self.vote_frequencies = self.vote_counts.to_frequencies_exact()
+
+        self.majority_vote_patterns = {
+            label: [
+                votes for votes in trio_vote_patterns if votes.count(label) > 1
+            ]
+            for label in ("a", "b")
+        }
 
 
 if __name__ == "__main__":

@@ -15,7 +15,7 @@ checklist: lint typehint test
 
 .PHONY: black
 black:
-	black -l 79 ntqr/
+	black -l 79 src/ntqr tests/
 
 .PHONY: clean
 clean:
