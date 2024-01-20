@@ -19,6 +19,7 @@ from typing_extensions import Iterable
 from ntqr.r2.datasketches import Label, Votes
 from ntqr.r2.datasketches import trio_vote_patterns, trio_pairs
 from ntqr.r2.datasketches import TrioLabelVoteCounts, TrioVoteCounts
+from ntqr.r2.examples import uciadult_label_counts
 
 
 def classifier_label_votes(classifier: int, label: Label) -> tuple[Votes, ...]:
@@ -288,7 +289,7 @@ class ErrorIndependentEvaluation:
 
     def alpha_prevalence_estimate(self):
         """Calculate the prevalence of the alpha label."""
-        coeffs = self.prevalence_quadratic_terms()
+        coeffs = self.alpha_prevalence_quadratic_terms()
         b = coeffs[1]
         c = coeffs[0]
         sqrTerm = math.sqrt(1 - 4 * c / b) / 2
@@ -378,6 +379,8 @@ if __name__ == "__main__":
     )
     pprint(uciadult_label_counts)
 
+    print()
+
     print(
         """During unlabeled evaluation we only get to observe the voting
         patterns, without knowing the true label of each voting instance."""
@@ -393,12 +396,14 @@ if __name__ == "__main__":
     observed_frequencies = data_sketch.to_frequencies_exact()
     pprint(observed_frequencies)
 
+    print()
+
     print(
         """To estimate the prevalence of the alpha label, we need the
     coefficients of the prevalence quadratic:"""
     )
-    error_ind_evaluator = ErrorIndependentEvaluator(data_sketch)
-    prev_terms = error_ind_evaluator.prevalence_quadratic_terms()
+    error_ind_evaluator = ErrorIndependentEvaluation(data_sketch)
+    prev_terms = error_ind_evaluator.alpha_prevalence_quadratic_terms()
 
     print("1. The 'a' coefficient for the quadratic:")
     pprint(prev_terms[2])
@@ -414,11 +419,15 @@ if __name__ == "__main__":
         TrioLabelVoteCounts(uciadult_label_counts)
     ).evaluation
 
+    print()
+
     trueAPrevalence = gt_evaluation["prevalence"]["a"]
     print("The true alpha label prevalence is: ")
     pprint(trueAPrevalence)
     print(" or: ")
     pprint(float(trueAPrevalence))
+
+    print()
 
     # The test run picked for this code comes from a trio of classifiers
     # that have, in fact, very small pair error correlations.
