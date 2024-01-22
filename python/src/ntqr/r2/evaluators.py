@@ -213,7 +213,7 @@ class SupervisedEvaluation:
                 [
                     label_counts[votes]
                     for votes in classifiers_labels_votes(
-                        pair, (o_label, label)
+                        pair, (o_label, o_label)
                     )
                 ]
             )
@@ -260,6 +260,17 @@ class ErrorIndependentEvaluation:
         self.vote_counts = vote_counts
         self.vote_frequencies = self.vote_counts.to_frequencies_exact()
 
+        self.evaluation = {
+            "prevalences": self.alpha_prevalence_estimates(),
+            "accuracies": [
+                {
+                    "a": self.classifier_a_label_accuracy(classifier),
+                    "b": self.classifier_b_label_accuracy(classifier),
+                }
+                for classifier in range(3)
+            ],
+        }
+
     def alpha_prevalence_quadratic_terms(self):
         """
         Calculate the coefficients of the 'a' label prevalence quadratic.
@@ -287,13 +298,112 @@ class ErrorIndependentEvaluation:
 
         return term_coefficients
 
-    def alpha_prevalence_estimate(self):
+    def alpha_prevalence_estimates(self):
         """Calculate the prevalence of the alpha label."""
         coeffs = self.alpha_prevalence_quadratic_terms()
         b = coeffs[1]
         c = coeffs[0]
         sqrTerm = math.sqrt(1 - 4 * c / b) / 2
         return [Fraction(1, 2) + sqrTerm, Fraction(1, 2) - sqrTerm]
+
+    def classifier_a_label_accuracy(self, classifier: int):
+        """
+        Calculate classifier 'a' label accuracies.
+
+        Parameters
+        ----------
+        classifier : int
+            One of (0, 1, 2).
+
+        Returns
+        -------
+        Two possible logically consistent estimates for P_{i,a} given the
+        test error independence assumption.
+        """
+        # Assuming the linear equation form a + b * P_a + c * P_{i, a}
+
+        classifier_freqs = [
+            self.vote_counts.classifier_label_frequency(classifier, "b")
+            for classifier in range(3)
+        ]
+        fbbb = self.vote_frequencies[("b", "b", "b")]
+        fijk = self.vote_counts.trio_frequency_moment()
+        freqDiff = fbbb - fijk
+
+        pair_moments = self.vote_counts.label_pairs_frequency_moments("b")
+        prodFDs = math.prod(pair_moments.values())
+        match classifier:
+            case 0:
+                other_moment = pair_moments[(1, 2)]
+            case 1:
+                other_moment = pair_moments[(0, 2)]
+            case 2:
+                other_moment = pair_moments[(0, 1)]
+            case _:
+                pass
+        a_coeff = (
+            freqDiff
+            * (freqDiff - other_moment * (1 - classifier_freqs[classifier]))
+            + 2 * prodFDs
+        )
+
+        b_coeff = 4 * prodFDs - freqDiff**2
+        c_coeff = other_moment * freqDiff
+
+        prevalences = self.alpha_prevalence_estimates()
+        return [
+            (-a_coeff - b_coeff * prevalence) / c_coeff
+            for prevalence in prevalences
+        ]
+
+    def classifier_b_label_accuracy(self, classifier: int):
+        """
+        Calculate classifier 'ab' label accuracies.
+
+        Parameters
+        ----------
+        classifier : int
+            One of (0, 1, 2).
+
+        Returns
+        -------
+        Two possible logically consistent estimates for P_{i,b} given the
+        test error independence assumption.
+        """
+        # Assuming the linear equation form a + b * P_a + c * P_{i, a}
+
+        classifier_freqs = [
+            self.vote_counts.classifier_label_frequency(classifier, "b")
+            for classifier in range(3)
+        ]
+        fbbb = self.vote_frequencies[("b", "b", "b")]
+        fijk = self.vote_counts.trio_frequency_moment()
+        freqDiff = fbbb - fijk
+
+        pair_moments = self.vote_counts.label_pairs_frequency_moments("b")
+        prodFDs = math.prod(pair_moments.values())
+        match classifier:
+            case 0:
+                other_moment = pair_moments[(1, 2)]
+            case 1:
+                other_moment = pair_moments[(0, 2)]
+            case 2:
+                other_moment = pair_moments[(0, 1)]
+            case _:
+                pass
+        a_coeff = (
+            classifier_freqs[classifier] * other_moment * freqDiff
+            - 2 * prodFDs
+        )
+
+        b_coeff = 4 * prodFDs + freqDiff**2
+        c_coeff = -other_moment * freqDiff
+
+        prevalences = self.alpha_prevalence_estimates()
+        return [
+            (-a_coeff - b_coeff * prevalence) / c_coeff
+            for prevalence in prevalences
+        ]
 
 
 class MajorityVotingEvaluation:
@@ -412,8 +522,8 @@ if __name__ == "__main__":
     pprint("3. The 'c' coefficient for the quadratic:")
     pprint(prev_terms[0])
 
-    pprint("Algebraic estimates of alpha label prevalence: ")
-    pprint(error_ind_evaluator.alpha_prevalence_estimate())
+    pprint("Algebraic evaluation: ")
+    pprint(error_ind_evaluator.evaluation, sort_dicts=False)
 
     gt_evaluation = SupervisedEvaluation(
         TrioLabelVoteCounts(uciadult_label_counts)
