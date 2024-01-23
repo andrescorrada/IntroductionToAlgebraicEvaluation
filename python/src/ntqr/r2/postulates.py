@@ -55,6 +55,8 @@ prelances_sum_to_one = pa + pb - 1
 # Postulates having observed responses
 fai = sympy.Symbol(r"f_{a_i}")
 fbi = sympy.Symbol(r"f_{b_i}")
+faj = sympy.Symbol(r"f_{a_j}")
+fbj = sympy.Symbol(r"f_{b_j}")
 
 # The 'generating set' of polynomials for any binary classifier
 single_binary_classifier_generating_set = [
@@ -65,10 +67,14 @@ single_binary_classifier_generating_set = [
 # The single classifier generating set only creates one postulate
 single_binary_classifier_postulate = pa * (pia - fai) - pb * (pib - fbi)
 
+# Data sketch observables for the pair
 faiaj = sympy.Symbol(r"f_{a_i, a_j}")
 faibj = sympy.Symbol(r"f_{a_i, b_j}")
 fbiaj = sympy.Symbol(r"f_{b_i, a_j}")
 fbibj = sympy.Symbol(r"f_{b_i, b_j}")
+
+# The delta moment for classifier pairs
+deltaij = sympy.Symbol(r"\Delta_{i,j}")
 
 # Pair correlation variables for the two labels
 gija = sympy.Symbol(r"\Gamma_{i, j, a}")
@@ -80,6 +86,18 @@ pair_binary_classifiers_generating_set = [
     pa * (pia * (1 - pja) - gija) + pb * ((1 - pib) * pjb - gijb) - faibj,
     pa * ((1 - pia) * pja - gija) + pb * (pib * (1 - pjb) - gijb) - fbiaj,
     pa * ((1 - pia) * (1 - pja) + gija) + pb * (pib * pjb + gijb) - fbibj,
+]
+
+# The Groebner basis for the classifier pair generating set produces a
+# set of partially independent postulates
+pair_binary_classifiers_postulates = [
+    (pia - fai) * (pjb - fbj) - (pib - fbi) * (pja - faj),
+    (pia - fai) * (pjb - fbj) * ((pia - fai) + (pib - fbi))
+    + (pia - fai) * (gija - deltaij)
+    + (pib - fbi) * (gijb - deltaij),
+    (pia - fai) * (pjb - fbj) * ((pja - faj) + (pjb - fbj))
+    + (pja - faj) * (gija - deltaij)
+    + (pjb - fbj) * (gijb - deltaij),
 ]
 
 if __name__ == "__main__":
