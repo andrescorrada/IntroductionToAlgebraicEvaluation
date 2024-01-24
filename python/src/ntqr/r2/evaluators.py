@@ -13,6 +13,7 @@ Misc variables:
 """
 
 import math
+import sympy
 from fractions import Fraction
 from typing_extensions import Iterable
 
@@ -303,7 +304,7 @@ class ErrorIndependentEvaluation:
         coeffs = self.alpha_prevalence_quadratic_terms()
         b = coeffs[1]
         c = coeffs[0]
-        sqrTerm = math.sqrt(1 - 4 * c / b) / 2
+        sqrTerm = sympy.sqrt(1 - 4 * c / b) / 2
         return [Fraction(1, 2) + sqrTerm, Fraction(1, 2) - sqrTerm]
 
     def classifier_a_label_accuracy(self, classifier: int):
@@ -523,7 +524,7 @@ if __name__ == "__main__":
     pprint(prev_terms[0])
 
     pprint("Algebraic evaluation: ")
-    pprint(error_ind_evaluator.evaluation, sort_dicts=False)
+    pprint(error_ind_evaluator.evaluation, width=79, sort_dicts=False)
 
     gt_evaluation = SupervisedEvaluation(
         TrioLabelVoteCounts(uciadult_label_counts)
