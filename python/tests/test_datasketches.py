@@ -3,8 +3,33 @@ from fractions import Fraction
 
 import pytest
 
-from ntqr.r2.datasketches import TrioVoteCounts, TrioLabelVoteCounts
+from ntqr.r2.datasketches import (
+    TrioVoteCounts,
+    TrioLabelVoteCounts,
+    classifier_label_votes,
+)
 from ntqr.r2.examples import uciadult_label_counts
+
+
+def test_classifier_a_label_votes():
+    vote_patterns = classifier_label_votes(0, "a")
+    assert vote_patterns == (
+        ("a", "a", "a"),
+        ("a", "a", "b"),
+        ("a", "b", "a"),
+        ("a", "b", "b"),
+    )
+
+
+def test_classifier_b_label_votes():
+    vote_patterns = classifier_label_votes(0, "b")
+    assert vote_patterns == (
+        ("b", "a", "a"),
+        ("b", "a", "b"),
+        ("b", "b", "a"),
+        ("b", "b", "b"),
+    )
+
 
 #
 # Testing TrioLabelVoteCounts functionality

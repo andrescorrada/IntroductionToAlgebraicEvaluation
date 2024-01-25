@@ -635,6 +635,6 @@ if __name__ == "__main__":
 
     print("The majority voting evaluator:")
     mv_eval = MajorityVotingEvaluation(data_sketch)
-    pprint(mv_eval.evaluation, sort_dicts=False)
+    pprint(mv_eval.evaluation_exact, sort_dicts=False)
     print("As floats:")
     pprint(mv_eval.evaluation_float, sort_dicts=False)
