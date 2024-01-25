@@ -112,7 +112,7 @@ class SupervisedEvaluation:
     def __init__(self, label_counts: TrioLabelVoteCounts):
         self.label_counts = label_counts
 
-        self.evaluation = {
+        self.evaluation_exact = {
             "prevalence": self.prevalences(),
             "accuracies": [
                 {
@@ -124,6 +124,28 @@ class SupervisedEvaluation:
             "pair_correlations": {
                 label: {
                     pair: self.pair_label_error_correlation(pair, label)
+                    for pair in trio_pairs
+                }
+                for label in ("a", "b")
+            },
+        }
+
+        self.evaluation_float = {
+            "prevalence": {
+                label: float(val) for label, val in self.prevalences().items()
+            },
+            "accuracies": [
+                {
+                    label: float(
+                        self.classifier_label_accuracy(classifier, label)
+                    )
+                    for label in ("a", "b")
+                }
+                for classifier in range(3)
+            ],
+            "pair_correlations": {
+                label: {
+                    pair: float(self.pair_label_error_correlation(pair, label))
                     for pair in trio_pairs
                 }
                 for label in ("a", "b")
@@ -227,22 +249,42 @@ class ErrorIndependentEvaluation:
     """
     Evaluate three binary classifiers assuming they are error independent.
 
+    Returns
+    -------
+    Absent labeled data, there are two logically consistent solutions
+    given only their decision voting frequencies. For binary classification,
+    this means that there are 2 possible points in evaluation space that
+    can possibly explain the test results. The ground truth evaluation is
+    one of these points -- if the assumption of error independence is true.
+
+    The exact algebraic results have a unique virtue that few alarm systems
+    have - it can warn about the failures of its own assumption of error
+    independence. If the two possible solutions for the 'a' label prevalence
+    return an unresolved integer square root - the classifiers are error
+    correlated in the evaluation.
+
+    In version 0.2 the math needed to take handle the almost certain detection
+    of error correlation will be added. It is already being built as
+    can be seen in ntqr.r2.postulates file where the postulates related to
+    computing the error correlation have been expressed using the SymPy
+    package.
+
     Warnings:
-    --------
-        A. The ntqr package uses a notion of 'error independence' that is
+    ---------
+    A. The ntqr package uses a notion of 'error independence' that is
     different than the one most familiar in the ML/AI community. There are
     many notions of independence in mathematics. In the context of ML/AI
     papers/discussions, the term 'error independence' is taken to be:
-        1. Functional independence of distributions: P(x, y) = P(x)P(y)
+    A.1. Functional independence of distributions: P(x, y) = P(x)P(y)
     The one used in the ntqr package is sample defined since there is no
     probability theory used in its logic. For that reason, you must define a
     set of error correlation parameters. 'Error independence' in the ntqr
     package means:
-        2. pair_label_correlations = 0, trio_label_correlations = 0, ...
+    A.2. pair_label_correlations = 0, trio_label_correlations = 0, ...
     It is best to think of 'error independence' in the ntqr package as a
     property that belongs to the classifiers AND the test they took.
 
-        B. This class currently assumes that the observed classifier
+    B. This class currently assumes that the observed classifier
     vote counts supplied by the user are not fake. The set of all valid
     observations from a classification test is much smaller than the set
     of all sets of eight positive integers. Future versions of the ntqr
@@ -252,21 +294,48 @@ class ErrorIndependentEvaluation:
 
     The error independent solution can fail if, in fact, the classifiers
     are highly correlated on the test being evaluated. Tests can fail.
-    There are two exceptions that will be raised.
+    Future versions will have implemented the exceptions.
         1. PrevalenceImaginaryException
         2. NoSolutionException
+
+    The PrevalenceImaginaryException is a iron-clad detection of highly
+    correlated classifiers. Its main utility will be in "warning light"
+    applications in AI safety.
+
+    The NoSolutionException means that NO independent system can possibly
+    explain the observations. There are two different reasons for this -
+    higher error correlations, or the data sketch is fake. Distinguishing
+    between the two comes down to the same computation of error correlation.
     """
 
     def __init__(self, vote_counts: TrioVoteCounts):
         self.vote_counts = vote_counts
         self.vote_frequencies = self.vote_counts.to_frequencies_exact()
 
-        self.evaluation = {
-            "prevalences": self.alpha_prevalence_estimates(),
+        self.evaluation_exact = {
+            "'a' prevalence solutions": self.alpha_prevalence_estimates(),
             "accuracies": [
                 {
                     "a": self.classifier_a_label_accuracy(classifier),
                     "b": self.classifier_b_label_accuracy(classifier),
+                }
+                for classifier in range(3)
+            ],
+        }
+        self.evaluation_float = {
+            "prevalences": [
+                float(val) for val in self.alpha_prevalence_estimates()
+            ],
+            "accuracies": [
+                {
+                    "a": [
+                        float(val)
+                        for val in self.classifier_a_label_accuracy(classifier)
+                    ],
+                    "b": [
+                        float(val)
+                        for val in self.classifier_b_label_accuracy(classifier)
+                    ],
                 }
                 for classifier in range(3)
             ],
@@ -447,11 +516,26 @@ class MajorityVotingEvaluation:
             for label in self.labels
         }
 
-        self.evaluation = {
+        self.evaluation_exact = {
             "prevalence": self.prevalences(),
             "accuracies": [
                 {
                     label: self.classifier_label_accuracy(classifier, label)
+                    for label in self.labels
+                }
+                for classifier in range(3)
+            ],
+        }
+
+        self.evaluation_float = {
+            "prevalence": {
+                label: float(val) for label, val in self.prevalences().items()
+            },
+            "accuracies": [
+                {
+                    label: float(
+                        self.classifier_label_accuracy(classifier, label)
+                    )
                     for label in self.labels
                 }
                 for classifier in range(3)
@@ -483,6 +567,8 @@ class MajorityVotingEvaluation:
 
 if __name__ == "__main__":
     from pprint import pprint
+
+    sympy.init_printing(use_unicode=True)
 
     print(
         """The evaluation observed voting patterns by true label -
@@ -523,16 +609,16 @@ if __name__ == "__main__":
     pprint("3. The 'c' coefficient for the quadratic:")
     pprint(prev_terms[0])
 
-    pprint("Algebraic evaluation: ")
-    pprint(error_ind_evaluator.evaluation, width=79, sort_dicts=False)
+    print("Algebraic evaluation in its exact form: ")
+    pprint(error_ind_evaluator.evaluation_exact, sort_dicts=False)
+    print()
+    print("Algebraic evaluation with inexact floats: ")
+    pprint(error_ind_evaluator.evaluation_float, sort_dicts=False)
 
-    gt_evaluation = SupervisedEvaluation(
-        TrioLabelVoteCounts(uciadult_label_counts)
-    ).evaluation
-
+    gt = SupervisedEvaluation(TrioLabelVoteCounts(uciadult_label_counts))
     print()
 
-    trueAPrevalence = gt_evaluation["prevalence"]["a"]
+    trueAPrevalence = gt.evaluation_exact["prevalence"]["a"]
     print("The true alpha label prevalence is: ")
     pprint(trueAPrevalence)
     print(" or: ")
@@ -542,5 +628,13 @@ if __name__ == "__main__":
 
     # The test run picked for this code comes from a trio of classifiers
     # that have, in fact, very small pair error correlations.
-    pprint("Ground truth values: ")
-    pprint(gt_evaluation, sort_dicts=False)
+    print("Ground truth values:")
+    pprint(gt.evaluation_exact, sort_dicts=False)
+    print("Ground truth as inexact floats:")
+    pprint(gt.evaluation_float, sort_dicts=False)
+
+    print("The majority voting evaluator:")
+    mv_eval = MajorityVotingEvaluation(data_sketch)
+    pprint(mv_eval.evaluation, sort_dicts=False)
+    print("As floats:")
+    pprint(mv_eval.evaluation_float, sort_dicts=False)

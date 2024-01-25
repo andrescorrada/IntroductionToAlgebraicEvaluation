@@ -23,7 +23,7 @@ def test_supervisedevaluation():
 def test_supervised_prevalences():
     supervised_eval = SupervisedEvaluation(tlvc)
 
-    assert supervised_eval.evaluation == {
+    assert supervised_eval.evaluation_exact == {
         "accuracies": [
             {"a": Fraction(3737, 5687), "b": Fraction(6501, 10385)},
             {"a": Fraction(1260, 5687), "b": Fraction(29744, 31155)},
@@ -73,7 +73,7 @@ def test_majorityevaluation():
 def test_mv_evaluation():
     mv_eval = MajorityVotingEvaluation(tvc)
 
-    assert mv_eval.evaluation == {
+    assert mv_eval.evaluation_exact == {
         "accuracies": [
             {"a": Fraction(7417, 36842), "b": Fraction(1607, 2834)},
             {"a": Fraction(1089, 18421), "b": Fraction(14185, 18421)},

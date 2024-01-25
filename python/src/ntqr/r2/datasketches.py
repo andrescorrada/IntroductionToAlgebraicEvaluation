@@ -135,10 +135,10 @@ class TrioLabelVoteCounts:
     This class is only useful in an experimental setting where one has
     observed a test with **labeled** data.
     Initialized with a Mapping[Label, Mapping[Votes, int]] of the form
-    {'a':
-     {('a', 'a', 'a'): int, ..., ('b', 'b', 'b'):int},
-     'b':
-     {('a', 'a', 'a'): int, ..., ('b', 'b', 'b'):int}}
+    {
+     'a':{('a', 'a', 'a'): int, ..., ('b', 'b', 'b'):int},
+     'b':{('a', 'a', 'a'): int, ..., ('b', 'b', 'b'):int}
+    }
     """
 
     label_vote_counts: Mapping[Label, Mapping[Votes, int]]
@@ -175,7 +175,7 @@ class TrioLabelVoteCounts:
 
         Returns
         -------
-              {..., ('a', 'b', 'a'): x+y, ...}
+        {..., ('a', 'b', 'a'): x+y, ...}
         """
         return {
             votes: sum(
@@ -231,7 +231,6 @@ class TrioLabelVoteCounts:
         -------
         Mapping[Votes, int]
             The aligned vote counts observed for the given label.
-
         """
         return self.label_vote_counts[label]
 
