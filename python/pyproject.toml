@@ -12,5 +12,7 @@ Home = "https://github.com/andrescorrada/IntroductionToAlgebraicEvaluation"
 
 [project.optional.dependencies]
 doc = [
-    "sphinx>=5.0.2"
+    "sphinx>=5.0.2",
+    "myst-parser",
+    "nbsphinx"
 ]
