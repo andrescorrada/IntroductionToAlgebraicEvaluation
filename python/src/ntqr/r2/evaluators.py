@@ -323,7 +323,7 @@ class ErrorIndependentEvaluation:
             ],
         }
         self.evaluation_float = {
-            "prevalences": [
+            "'a' prevalence solutions": [
                 float(val) for val in self.alpha_prevalence_estimates()
             ],
             "accuracies": [

@@ -12,7 +12,7 @@ govern **any** evaluation/grading of noisy binary classifiers/responders.
 "Noisy" means that the decision makers (humans, robots, algorithms, etc.) are
 not always correct. Using the counts of how often a group/ensemble of them
 agreed and disagreed while responding to a finite test, we can infer their
-the average statistics of correctness.
+average statistics of correctness.
 
 For those philosophically inclined, this is the mathematics of logically
 consistent evaluations for noisy decision makers. In unsupervised settings,
