@@ -13,5 +13,6 @@
 
 
 notebooks/Tutorial
+notebooks/LogicOfUnsupervisedEvaluationTutorial
 ```
 

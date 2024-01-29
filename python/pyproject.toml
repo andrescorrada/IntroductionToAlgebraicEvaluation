@@ -4,11 +4,32 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "ntqr"
-authors = [{name = "Andrés Corrada-Emmanuel",email = "andres.corrada@dataengines.com"}]
+authors = [
+    {name = "Andrés Corrada-Emmanuel",
+    email = "andres.corrada@dataengines.com"},
+    {name = "Walker Lee",
+    email = "walker.lee@dataengines.com"},
+    {name = "Adam Sloat",
+    email = "adam.sloat@dataengines.com"}]
 dynamic = ["version", "description"]
+dependencies = ["sympy>=1.12"]
+license = {file = "LICENSE.txt"}
+keywords = ["evaluation", "algebra", "machine learning"]
+classifiers = [
+ "Development Status :: 3 - Alpha",
+ "Framework :: Jupyter",
+ "Intended Audience :: Information Technology",
+ "Intended Audience :: Science/Research",
+ "License :: OSI Approved :: MIT License",
+ "Natural Language :: English",
+ "Topic :: Scientific/Engineering",
+ "Topic :: Scientific/Engineering :: Artificial Intelligence",
+ "Topic :: Scientific/Engineering :: Mathematics"]
+
 
 [project.urls]
-Home = "https://github.com/andrescorrada/IntroductionToAlgebraicEvaluation"
+Home = "https://github.com/andrescorrada/IntroductionToAlgebraicEvaluation/python"
+Documentation="https://ntqr.readthedocs.org/en/latest"
 
 [project.optional.dependencies]
 doc = [
