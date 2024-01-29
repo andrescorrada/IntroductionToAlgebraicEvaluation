@@ -19,8 +19,8 @@ sys.path.insert(0, os.path.abspath(".."))
 # -- Project information -----------------------------------------------------
 
 project = "NTQR"
-copyright = "2024, Andrés Corrada-Emmanuel"
-author = "Andrés Corrada-Emmanuel"
+copyright = "2024, Andrés Corrada-Emmanuel, Walker Lee, Adam Sloat"
+authors = ["Andrés Corrada-Emmanuel", "Walker Lee", "Adam Sloat"]
 
 # The full version, including alpha/beta/rc tags
 release = "0.1"
@@ -48,7 +48,7 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "classic"
+html_theme = "furo"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
