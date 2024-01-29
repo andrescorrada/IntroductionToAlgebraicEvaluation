@@ -1,3 +1,6 @@
+# OS files
+**/.DS_STORE
+
 # Emacs temp files
 *~
 \#*\#
@@ -76,7 +79,7 @@ instance/
 .scrapy
 
 # Sphinx documentation
-docs/_build/
+docs/build/
 
 # PyBuilder
 target/
