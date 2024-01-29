@@ -35,16 +35,16 @@
 import sympy
 
 # The prevalences of the two labels
-pa = sympy.Symbol(r"p_a")
-pb = sympy.Symbol(r"p_b")
+pa = sympy.Symbol(r"P_a")
+pb = sympy.Symbol(r"P_b")
 
 # The label accuracy for the classifiers "i", "j", "k"
-pia = sympy.Symbol(r"p_{i, a}")
-pib = sympy.Symbol(r"p_{i, b}")
-pja = sympy.Symbol(r"p_{j, a}")
-pjb = sympy.Symbol(r"p_{j, b}")
-pka = sympy.Symbol(r"p_{k, a}")
-pkb = sympy.Symbol(r"p_{k, b}")
+pia = sympy.Symbol(r"P_{i, a}")
+pib = sympy.Symbol(r"P_{i, b}")
+pja = sympy.Symbol(r"P_{j, a}")
+pjb = sympy.Symbol(r"P_{j, b}")
+pka = sympy.Symbol(r"P_{k, a}")
+pkb = sympy.Symbol(r"P_{k, b}")
 
 # Postulates before observing test results
 # One postulate is just about the prelances
