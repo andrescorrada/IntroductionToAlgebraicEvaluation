@@ -11,10 +11,15 @@ authors = [
     email = "walker.lee@dataengines.com"},
     {name = "Adam Sloat",
     email = "adam.sloat@dataengines.com"}]
-dynamic = ["version", "description"]
+
+dynamic = ["version"]
+description = "Tools for the logic of evaluation using unlabeled data"
+readme = "README.md"
+
 dependencies = ["sympy>=1.12"]
+
 license = {file = "LICENSE.txt"}
-keywords = ["evaluation", "algebra", "machine learning"]
+keywords = ["evaluation", "algebra", "machine learning", "logic", "ai safety"]
 classifiers = [
  "Development Status :: 3 - Alpha",
  "Framework :: Jupyter",

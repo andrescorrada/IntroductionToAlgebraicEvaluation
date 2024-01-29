@@ -1,0 +1,11 @@
+# MANIFEST.in -- just for illustration
+graft src
+graft tests
+graft docs
+# `-> adds all files inside a directory
+
+include tox.ini
+# `-> matches file paths relative to the root of the project
+
+global-exclude *~ *.py[cod] *.so
+# `-> matches file names (regardless of directory)
