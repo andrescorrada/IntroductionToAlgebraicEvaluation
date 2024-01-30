@@ -93,11 +93,11 @@ pair_binary_classifiers_generating_set = [
 pair_binary_classifiers_postulates = [
     (pia - fai) * (pjb - fbj) - (pib - fbi) * (pja - faj),
     (pia - fai) * (pjb - fbj) * ((pia - fai) + (pib - fbi))
-    + (pia - fai) * (gija - deltaij)
-    + (pib - fbi) * (gijb - deltaij),
+    + (pia - fai) * (gijb - deltaij)
+    + (pib - fbi) * (gija - deltaij),
     (pia - fai) * (pjb - fbj) * ((pja - faj) + (pjb - fbj))
-    + (pja - faj) * (gija - deltaij)
-    + (pjb - fbj) * (gijb - deltaij),
+    + (pja - faj) * (gijb - deltaij)
+    + (pjb - fbj) * (gija - deltaij),
 ]
 
 if __name__ == "__main__":
