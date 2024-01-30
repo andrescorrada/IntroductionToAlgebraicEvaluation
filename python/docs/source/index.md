@@ -11,7 +11,7 @@
 :caption: 'Contents:'
 :maxdepth: 2
 
-
+conceptual
 notebooks/Tutorial
 notebooks/LogicOfUnsupervisedEvaluationTutorial
 ```

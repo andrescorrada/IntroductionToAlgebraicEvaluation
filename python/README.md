@@ -1,6 +1,6 @@
-# Tools for the logic of evaluation using unlabeled data
+# Logic tools to make your AI safer
 
-![NTQR log](./NTQRpt24.png)
+![NTQR](./NTQRpt24.png)
 
 ```console
 ~$: pip install ntqr
@@ -14,48 +14,45 @@ not always correct. Using the counts of how often a group/ensemble of them
 agreed and disagreed while responding to a finite test, we can infer their
 average statistics of correctness.
 
-For those philosophically inclined, this is the mathematics of logically
-consistent evaluations for noisy decision makers. In unsupervised settings,
-there is no "answer key" for tests that use unlabeled data. Therefore,
-the scientific question is how far we can progress when all we have is
-logical consistency of evaluations. This package shows we can get a lot
-done.
+For a high level, conceptual understanding of what you can do with the
+evaluation algorithms and postulates in this package, check out the conceptual
+guide. The formalism of NTQR logic is what makes it invaluable for safety
+applications. In unsupervised settings, your AI is flying blind when it comes
+to assessing itself on unlabeled data. The algorithms in this package allow
+you to use a group of classifiers to grade themselves.
 
-## Design features
+All the complicated algebraic geometry computations here are meant to
+accomplish only one thing - give you a logically consistent framework for
+validating **any** algorithm that evaluates classifiers on a test that used
+unlabeled data. This logical framework has three properties that make it
+useful in AI safety applications -
 
-1.  Uses no probability theory. All the algorithms in this package are
-    purely algebraic polynomials of statistics of how the group votes on each
-    item/question in the evaluation/test. This makes this algebra **universal**
-    and is the justification for its postulaic and logic nature. The postulates
-    presented in ntqr.r2.postulates are applicable to **any** domain in which
-    **any** group of classifiers have been tested.
+1. It is **universal**. The algorithms here apply to any domain. There is no
+   Out of Distribution (OOD) problem when you use algebraic evaluation because
+   it does not use any probability theory. By only using summary statistics of
+   how a group of classifiers labeled a test set, we can treat all classifiers,
+   whether human or robotic, as black boxes. There are no hyperparameters
+   to tune or set in NTQR algorithms. If they where, these algorithms could
+   not claim to be universal.
 
-2.  It treats all groups of decision makers as black boxes. The only arguments
-    to the algorithms are sample statistics of how they voted in agreement and
-    disagreement during the test. This is also another reason the algorithms are
-    domain independent. Algebraic evaluation has no knowledge of the domain in
-    which an evaluation was carried out. This lack of representational knowledge
-   is crucial to its universal character.
+2. It is **complete**. The finite nature of any test given to a group of
+   binary classifiers means we can guarantee the existence of a complete
+   set of postulates that must be obeyed during any evaluation. Completeness
+   is a logical safety shield. It allows us to create theorem provers that
+   can unequivocably detect violations of the logical consistency of **any**
+   grading algorithm.
 
-3. Algebraic evaluation algorithms warn when their assumptions are wrong. This
-   is the single most important safety feature of algebraic evaluation. No method
-   that uses representation of the domain or probability theory can do this.
-   Charles Perrow, the author of "Normal Accidents", said
+3. Allows you to create **self-alarming** evaluation algorithms.
+   Algebraic evaluation algorithms warn when their assumptions are wrong. This
+   is the single most important safety feature of algebraic evaluation.
+   No method that uses representation of the domain or probability theory
+   can do this. Charles Perrow, the author of "Normal Accidents", said
 
-   > Unfortunately, most warning systems do not warn us that
-   > they can no longer warn us.
+     > Unfortunately, most warning systems do not warn us that
+     > they can no longer warn us.
 
    This package aleviates that problem. Algebraic evaluation can detect many
-   cases where its evaluation assumptions are wrong. This is demonstrated here
-   with the apperance of irrational numbers during evaluation using the
-   ntqr.r2.ErrorIndependentEvaluation class. By construction, finite tests can
-   only have rational numbers as possible evaluations. The appearance of
-   irrational numbers as estimates signals that an algebraic evaluator's
-   assumptions are wrong.
-
-4. Implements the exact solution for the case of error independent binary
-   classifiers. This is a much better estimator than majority voting evaluation
-   (also implemented in this package).
+   cases where its evaluation assumptions are wrong.
 
 >**Warning**
 This library is under heavy development and is presently meant only
