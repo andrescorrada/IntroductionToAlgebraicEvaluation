@@ -13,7 +13,8 @@ dynamic = ["version"]
 description = "Tools for the logic of evaluation using unlabeled data"
 readme = "README.md"
 
-dependencies = ["sympy>=1.12"]
+dependencies = ["sympy>=1.12",
+                "typing_extensions>=4.9.0"]
 
 license = {file = "LICENSE.txt"}
 keywords = ["evaluation", "algebra", "machine learning", "logic", "ai safety"]
