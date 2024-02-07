@@ -61,7 +61,7 @@ that for a large test the prevalence of correct "a" and "b" questions will
 approach each other. Absent a theory about the nature of the test, one
 cannot say how this convergence will occur.
 
-## LLMs as detectors of logically correct Chain-of-Thought detectors
+## LLMs as detectors of logically correct Chain-of-Thought responses
 
 Recent work by Gladys Tyen, Hassan Mansoor, Victor Cărbune, Peter Chen,
 and Tony Mak 
