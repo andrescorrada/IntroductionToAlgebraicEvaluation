@@ -61,7 +61,6 @@ def classifier_label_votes(classifier: int, label: Label) -> tuple[Votes, ...]:
     -------
     tuple[Votes, ...]
         All the trio vote patterns where classifier voted with label.
-
     """
     return tuple(
         [votes for votes in trio_vote_patterns if votes[classifier] == label]

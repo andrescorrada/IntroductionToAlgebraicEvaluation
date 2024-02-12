@@ -39,3 +39,11 @@ papers -
     additional step that was needed to understand why algebraic evaluation
     is not just an algebra, it is a logic for determing the validity of
     **any** algorithm that evaluates noisy agents.
+
+These papers are stronger in the mathematical side than in the scientific
+side. Theorems are theorems and they are either true or false. The reader
+can decide by themselves if they are valid. The science side, however,
+needs to be developed further. This means showing how these algorithms can
+be safely implemented in deployed systems. See the Science of Algebraic
+Evaluation page for some of the initial steps being taken to fix this
+imbalance.

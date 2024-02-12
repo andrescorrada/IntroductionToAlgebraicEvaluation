@@ -18,5 +18,6 @@ notebooks/Tutorial
 notebooks/LogicOfUnsupervisedEvaluationTutorial
 research/GradingLLMs
 research/MathematicsOfAlgebraicEvaluation
+ntqr.r2
 ```
 
