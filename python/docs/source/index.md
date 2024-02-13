@@ -7,7 +7,6 @@
 :relative-images:
 ```
 
-
 ```{toctree}
 :caption: 'Contents:'
 :maxdepth: 2
@@ -18,6 +17,7 @@ notebooks/Tutorial
 notebooks/LogicOfUnsupervisedEvaluationTutorial
 research/GradingLLMs
 research/MathematicsOfAlgebraicEvaluation
+research/TheScienceOfAlgebraicEvaluation
 ntqr
 ```
 

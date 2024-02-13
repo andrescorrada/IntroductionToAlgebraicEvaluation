@@ -40,7 +40,9 @@ useful in AI safety applications -
    set of postulates that must be obeyed during any evaluation. Completeness
    is a logical safety shield. It allows us to create theorem provers that
    can unequivocably detect violations of the logical consistency of **any**
-   grading algorithm.
+   grading algorithm. This is demonstrated here by the error-independent
+   evaluator outputting an irrational number for test ratios that can only
+   be rationals.
 
 3. Allows you to create **self-alarming** evaluation algorithms.
    Algebraic evaluation algorithms warn when their assumptions are wrong. This
