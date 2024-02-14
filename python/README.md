@@ -5,14 +5,15 @@
 ```console
 ~$: pip install ntqr
 ```
+
 :::{figure-md}
 ![Prevalence estimates](./img/uciAdultEvalPrevalenceGauges.png)
 
-The prevalence estimates for the two labels in
+**The prevalence estimates for the two labels in
     a single evaluation using the UCI Adult dataset. The green
     triangle is the correct value. "AE" is the exact, error
     independent evaluator. "MV" is the majority voting
-    evaluator.
+    evaluator.**
 :::
 
 

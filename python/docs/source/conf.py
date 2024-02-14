@@ -39,7 +39,11 @@ extensions = [
 ]
 
 
-myst_enable_extensions = ["colon_fence", "dollarmath", "amsmath", "html_image"]
+myst_enable_extensions = [
+    "colon_fence",
+    "dollarmath",
+    "amsmath",
+]
 
 mathjax_path = "https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
 
