@@ -1,10 +1,20 @@
 # Logic tools to make your AI safer
 
-![NTQR](./NTQRpt24.png)
+![NTQR](./img/NTQRpt24.png)
 
 ```console
 ~$: pip install ntqr
 ```
+:::{figure-md}
+![Prevalence estimates](./img/uciAdultEvalPrevalenceGauges.png)
+
+The prevalence estimates for the two labels in
+    a single evaluation using the UCI Adult dataset. The green
+    triangle is the correct value. "AE" is the exact, error
+    independent evaluator. "MV" is the majority voting
+    evaluator.
+:::
+
 
 Evaluation of noisy decision makers in unsupervised settings is a fundamental
 safety engineering problem. This library contains the algebraic postulates that
