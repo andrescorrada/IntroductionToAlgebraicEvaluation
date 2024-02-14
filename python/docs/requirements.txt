@@ -3,4 +3,4 @@ sphinx==6.2.1
 myst-parser==2.0.0
 nbsphinx==0.9.3
 furo==2023.9.10
-ntqr==0.1.4
+ntqr==0.1.5

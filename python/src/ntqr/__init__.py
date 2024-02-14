@@ -11,7 +11,7 @@ Misc variables:
     uci_adult_test_example
 """
 
-__version__ = "0.1.4"
+__version__ = "0.1.5"
 
 from ntqr.r2.examples import uciadult_label_counts
 
