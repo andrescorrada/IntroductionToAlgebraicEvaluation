@@ -59,3 +59,33 @@ And if you think of algebraic evaluation using ensembles as a form of
 error-correcting code (which it is!), then you realize that
 just like we have many error-correcting codes depending on the application,
 we will need different ensemble construction methods for evaluation.
+
+## Error analysis as an intersection between the science and mathematics
+
+The great theoretical strength of algebraic evaluation is that it has the
+complete set of evaluation postulates for arbitrarily correlated classifiers.
+This allows you to perform a theoretical jiu-jitsu move as follows.
+
+- We have the exact algebraic solution for error independent binary classifiers
+  as algebraic polynomials of their agreement and disagreement statistics.
+- But it is almost surely (a probability claim!) that they will not be. How
+  do we prepare for this?
+- Since we have the **generating set** for the observed voting statistics that
+  tells us exactly how the frequency of any voting event is related to their
+  average label accuracies and correlations, we can fold that back into the
+  independent solution to, in turn, do ...
+- Get another algebraic polynomial that gives the estimated label accuracies
+  as functions of the true label accuracies **plus** the unknown error
+  correlations.
+
+This is very beautiful and computationally clear because of the algebra, but
+here is where the math is silent on what that means in an actual deployment.
+It is a significant advance that we can derive such a clear expression of what
+we estimate and the unknown test error correlations, but each application has
+to then measure what the variation in these estimates mean for its safety
+framework.
+
+This slippage between the mathematics and safety application is common to all
+scientific modelling. The practical utility of algebraic evaluation is that
+since it focuses on sample statistics, it can provide a universal framework for
+studying this theory/safety coupling.
