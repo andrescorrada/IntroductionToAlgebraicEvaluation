@@ -47,10 +47,18 @@ pka = sympy.Symbol(r"P_{k, a}")
 pkb = sympy.Symbol(r"P_{k, b}")
 
 # Postulates before observing test results
-# One postulate is just about the prelances
+# One postulate is just about the prevalences
 prelances_sum_to_one = pa + pb - 1
 
 # We omit all the linear relations that relate binary erorrs to accuracy.
+# By this is meant that we could work in a larger variable space that
+# included the error rate for a label. This would require that we
+# add equations of the type P_i_a_a + P_i_b_a = 1 to the generating set.
+# So instead we just express everything in therms of binary label accuracy
+# and dispense with writing out error rate variables.
+# Dropping the error rate variables also allows the syntactic sugar of
+# referring to P_i_a_a (the percentage of times classifier i said the label
+# was "a" AND it was "a")as just P_i_a.
 
 # Postulates having observed responses
 fai = sympy.Symbol(r"f_{a_i}")
@@ -79,6 +87,14 @@ deltaij = sympy.Symbol(r"\Delta_{i,j}")
 # Pair correlation variables for the two labels
 gija = sympy.Symbol(r"\Gamma_{i, j, a}")
 gijb = sympy.Symbol(r"\Gamma_{i, j, b}")
+gika = sympy.Symbol(r"\Gamma_{i, k, a}")
+gikb = sympy.Symbol(r"\Gamma_{i, k, b}")
+gjka = sympy.Symbol(r"\Gamma_{j, k, a}")
+gjkb = sympy.Symbol(r"\Gamma_{j, k, b}")
+
+# 3-way correlations for the two labels
+gijka = sympy.Symbol(r"\Gamma_{i, j, k, a}")
+gijkb = sympy.Symbol(r"\Gamma_{i, j, k, b}")
 
 # The 'generating set' of polynomials for any pair of binary classifiers
 pair_binary_classifiers_generating_set = [
@@ -98,6 +114,29 @@ pair_binary_classifiers_postulates = [
     (pia - fai) * (pjb - fbj) * ((pja - faj) + (pjb - fbj))
     + (pja - faj) * (gijb - deltaij)
     + (pjb - fbj) * (gija - deltaij),
+]
+
+# Data sketch observables for the trio
+faiajak = sympy.Symbol(r"f_{a_i, a_j, a_k}")
+faiajbk = sympy.Symbol(r"f_{a_i, a_j, b_k}")
+faibjak = sympy.Symbol(r"f_{a_i, b_j, a_k}")
+fbiajak = sympy.Symbol(r"f_{b_i, a_j, a_k}")
+
+fbibjbk = sympy.Symbol(r"f_{b_i, b_j, b_k}")
+fbibjak = sympy.Symbol(r"f_{b_i, b_j, a_k}")
+fbiajbk = sympy.Symbol(r"f_{b_i, a_j, b_k}")
+faibjbk = sympy.Symbol(r"f_{a_i, b_j, b_k}")
+
+trio_binary_classifiers_generating_set = [
+    pa * (pia * pja * pka + gija * pka + gika * pja + gjka * pia + gijka)
+    + pb * (1),
+    pa * (1) + pb * (1),
+    pa * (1) + pb * (1),
+    pa * (1) + pb * (1),
+    pa * (1) + pb * (1),
+    pa * (1) + pb * (1),
+    pa * (1) + pb * (1),
+    pa * (1) + pb * (1),
 ]
 
 if __name__ == "__main__":
