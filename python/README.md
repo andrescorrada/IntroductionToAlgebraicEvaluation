@@ -36,7 +36,7 @@ All the complicated algebraic geometry computations here are meant to
 accomplish only one thing - give you a logically consistent framework for
 validating **any** algorithm that evaluates classifiers on a test that used
 unlabeled data. This logical framework has three properties that make it
-useful in AI safety applications -
+useful in AI safety applications:
 
 1. It is **universal**. The algorithms here apply to any domain. There is no
    Out of Distribution (OOD) problem when you use algebraic evaluation because
@@ -55,7 +55,7 @@ useful in AI safety applications -
    evaluator outputting an irrational number for test ratios that can only
    be rationals.
 
-3. Allows you to create **self-alarming** evaluation algorithms.
+3. It allows you to create **self-alarming** evaluation algorithms.
    Algebraic evaluation algorithms warn when their assumptions are wrong. This
    is the single most important safety feature of algebraic evaluation.
    No method that uses representation of the domain or probability theory
