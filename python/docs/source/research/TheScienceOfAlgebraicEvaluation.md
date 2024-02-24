@@ -20,19 +20,22 @@ the evaluation stage.
 - The algorithm you are using to evaluate them given the results of the test.
   This could be the Bayesian approaches pioneered by Raykar or the spectral
   ones associated with the work of Parisi and associates. Or it could be,
-  as illustrated in the package with two different algebraic evaluators.
-  -- Majority voting: you use the majority decisions of the ensemble to
+  as illustrated in the package with two different algebraic evaluators:
+  
+     **Majority voting:** You use the majority decisions of the ensemble to
      reconstruct the unknown/missing/spoofed answer key. Note that majority
      voting can be restated as a theorem of evaluation that has as its
      assumptions that the minority vote being right never occured during
      the test. The theoretical flaw of majority voting for safe evaluations
      is that it is unable to signal the failure of these assumptions. This
      makes it sub-optimal for safety applications.
-  -- Error Independent Algebraic Evaluator: you use the exact algebraic
+  
+     **Error Independent Algebraic Evaluator:** You use the exact algebraic
      that is possible when you have error-independent ensembles. This is
      actually an easier condition to satisfy than the one used by majority
      voting and has the enormous safety virtue that it **signals** when its
      error-independence assumption is violated.
+  
 - The validator of the evaluation. This is the crucial role that must always
   exist to be truly safe. How do we know an evaluation is valid? In a setting
   where we have used unlabeled data to see how the noisy oracles agree and
@@ -68,12 +71,12 @@ This allows you to perform a theoretical jiu-jitsu move as follows.
 
 - We have the exact algebraic solution for error independent binary classifiers
   as algebraic polynomials of their agreement and disagreement statistics.
-- But it is almost surely (a probability claim!) that they will not be. How
+- But it is almost certain (a probability claim!) that they will not be. How
   do we prepare for this?
 - Since we have the **generating set** for the observed voting statistics that
   tells us exactly how the frequency of any voting event is related to their
   average label accuracies and correlations, we can fold that back into the
-  independent solution to, in turn, do ...
+  independent solution to, in turn,
 - Get another algebraic polynomial that gives the estimated label accuracies
   as functions of the true label accuracies **plus** the unknown error
   correlations.
