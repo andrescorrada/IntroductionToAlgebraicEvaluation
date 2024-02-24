@@ -129,14 +129,127 @@ faibjbk = sympy.Symbol(r"f_{a_i, b_j, b_k}")
 
 trio_binary_classifiers_generating_set = [
     pa * (pia * pja * pka + gija * pka + gika * pja + gjka * pia + gijka)
-    + pb * (1),
-    pa * (1) + pb * (1),
-    pa * (1) + pb * (1),
-    pa * (1) + pb * (1),
-    pa * (1) + pb * (1),
-    pa * (1) + pb * (1),
-    pa * (1) + pb * (1),
-    pa * (1) + pb * (1),
+    + pb
+    * (
+        (1 - pib) * (1 - pjb) * (1 - pkb)
+        + gijb * (1 - pkb)
+        + gikb * (1 - pjb)
+        + gjkb * (1 - pib)
+        - gijkb
+    )
+    - faiajak,
+    pa
+    * (
+        -gijka
+        + (1 - pka) * gija
+        - pja * gika
+        - pia * gjka
+        + pia * pja * (1 - pka)
+    )
+    + pb
+    * (
+        gijkb
+        + pkb * gijb
+        - (1 - pjb) * gikb
+        - (1 - pib) * gjkb
+        + (1 - pib) * (1 - pjb) * pkb
+    )
+    - faiajbk,
+    pa
+    * (
+        pia * (1 - pja) * pka
+        - pka * gija
+        + (1 - pja) * gika
+        - pia * gjka
+        - gijka
+    )
+    + pb
+    * (
+        (1 - pib) * pjb * (1 - pkb)
+        - (1 - pkb) * gijb
+        + pjb * gikb
+        - (1 - pib) * gjkb
+        + gijkb
+    )
+    - faibjak,
+    pa
+    * (
+        pia * (1 - pja) * (1 - pka)
+        - (1 - pka) * gija
+        - (1 - pja) * gika
+        + pia * gjka
+        + gijka
+    )
+    + pb
+    * (
+        (1 - pib) * pjb * pkb
+        - pkb * gijb
+        - pjb * gikb
+        + (1 - pib) * gjkb
+        - gijkb
+    )
+    - faibjbk,
+    pa
+    * (
+        (1 - pia) * pja * pka
+        - pka * gija
+        - pja * gika
+        + (1 - pia) * gjka
+        - gijka
+    )
+    + pb
+    * (
+        pib * (1 - pjb) * (1 - pkb)
+        - (1 - pkb) * gijb
+        - (1 - pjb) * gikb
+        + pib * gjkb
+        + gijkb
+    )
+    - fbiajak,
+    pa
+    * (
+        (1 - pia) * pja * (1 - pka)
+        - (1 - pka) * gija
+        + pja * gija
+        - (1 - pia) * gjka
+        + gijka
+    )
+    + pb
+    * (
+        pib * (1 - pjb) * pkb
+        - pkb * gijb
+        + (1 - pjb) * gikb
+        - pib * gjkb
+        - gijkb
+    )
+    - fbiajbk,
+    pa
+    * (
+        (1 - pia) * (1 - pja) * pka
+        + pka * gija
+        - (1 - pja) * gika
+        - (1 - pia) * gjka
+        + gijka
+    )
+    + pb
+    * (
+        pib * pjb * (1 - pkb)
+        + (1 - pkb) * gijb
+        - pjb * gikb
+        - pib * gjkb
+        - gijkb
+    )
+    - fbibjak,
+    pa
+    * (
+        (1 - pia) * (1 - pja) * (1 - pka)
+        + (1 - pka) * gija
+        + (1 - pja) * gika
+        + (1 - pia) * gjka
+        - gijka
+    )
+    + pb * (pib * pjb * pkb + pkb * gijb + pjb * gikb + pib * gjkb + gijkb)
+    - fbibjbk,
 ]
 
 if __name__ == "__main__":
