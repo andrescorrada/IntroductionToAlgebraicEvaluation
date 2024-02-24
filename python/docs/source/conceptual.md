@@ -13,8 +13,8 @@ wrong. By using these algorithms, you can have your cake and eat it too - use
 the crowd to grade itself but not go with the wisdom of the crowd to do.
 
 This is where NTQR algorithms excel in evaluation using unlabeled data. They
-can detect when the "minority report" is correct and the crowd wrong. And
-to enhance safety - it can alert when an evaluation has gone wrong.
+can detect when the "minority report" is correct and the crowd wrong. And,
+to enhance safety, it can alert when an evaluation itself has gone wrong.
 
 NTQR operates outside the box of conventional AI practice. This
 mathematical and logical formalism is new and will become the foundation of
