@@ -42,7 +42,7 @@ engineering spec and safety concerns. At some point it is economically
 inefficient to worry about too many digits of precision with your instruments.
 So if you had the theory of how to grade {math}`R=10` exams, you could
 do a pretty good job evaluating the responses of an LLM to philosophy queries.
-This is very much in line with demonstrations that LLMs can pass law bar
+This is very much in line with demonstrations that LLMs can pass bar
 exams, etc.
 
 ## How to grade LLMs on binary response tests
@@ -65,8 +65,8 @@ cannot say how this convergence will occur.
 
 Recent work by Gladys Tyen, Hassan Mansoor, Victor Cărbune, Peter Chen,
 and Tony Mak 
-[LLMs cannot find reasoning errors, but can correct them!](https://arxiv.org/abs/2311.08516)
-is one where we can see the blurring of the semantic and semantic-free
+[*LLMs cannot find reasoning errors, but can correct them!*](https://arxiv.org/abs/2311.08516)
+is one example where we can see the blurring of the semantic and semantic-free
 interpretations. Logically correct is semantic free. But the LLMs are being
 trained to detect a consistent label of being logically correct across
 different Chain-of-Thought (CoT) prompts.
