@@ -18,17 +18,17 @@ papers -
     Learners](https://arxiv.org/abs/2010.15662): This paper tries to resolve
     the monitoring paradox in unsupervised settings - how do we know the
     assumptions of the **evaluation algorithm**, the grader of the noisy AI
-    agents, is, itself, correct when we use it in the field? The paper gives
+    agents, is itself correct when we use it in the field? The paper gives
     an incomplete resolution based on comparing multiple trios of classifiers.
     This has been superseded by a theorem proving that irrational number
-    outputs from the error independent algebraic evaluator signal the
+    outputs from the error-independent algebraic evaluator signal the
     classifiers were not error-independent on the evaluation test.
 
 3. [Streaming algorithms for evaluating noisy judges on 
     unlabeled data](https://arxiv.org/abs/2306.01726): This paper was
     submitted to NeurIPS 2023 and rejected. The reviews can be found in
     [OpenReview.net](https://openreview.net/forum?id=8S6ZeKB8tu). The
-    reviews lead to the realization that the ML community has published
+    reviews led to the realization that the ML community has published
     and established as authoritative the work of Platanios and Mitchell.
     Unfortunately, their work is flawed. The proof of their mistake is
     detailed in the technical appendix to this paper.
