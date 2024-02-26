@@ -114,17 +114,25 @@ class SupervisedEvaluation:
 
         self.evaluation_exact = {
             "prevalence": self.prevalences(),
-            "accuracies": [
-                {
-                    label: self.classifier_label_accuracy(classifier, label)
-                    for label in ("a", "b")
-                }
-                for classifier in range(3)
-            ],
+            "accuracies": {
+                label: [
+                    self.classifier_label_accuracy(classifier, label)
+                    for classifier in range(3)
+                ]
+                for label in ("a", "b")
+            },
             "pair_correlations": {
                 label: {
                     pair: self.pair_label_error_correlation(pair, label)
                     for pair in trio_pairs
+                }
+                for label in ("a", "b")
+            },
+            "3_way_correlations": {
+                label: {
+                    (0, 1, 2): self.three_way_label_error_correlation(
+                        (0, 1, 2), label
+                    )
                 }
                 for label in ("a", "b")
             },
@@ -134,19 +142,27 @@ class SupervisedEvaluation:
             "prevalence": {
                 label: float(val) for label, val in self.prevalences().items()
             },
-            "accuracies": [
-                {
-                    label: float(
-                        self.classifier_label_accuracy(classifier, label)
-                    )
-                    for label in ("a", "b")
-                }
-                for classifier in range(3)
-            ],
+            "accuracies": {
+                label: [
+                    float(self.classifier_label_accuracy(classifier, label))
+                    for classifier in range(3)
+                ]
+                for label in ("a", "b")
+            },
             "pair_correlations": {
                 label: {
                     pair: float(self.pair_label_error_correlation(pair, label))
                     for pair in trio_pairs
+                }
+                for label in ("a", "b")
+            },
+            "3_way_correlations": {
+                label: {
+                    (0, 1, 2): float(
+                        self.three_way_label_error_correlation(
+                            (0, 1, 2), label
+                        )
+                    )
                 }
                 for label in ("a", "b")
             },
@@ -242,7 +258,120 @@ class SupervisedEvaluation:
             )
         ) / test_size
 
-    # TODO: implement the three way correlations
+    def three_way_label_error_correlation(self, triplet, label):
+        """Calculate the label error correlation a classifier pair."""
+        test_size = self.label_counts.test_sizes[label]
+        classifier_accuracies = [
+            self.classifier_label_accuracy(classifier, label)
+            for classifier in triplet
+        ]
+        label_counts = self.label_counts[label]
+        o_label = self.other_label(label)
+        return (
+            # They are all correct
+            (1 - classifier_accuracies[0])
+            * (1 - classifier_accuracies[1])
+            * (1 - classifier_accuracies[2])
+            * sum(
+                [
+                    label_counts[votes]
+                    for votes in classifiers_labels_votes(
+                        triplet, (label, label, label)
+                    )
+                ]
+            )
+            +
+            # C_i is correct, C_j is correct, C_k is incorrect
+            (1 - classifier_accuracies[0])
+            * (1 - classifier_accuracies[1])
+            * (0 - classifier_accuracies[2])
+            * sum(
+                [
+                    label_counts[votes]
+                    for votes in classifiers_labels_votes(
+                        triplet, (label, label, o_label)
+                    )
+                ]
+            )
+            +
+            # C_i is correct, C_j is incorrect, C_k is correct
+            (1 - classifier_accuracies[0])
+            * (0 - classifier_accuracies[1])
+            * (1 - classifier_accuracies[2])
+            * sum(
+                [
+                    label_counts[votes]
+                    for votes in classifiers_labels_votes(
+                        triplet, (label, o_label, label)
+                    )
+                ]
+            )
+            +
+            # C_i is incorrect, C_j is correct, C_k is correct
+            (0 - classifier_accuracies[0])
+            * (1 - classifier_accuracies[1])
+            * (1 - classifier_accuracies[2])
+            * sum(
+                [
+                    label_counts[votes]
+                    for votes in classifiers_labels_votes(
+                        triplet, (o_label, label, label)
+                    )
+                ]
+            )
+            +
+            # C_i is correct, C_j is incorrect, C_k is incorrect
+            (1 - classifier_accuracies[0])
+            * (0 - classifier_accuracies[1])
+            * (0 - classifier_accuracies[2])
+            * sum(
+                [
+                    label_counts[votes]
+                    for votes in classifiers_labels_votes(
+                        triplet, (label, o_label, o_label)
+                    )
+                ]
+            )
+            +
+            # C_i is incorrect, C_j is correct, C_k is incorrect
+            (0 - classifier_accuracies[0])
+            * (1 - classifier_accuracies[1])
+            * (0 - classifier_accuracies[2])
+            * sum(
+                [
+                    label_counts[votes]
+                    for votes in classifiers_labels_votes(
+                        triplet, (o_label, label, o_label)
+                    )
+                ]
+            )
+            +
+            # C_i is incorrect, C_j is incorrect, C_k is correct
+            (0 - classifier_accuracies[0])
+            * (0 - classifier_accuracies[1])
+            * (1 - classifier_accuracies[2])
+            * sum(
+                [
+                    label_counts[votes]
+                    for votes in classifiers_labels_votes(
+                        triplet, (o_label, o_label, label)
+                    )
+                ]
+            )
+            +
+            # C_i is incorrect, C_j is incorrect, C_k is incorrect
+            (0 - classifier_accuracies[0])
+            * (0 - classifier_accuracies[1])
+            * (0 - classifier_accuracies[2])
+            * sum(
+                [
+                    label_counts[votes]
+                    for votes in classifiers_labels_votes(
+                        triplet, (o_label, o_label, o_label)
+                    )
+                ]
+            )
+        ) / test_size
 
 
 class ErrorIndependentEvaluation:

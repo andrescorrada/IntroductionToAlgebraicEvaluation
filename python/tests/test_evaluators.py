@@ -24,11 +24,18 @@ def test_supervised_prevalences():
     supervised_eval = SupervisedEvaluation(tlvc)
 
     assert supervised_eval.evaluation_exact == {
-        "accuracies": [
-            {"a": Fraction(3737, 5687), "b": Fraction(6501, 10385)},
-            {"a": Fraction(1260, 5687), "b": Fraction(29744, 31155)},
-            {"a": Fraction(4746, 5687), "b": Fraction(4168, 6231)},
-        ],
+        "accuracies": {
+            "a": [
+                Fraction(3737, 5687),
+                Fraction(1260, 5687),
+                Fraction(4746, 5687),
+            ],
+            "b": [
+                Fraction(6501, 10385),
+                Fraction(29744, 31155),
+                Fraction(4168, 6231),
+            ],
+        },
         "pair_correlations": {
             "a": {
                 (0, 1): Fraction(273192, 32341969),
@@ -40,6 +47,10 @@ def test_supervised_prevalences():
                 (0, 2): Fraction(-79682, 12941787),
                 (1, 2): Fraction(94508, 38825361),
             },
+        },
+        "3_way_correlations": {
+            "a": {(0, 1, 2): Fraction(452568508, 183928777703)},
+            "b": {(0, 1, 2): Fraction(-27265589, 134400457995)},
         },
         "prevalence": {
             "a": Fraction(5687, 36842),
