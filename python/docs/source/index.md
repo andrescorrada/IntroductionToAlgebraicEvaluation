@@ -15,6 +15,7 @@
 conceptual
 notebooks/Tutorial
 notebooks/LogicOfUnsupervisedEvaluationTutorial
+notebooks/ExactAlgebraicSolutionErrorIndependent
 research/GradingLLMs
 research/MathematicsOfAlgebraicEvaluation
 research/TheScienceOfAlgebraicEvaluation
