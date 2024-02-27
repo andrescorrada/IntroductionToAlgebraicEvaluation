@@ -5,7 +5,7 @@ is 3^N, where N is the number of responders. As in the R=2 postulates case,
 we can start with statistics of correctness in a test that only involve a
 single responder. We begin the build out of the R=3 postulates with the N=1
 postulates, in other words. Then we will proceed to the N=2 postulates, the
-N=3 postulates and so on. 
+N=3 postulates and so on.
 
 Although we suspect that the N=3, R=3 error independent model also has a
 closed algebraic solution, we have failed to get one using 128GB of RAM.
@@ -34,3 +34,12 @@ So, for example, assuming the three labels are given by (a, b, c). The 'a'
 label accuracy would expressed in terms of the two error rates as,
 P_i_a_a = 1 - P_i_b_a - P_i_c_a
 """
+
+import sympy
+
+# The observable voting frequencies for the single 3-label classifier
+single_classifier_voting_frequencies = []
+for var_name in (r"f_a", r"f_b", r"f_c"):
+    globals()[var_name] = sympy.Symbol(var_name)
+    single_classifier_voting_frequencies.append(globals()[var_name])
+print(single_classifier_voting_frequencies)
