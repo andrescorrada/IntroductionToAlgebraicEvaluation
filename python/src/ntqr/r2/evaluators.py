@@ -541,12 +541,12 @@ class ErrorIndependentEvaluation:
             case _:
                 pass
         a_coeff = (
-            freqDiff
-            * (freqDiff - other_moment * (1 - classifier_freqs[classifier]))
+            freqDiff * freqDiff
+            - other_moment * (1 - classifier_freqs[classifier]) * freqDiff
             + 2 * prodFDs
         )
 
-        b_coeff = 4 * prodFDs - freqDiff**2
+        b_coeff = -4 * prodFDs - freqDiff**2
         c_coeff = other_moment * freqDiff
 
         prevalences = self.alpha_prevalence_estimates()
@@ -557,7 +557,7 @@ class ErrorIndependentEvaluation:
 
     def classifier_b_label_accuracy(self, classifier: int):
         """
-        Calculate classifier 'ab' label accuracies.
+        Calculate classifier 'b' label accuracies.
 
         Parameters
         ----------
@@ -569,7 +569,7 @@ class ErrorIndependentEvaluation:
         Two possible logically consistent estimates for P_{i,b} given the
         test error independence assumption.
         """
-        # Assuming the linear equation form a + b * P_a + c * P_{i, a}
+        # Assuming the linear equation form a + b * P_a + c * P_{i, b}
 
         classifier_freqs = [
             self.vote_counts.classifier_label_frequency(classifier, "b")

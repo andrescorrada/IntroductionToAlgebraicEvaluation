@@ -127,6 +127,17 @@ fbibjak = sympy.Symbol(r"f_{b_i, b_j, a_k}")
 fbiajbk = sympy.Symbol(r"f_{b_i, a_j, b_k}")
 faibjbk = sympy.Symbol(r"f_{a_i, b_j, b_k}")
 
+trio_frequencies = [
+    faiajak,
+    faiajbk,
+    faibjak,
+    faibjbk,
+    fbiajak,
+    fbiajbk,
+    fbibjak,
+    fbibjbk,
+]
+
 trio_binary_classifiers_generating_set = [
     pa * (pia * pja * pka + gija * pka + gika * pja + gjka * pia + gijka)
     + pb
