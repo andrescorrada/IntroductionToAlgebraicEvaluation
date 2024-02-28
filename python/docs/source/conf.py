@@ -13,6 +13,8 @@
 import os
 import sys
 
+import ntqr
+
 sys.path.insert(0, os.path.abspath(".."))
 
 
@@ -23,7 +25,8 @@ copyright = "2024, Andrés Corrada-Emmanuel, Walker Lee, Adam Sloat"
 authors = ["Andrés Corrada-Emmanuel", "Walker Lee", "Adam Sloat"]
 
 # The full version, including alpha/beta/rc tags
-release = "0.1"
+version = ntqr.__version__
+release = version
 
 
 # -- General configuration ---------------------------------------------------
