@@ -114,57 +114,43 @@ class SupervisedEvaluation:
 
         self.evaluation_exact = {
             "prevalence": self.prevalences(),
-            "accuracies": {
-                label: [
-                    self.classifier_label_accuracy(classifier, label)
-                    for classifier in range(3)
-                ]
-                for label in ("a", "b")
-            },
-            "pair_correlations": {
-                label: {
-                    pair: self.pair_label_error_correlation(pair, label)
-                    for pair in trio_pairs
+            "accuracy": [
+                {
+                    label: self.classifier_label_accuracy(classifier, label)
+                    for label in ("a", "b")
                 }
-                for label in ("a", "b")
-            },
-            "3_way_correlations": {
-                label: {
-                    (0, 1, 2): self.three_way_label_error_correlation(
-                        (0, 1, 2), label
-                    )
+                for classifier in range(3)
+            ],
+            "pair_correlation": {
+                pair: {
+                    label: self.pair_label_error_correlation(pair, label)
+                    for label in ("a", "b")
                 }
-                for label in ("a", "b")
+                for pair in trio_pairs
+            },
+            "3_way_correlation": {
+                trio: {
+                    label: self.three_way_label_error_correlation(trio, label)
+                    for label in ()
+                }
+                for trio in ((1, 2, 3),)
             },
         }
 
         self.evaluation_float = {
             "prevalence": {
-                label: float(val) for label, val in self.prevalences().items()
+                label: float(val)
+                for label, val in self.evaluation_exact["prevalence"].items()
             },
-            "accuracies": {
-                label: [
-                    float(self.classifier_label_accuracy(classifier, label))
-                    for classifier in range(3)
-                ]
-                for label in ("a", "b")
-            },
-            "pair_correlations": {
-                label: {
-                    pair: float(self.pair_label_error_correlation(pair, label))
-                    for pair in trio_pairs
-                }
-                for label in ("a", "b")
-            },
-            "3_way_correlations": {
-                label: {
-                    (0, 1, 2): float(
-                        self.three_way_label_error_correlation(
-                            (0, 1, 2), label
-                        )
-                    )
-                }
-                for label in ("a", "b")
+            "accuracy": [
+                {label: float(val) for label, val in cdict.items()}
+                for cdict in self.evaluation_exact["accuracy"]
+            ],
+            "pair_correlation": {
+                pair: {label: float(val) for label, val in corrs.items()}
+                for pair, corrs in self.evaluation_exact[
+                    "pair_correlation"
+                ].items()
             },
         }
 
@@ -441,34 +427,41 @@ class ErrorIndependentEvaluation:
         self.vote_counts = vote_counts
         self.vote_frequencies = self.vote_counts.to_frequencies_exact()
 
-        self.evaluation_exact = {
-            "'a' prevalence solutions": self.alpha_prevalence_estimates(),
-            "accuracies": [
-                {
-                    "a": self.classifier_a_label_accuracy(classifier),
-                    "b": self.classifier_b_label_accuracy(classifier),
-                }
-                for classifier in range(3)
-            ],
-        }
-        self.evaluation_float = {
-            "'a' prevalence solutions": [
-                float(val) for val in self.alpha_prevalence_estimates()
-            ],
-            "accuracies": [
-                {
-                    "a": [
-                        float(val)
-                        for val in self.classifier_a_label_accuracy(classifier)
-                    ],
-                    "b": [
-                        float(val)
-                        for val in self.classifier_b_label_accuracy(classifier)
-                    ],
-                }
-                for classifier in range(3)
-            ],
-        }
+        # Two solutions are possible
+        self.evaluation_exact = [
+            {
+                "prevalence": {"a": a_prevalence, "b": 1 - a_prevalence},
+                "accuracy": [
+                    {
+                        "a": self.classifier_a_label_accuracy(
+                            classifier, a_prevalence
+                        ),
+                        "b": self.classifier_b_label_accuracy(
+                            classifier, a_prevalence
+                        ),
+                    }
+                    for classifier in range(3)
+                ],
+            }
+            for a_prevalence in self.alpha_prevalence_estimates()
+        ]
+
+        self.evaluation_float = [
+            {
+                "prevalence": {
+                    label: float(val)
+                    for label, val in sol_dict["prevalence"].items()
+                },
+                "accuracy": [
+                    {
+                        label: float(val)
+                        for label, val in classifier_dict.items()
+                    }
+                    for classifier_dict in sol_dict["accuracy"]
+                ],
+            }
+            for sol_dict in self.evaluation_exact
+        ]
 
     def alpha_prevalence_quadratic_terms(self):
         """
@@ -483,7 +476,7 @@ class ErrorIndependentEvaluation:
         described here with the two labels being used for classification -
         currently implemented as ('a', 'b').
         """
-        # The coefficient of the square term
+
         pfmds = self.vote_counts.label_pairs_frequency_moments("b")
         vote_frequencies = self.vote_frequencies
         fbbb = vote_frequencies[("b", "b", "b")]
@@ -492,20 +485,24 @@ class ErrorIndependentEvaluation:
         term_coefficients = {
             2: diff1**2 + 4 * prodFDs,
             1: -(diff1**2 + 4 * prodFDs),
-            0: -prodFDs,
+            0: prodFDs,
         }
 
         return term_coefficients
 
     def alpha_prevalence_estimates(self):
-        """Calculate the prevalence of the alpha label."""
-        coeffs = self.alpha_prevalence_quadratic_terms()
-        b = coeffs[1]
-        c = coeffs[0]
-        sqrTerm = sympy.sqrt(1 - 4 * c / b) / 2
-        return [Fraction(1, 2) + sqrTerm, Fraction(1, 2) - sqrTerm]
+        """Calculate the prevalence of the alpha label.
 
-    def classifier_a_label_accuracy(self, classifier: int):
+        Since the quadratic equation has ordered solutions by
+        the plus/minus operations, we arbitrarily return the 'a' label
+        less than 50% solution first."""
+        coeffs = self.alpha_prevalence_quadratic_terms()
+        a = coeffs[2]
+        c = coeffs[0]
+        sqrTerm = sympy.sqrt(1 - 4 * c / a) / 2
+        return [Fraction(1, 2) - sqrTerm, Fraction(1, 2) + sqrTerm]
+
+    def classifier_a_label_accuracy(self, classifier: int, a_prevalence):
         """
         Calculate classifier 'a' label accuracies.
 
@@ -513,11 +510,11 @@ class ErrorIndependentEvaluation:
         ----------
         classifier : int
             One of (0, 1, 2).
+        a_prevalence: Sympy expression
 
         Returns
         -------
-        Two possible logically consistent estimates for P_{i,a} given the
-        test error independence assumption.
+        The a label accuracy given the a_prevalence value
         """
         # Assuming the linear equation form a + b * P_a + c * P_{i, a}
 
@@ -549,13 +546,9 @@ class ErrorIndependentEvaluation:
         b_coeff = -4 * prodFDs - freqDiff**2
         c_coeff = other_moment * freqDiff
 
-        prevalences = self.alpha_prevalence_estimates()
-        return [
-            (-a_coeff - b_coeff * prevalence) / c_coeff
-            for prevalence in prevalences
-        ]
+        return (-a_coeff - b_coeff * a_prevalence) / c_coeff
 
-    def classifier_b_label_accuracy(self, classifier: int):
+    def classifier_b_label_accuracy(self, classifier: int, a_prevalence):
         """
         Calculate classifier 'b' label accuracies.
 
@@ -598,11 +591,7 @@ class ErrorIndependentEvaluation:
         b_coeff = 4 * prodFDs + freqDiff**2
         c_coeff = -other_moment * freqDiff
 
-        prevalences = self.alpha_prevalence_estimates()
-        return [
-            (-a_coeff - b_coeff * prevalence) / c_coeff
-            for prevalence in prevalences
-        ]
+        return (-a_coeff - b_coeff * a_prevalence) / c_coeff
 
 
 class MajorityVotingEvaluation:
@@ -610,11 +599,13 @@ class MajorityVotingEvaluation:
     Evaluate three binary classifiers using majority voting.
 
     Majority voting can be used to carry out evaluation algebraically.
-    Its major drawback is that it assumes that the crowd is always right,
-    as a consequence it cannot minimize its errors when the classifiers
-    are error independent in the test.
+    Typically, majority voting is used with the assumption that the
+    crowd is always right. In the context of safety, however, that the
+    crowd is always wrong is an equally valid a-priori assumption. Hence,
+    this class returns TWO evaluations. The first assuming the crowd is
+    always right and the second assuming they are always wrong.
     Its main virtue is that it is simple and rock solid - always returns
-    a seemingly sensible result.
+    logically consistent evaluations.
     """
 
     def __init__(self, vote_counts: TrioVoteCounts):
@@ -638,32 +629,43 @@ class MajorityVotingEvaluation:
         self.vote_frequencies = self.vote_counts.to_frequencies_exact()
         self.labels = ("a", "b")
 
-        self.majority_vote_patterns = {
+        self.majority_right_vote_patterns = {
             label: [
-                votes for votes in trio_vote_patterns if votes.count(label) > 1
+                votes
+                for votes in trio_vote_patterns
+                if votes.count(label) >= 2
             ]
             for label in self.labels
         }
 
-        self.evaluation_exact = {
-            "prevalence": self.prevalences(),
-            "accuracies": [
-                {
-                    label: self.classifier_label_accuracy(classifier, label)
-                    for label in self.labels
-                }
-                for classifier in range(3)
-            ],
+        self.majority_wrong_vote_patterns = {
+            label: [
+                votes
+                for votes in trio_vote_patterns
+                if votes.count(label) <= 1
+            ]
+            for label in self.labels
         }
 
-        self.evaluation_float = {
-            "prevalence": {
-                label: float(val) for label, val in self.prevalences().items()
-            },
-            "accuracies": [
+        self.evaluation_exact = [
+            self.compute_vote_pattern_evaluation(vps, flip)
+            for vps, flip in [
+                (self.majority_right_vote_patterns, False),
+                (self.majority_wrong_vote_patterns, True),
+            ]
+        ]
+
+        self.evaluation_float = [
+            self.to_float(sol) for sol in self.evaluation_exact
+        ]
+
+    def compute_vote_pattern_evaluation(self, vote_patterns, flip):
+        return {
+            "prevalence": self.prevalences(vote_patterns),
+            "accuracy": [
                 {
-                    label: float(
-                        self.classifier_label_accuracy(classifier, label)
+                    label: self.classifier_label_accuracy(
+                        classifier, vote_patterns, label, flip
                     )
                     for label in self.labels
                 }
@@ -671,27 +673,44 @@ class MajorityVotingEvaluation:
             ],
         }
 
-    def prevalences(self):
+    def prevalences(self, vote_patterns):
         """Compute label prevalences in the test."""
         return {
             label: sum(
-                [
-                    self.vote_frequencies[vp]
-                    for vp in self.majority_vote_patterns[label]
-                ]
+                [self.vote_frequencies[vp] for vp in vote_patterns[label]]
             )
             for label in self.labels
         }
 
-    def classifier_label_accuracy(self, classifier, label):
+    def classifier_label_accuracy(
+        self, classifier, vote_patterns, label, flip
+    ):
         """Compute the label accuracy for classifier."""
+        if flip:
+            if label == "a":
+                correct_label = "b"
+            elif label == "b":
+                correct_label = "a"
+        else:
+            correct_label = label
         return sum(
             [
                 self.vote_frequencies[vp]
-                for vp in self.majority_vote_patterns[label]
-                if vp[classifier] == label
+                for vp in vote_patterns[label]
+                if vp[classifier] == correct_label
             ]
-        )
+        ) / sum([self.vote_frequencies[vp] for vp in vote_patterns[label]])
+
+    def to_float(self, sol):
+        as_floats = {}
+        as_floats["prevalence"] = {
+            label: float(val) for label, val in sol["prevalence"].items()
+        }
+        as_floats["accuracy"] = [
+            ({label: float(val) for label, val in classifier_dict.items()})
+            for classifier_dict in sol["accuracy"]
+        ]
+        return as_floats
 
 
 if __name__ == "__main__":
