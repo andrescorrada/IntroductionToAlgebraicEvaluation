@@ -43,7 +43,7 @@ useful in AI safety applications:
    it does not use any probability theory. By only using summary statistics of
    how a group of classifiers labeled a test set, we can treat all classifiers,
    whether human or robotic, as black boxes. There are no hyperparameters
-   to tune or set in NTQR algorithms. If they where, these algorithms could
+   to tune or set in NTQR algorithms. If they were, these algorithms could
    not claim to be universal.
 
 2. It is **complete**. The finite nature of any test given to a group of
