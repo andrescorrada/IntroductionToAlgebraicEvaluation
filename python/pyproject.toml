@@ -35,10 +35,10 @@ Home = "https://github.com/andrescorrada/IntroductionToAlgebraicEvaluation/tree/
 Documentation="https://ntqr.readthedocs.org/en/latest"
 
 [project.optional-dependencies]
-doc = [
+docs = [
     "sphinx>=5.0.2",
     "myst-parser",
     "nbsphinx",
     "matplotlib",
-    "jupyter_sphinx"
+    "jupyter_sphinx",
 ]
