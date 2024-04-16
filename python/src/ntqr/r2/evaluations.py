@@ -15,6 +15,8 @@ Functions:
 Misc variables:
 
 """
+from fractions import Fraction
+
 from ntqr.r2.datasketches import VoteCounts
 
 
@@ -58,27 +60,46 @@ class PosteriorSingleEvaluations:
 
         return evaluations
 
-    def find_k_nearest_at_prevalence(self, classifier: int, point, k: int):
+    def find_k_nearest_at_prevalence(
+        self, classifier: int, qa: int, point, k: int
+    ):
         # The b label frequency for the classifier
         Rb = int(self.tvc.classifier_label_frequency(classifier, "b") * self.Q)
 
         evaluations = {}
-        for Qa in range(0, self.Q + 1):
-            qa_candidates = []
-            for Raa in range(0, Qa + 1):
-                for Rbb in range(0, self.Q - Qa + 1):
-                    if Raa - Rbb - Qa + Rb == 0:
-                        distances = self.distances_to_target(
-                            Qa, Raa, Rbb, point
-                        )
-                        qa_candidates.append((distances, (Raa, Rbb)))
-            qa_candidates.sort()
-            evaluations[Qa] = qa_candidates[:k]
+        min_qa = int(max(point[0] - 1000, 0))
+        max_qa = int(min(point[0] + 1000, self.Q))
+        Qa = qa
+        qa_candidates = []
+        for Raa in range(0, Qa + 1):
+            for Rbb in range(0, self.Q - Qa + 1):
+                if Raa - Rbb - Qa + Rb == 0:
+                    distances = self.distances_to_target(Qa, Raa, Rbb, point)
+                    qa_candidates.append((distances, (Raa, Rbb)))
+        qa_candidates.sort()
+        evaluations = qa_candidates[:k]
 
         return evaluations
 
-    def distances_to_target(Qa, Raa, Rbb, point):
+    def distances_to_target(self, Qa, Raa, Rbb, point):
+        point_pspace = self.to_pspace(point)
+        pe_pspace = self.to_pspace((Qa, Raa, Rbb))
+
         return (
-            (Qa - point[0]) ** 2,
-            (Raa - point[1]) ** 2 + (Rbb - point[2]) ** 2,
+            (point_pspace[0] - pe_pspace[0]) ** 2,
+            (point_pspace[1] - pe_pspace[1]) ** 2
+            + (point_pspace[2] - pe_pspace[2]) ** 2,
         )
+
+    def to_pspace(self, point):
+        if point[0] != 0:
+            pia = Fraction(point[1], point[0])
+        else:
+            pia = Fraction(0, 1)
+
+        if self.Q - point[0] != 0:
+            pib = Fraction(point[2], (self.Q - point[0]))
+        else:
+            pib = Fraction(0, 1)
+
+        return (Fraction(point[0], self.Q), pia, pib)
