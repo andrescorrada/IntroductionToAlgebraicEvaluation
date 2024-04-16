@@ -9,6 +9,8 @@ Misc variables:
 """
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
+import matplotlib.patches as mpatches
+
 from adjustText import adjust_text
 
 
@@ -53,7 +55,9 @@ def prepare_accuracy_axes(axes, title):
     return
 
 
-def _plot_evaluations(ax, evals, title="Title", legend_loc="best"):
+def _plot_evaluations(
+    ax, evals, title="Title", legend_loc="best", withArrows=False
+):
     prepare_accuracy_axes(ax, title)
 
     # Specifying the grid
@@ -66,12 +70,39 @@ def _plot_evaluations(ax, evals, title="Title", legend_loc="best"):
         for i in range(len(x)):
             texts_to_adjust.append(ax.annotate(str(i + 1), (x[i], y[i])))
 
+    if withArrows:
+        # Since we are comparing evaluations, both evaluations have
+        # the same number of points
+        x_starts = list(evals[0][1])
+        y_starts = list(evals[0][2])
+        x_ends = list(evals[1][1])
+        y_ends = list(evals[1][2])
+        for i in range(len(x_starts)):
+            x_start = float(x_starts[i])
+            y_start = float(y_starts[i])
+            x_end = float(x_ends[i])
+            y_end = float(y_ends[i])
+            arrow = mpatches.FancyArrowPatch(
+                (x_start, y_start),
+                (x_end, y_end),
+                connectionstyle="angle3",
+                arrowstyle="->",
+                shrinkA=10,
+                shrinkB=10,
+                mutation_scale=9,
+            )
+            ax.add_patch(arrow)
+
     ax.legend(loc=legend_loc)
-    # adjust_text(texts_to_adjust)
 
 
 def compare_evaluations(
-    evals, gt_index, titles=[], figsize=(10, 5), legend_loc="best"
+    evals,
+    gt_index,
+    titles=[],
+    figsize=(10, 5),
+    legend_loc="best",
+    withArrows=False,
 ):
     fig, axs = plt.subplots(
         1, len(evals) - 1, figsize=figsize, layout="constrained"
@@ -87,6 +118,7 @@ def compare_evaluations(
             (evals[gt_index], evals[i]),
             title=titles[i],
             legend_loc=legend_loc,
+            withArrows=withArrows,
         )
         j += 1
 
@@ -96,14 +128,20 @@ def compare_evaluations(
 
 
 def plot_evaluations(
-    evals, title="Title", figsize=(5, 4), legend_loc="lower left"
+    evals,
+    title="Title",
+    figsize=(5, 4),
+    legend_loc="lower left",
+    withArrows=False,
 ):
     plt.style.use("_mpl-gallery")
 
     # plot
     fig, ax = plt.subplots(figsize=figsize, layout="constrained")
 
-    _plot_evaluations(ax, evals, title=title, legend_loc=legend_loc)
+    _plot_evaluations(
+        ax, evals, title=title, legend_loc=legend_loc, withArrows=withArrows
+    )
 
     plt.show()
 
