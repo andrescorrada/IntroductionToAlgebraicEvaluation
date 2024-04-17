@@ -11,12 +11,12 @@
 :caption: 'Contents:'
 :maxdepth: 2
 
-
 conceptual
 notebooks/Tutorial
 notebooks/LogicOfUnsupervisedEvaluationTutorial
 notebooks/ExactAlgebraicSolutionErrorIndependent
 research/GradingLLMs
+research/EvaluatingLLMsThatGradeOtherLLMs
 research/MathematicsOfAlgebraicEvaluation
 research/TheScienceOfAlgebraicEvaluation
 ntqr
