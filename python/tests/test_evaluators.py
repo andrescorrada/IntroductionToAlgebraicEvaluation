@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from fractions import Fraction
+import sympy
 
 from ntqr.r2.evaluators import (
     ErrorIndependentEvaluation,
@@ -24,37 +24,40 @@ def test_supervised_prevalences():
     supervised_eval = SupervisedEvaluation(tlvc)
 
     assert supervised_eval.evaluation_exact == {
-        "accuracies": {
-            "a": [
-                Fraction(3737, 5687),
-                Fraction(1260, 5687),
-                Fraction(4746, 5687),
-            ],
-            "b": [
-                Fraction(6501, 10385),
-                Fraction(29744, 31155),
-                Fraction(4168, 6231),
-            ],
-        },
-        "pair_correlations": {
-            "a": {
-                (0, 1): Fraction(273192, 32341969),
-                (0, 2): Fraction(13325, 32341969),
-                (1, 2): Fraction(-264525, 32341969),
-            },
-            "b": {
-                (0, 1): Fraction(2204576, 323544675),
-                (0, 2): Fraction(-79682, 12941787),
-                (1, 2): Fraction(94508, 38825361),
-            },
-        },
-        "3_way_correlations": {
-            "a": {(0, 1, 2): Fraction(452568508, 183928777703)},
-            "b": {(0, 1, 2): Fraction(-27265589, 134400457995)},
-        },
         "prevalence": {
-            "a": Fraction(5687, 36842),
-            "b": Fraction(31155, 36842),
+            "a": sympy.Rational(5687, 36842),
+            "b": sympy.Rational(31155, 36842),
+        },
+        "accuracy": [
+            {
+                "a": sympy.Rational(3737, 5687),
+                "b": sympy.Rational(6501, 10385),
+            },
+            {
+                "a": sympy.Rational(1260, 5687),
+                "b": sympy.Rational(29744, 31155),
+            },
+            {"a": sympy.Rational(4746, 5687), "b": sympy.Rational(4168, 6231)},
+        ],
+        "pair_correlation": {
+            (0, 1): {
+                "a": sympy.Rational(273192, 32341969),
+                "b": sympy.Rational(2204576, 323544675),
+            },
+            (0, 2): {
+                "a": sympy.Rational(13325, 32341969),
+                "b": sympy.Rational(-79682, 12941787),
+            },
+            (1, 2): {
+                "a": sympy.Rational(-264525, 32341969),
+                "b": sympy.Rational(94508, 38825361),
+            },
+        },
+        "3_way_correlation": {
+            (0, 1, 2): {
+                "a": sympy.Rational(452568508, 183928777703),
+                "b": sympy.Rational(-27265589, 134400457995),
+            }
         },
     }
 
@@ -84,14 +87,45 @@ def test_majorityevaluation():
 def test_mv_evaluation():
     mv_eval = MajorityVotingEvaluation(tvc)
 
-    assert mv_eval.evaluation_exact == {
-        "accuracies": [
-            {"a": Fraction(7417, 7979), "b": Fraction(20891, 28863)},
-            {"a": Fraction(2178, 7979), "b": Fraction(28370, 28863)},
-            {"a": Fraction(7349, 7979), "b": Fraction(21151, 28863)},
-        ],
-        "prevalence": {
-            "a": Fraction(7979, 36842),
-            "b": Fraction(28863, 36842),
+    assert mv_eval.evaluation_exact == [
+        {
+            "prevalence": {
+                "a": sympy.Rational(7979, 36842),
+                "b": sympy.Rational(28863, 36842),
+            },
+            "accuracy": [
+                {
+                    "a": sympy.Rational(7417, 7979),
+                    "b": sympy.Rational(20891, 28863),
+                },
+                {
+                    "a": sympy.Rational(2178, 7979),
+                    "b": sympy.Rational(28370, 28863),
+                },
+                {
+                    "a": sympy.Rational(7349, 7979),
+                    "b": sympy.Rational(21151, 28863),
+                },
+            ],
         },
-    }
+        {
+            "prevalence": {
+                "a": sympy.Rational(28863, 36842),
+                "b": sympy.Rational(7979, 36842),
+            },
+            "accuracy": [
+                {
+                    "a": sympy.Rational(20891, 28863),
+                    "b": sympy.Rational(7417, 7979),
+                },
+                {
+                    "a": sympy.Rational(28370, 28863),
+                    "b": sympy.Rational(2178, 7979),
+                },
+                {
+                    "a": sympy.Rational(21151, 28863),
+                    "b": sympy.Rational(7349, 7979),
+                },
+            ],
+        },
+    ]
