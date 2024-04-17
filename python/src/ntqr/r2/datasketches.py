@@ -5,7 +5,7 @@ import math
 # of estimating integer fractions. We import this module so we can create
 # two versions of every computation - the exact one using integer ratios,
 # and the one using the default floating point numbers
-from fractions import Fraction
+import sympy
 from typing_extensions import Union, Literal, Mapping, Iterable
 from dataclasses import dataclass
 
@@ -23,7 +23,7 @@ VoteCounts = Mapping[Votes, int]
 # when we are carrying out experiments on labeled data.
 LabelVoteCounts = Mapping[Label, VoteCounts]
 
-VoteFrequencies = Mapping[Votes, Fraction]
+VoteFrequencies = Mapping[Votes, sympy.Rational]
 
 
 # Some definitions and utilities to help various classes
@@ -198,7 +198,7 @@ class TrioLabelVoteCounts:
         by_voting_counts = self.to_vote_counts()
         size_of_test = sum(by_voting_counts.values())
         return {
-            vp: Fraction(by_voting_counts[vp], size_of_test)
+            vp: sympy.Rational(by_voting_counts[vp], size_of_test)
             for vp in by_voting_counts.keys()
         }
 
@@ -285,7 +285,7 @@ class TrioVoteCounts:
             Maps a trio vote pattern to its Fraction occurence in the test.
         """
         return {
-            vp: Fraction(self.vote_counts[vp], self.test_size)
+            vp: sympy.Rational(self.vote_counts[vp], self.test_size)
             for vp in self.vote_counts.keys()
         }
 
@@ -307,7 +307,7 @@ class TrioVoteCounts:
 
     def classifier_label_frequency(
         self, classifier: int, label: Label
-    ) -> Fraction:
+    ) -> sympy.Rational:
         """
         Calculate classifier label voting frequency.
 
@@ -320,8 +320,8 @@ class TrioVoteCounts:
 
         Returns
         -------
-        Fraction(label_vote_counts, test_size):
-            The Fraction of times the classifier voted the label when
+        sympy.Rational(label_vote_counts, test_size):
+            The fraction of times the classifier voted the label when
             classifying items in the test.
 
         """
@@ -335,7 +335,7 @@ class TrioVoteCounts:
 
     def pair_label_frequency(
         self, pair: Iterable[int], label: Label
-    ) -> Fraction:
+    ) -> sympy.Rational:
         """
         Compute frequency of times a pair voted with the same label.
 
@@ -348,8 +348,8 @@ class TrioVoteCounts:
 
         Returns
         -------
-        Fraction:
-            The Fraction of times a pair of classifiers voted with the
+        sympy.Rational:
+            The fraction of times a pair of classifiers voted with the
             same label when classifying items in the test.
 
         """
@@ -363,7 +363,7 @@ class TrioVoteCounts:
 
     def pair_frequency_moment(
         self, pair: Iterable[int], label: Label
-    ) -> Fraction:
+    ) -> sympy.Rational:
         """
         Calculate the label classifier pair frequency moment.
 
@@ -383,7 +383,7 @@ class TrioVoteCounts:
 
         Returns
         -------
-        Fraction:
+        sympy.Rational:
             The pair frequency moment as a Fraction object
         """
         label_frequencies = [
@@ -396,14 +396,14 @@ class TrioVoteCounts:
 
     def label_pairs_frequency_moments(
         self, label: Label
-    ) -> Mapping[tuple[int, int], Fraction]:
+    ) -> Mapping[tuple[int, int], sympy.Rational]:
         """All the label pair frequency moments."""
         return {
             pair: self.pair_frequency_moment(pair, label)
             for pair in trio_pairs
         }
 
-    def trio_frequency_moment(self) -> Fraction:
+    def trio_frequency_moment(self) -> sympy.Rational:
         """
         Calculate the 3rd frequency moment of a trio of binary classifiers.
 

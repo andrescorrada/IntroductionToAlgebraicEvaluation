@@ -131,9 +131,9 @@ class SupervisedEvaluation:
             "3_way_correlation": {
                 trio: {
                     label: self.three_way_label_error_correlation(trio, label)
-                    for label in ()
+                    for label in ("a", "b")
                 }
-                for trio in ((1, 2, 3),)
+                for trio in ((0, 1, 2),)
             },
         }
 
@@ -167,8 +167,8 @@ class SupervisedEvaluation:
         test_sizes = self.label_counts.test_sizes
         total = sum(test_sizes.values())
         return {
-            "a": Fraction(test_sizes["a"], total),
-            "b": Fraction(test_sizes["b"], total),
+            "a": sympy.Rational(test_sizes["a"], total),
+            "b": sympy.Rational(test_sizes["b"], total),
         }
 
     def classifier_label_accuracy(self, classifier: int, label: Label):
@@ -177,7 +177,7 @@ class SupervisedEvaluation:
         classifier_votes = classifier_label_votes(classifier, label)
         label_counts = self.label_counts[label]
         correct_counts = [label_counts[votes] for votes in classifier_votes]
-        return Fraction(sum(correct_counts), test_size)
+        return sympy.Rational(sum(correct_counts), test_size)
 
     def other_label(self, label: Label):
         """Return the other binary classification label given label."""
@@ -500,7 +500,7 @@ class ErrorIndependentEvaluation:
         a = coeffs[2]
         c = coeffs[0]
         sqrTerm = sympy.sqrt(1 - 4 * c / a) / 2
-        return [Fraction(1, 2) - sqrTerm, Fraction(1, 2) + sqrTerm]
+        return [sympy.Rational(1, 2) - sqrTerm, sympy.Rational(1, 2) + sqrTerm]
 
     def classifier_a_label_accuracy(self, classifier: int, a_prevalence):
         """

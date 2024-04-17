@@ -15,7 +15,7 @@ Functions:
 Misc variables:
 
 """
-from fractions import Fraction
+import sympy
 
 from ntqr.r2.datasketches import VoteCounts
 
@@ -82,24 +82,23 @@ class PosteriorSingleEvaluations:
         return evaluations
 
     def distances_to_target(self, Qa, Raa, Rbb, point):
-        point_pspace = self.to_pspace(point)
+        # point_pspace = self.to_pspace(point)
         pe_pspace = self.to_pspace((Qa, Raa, Rbb))
 
         return (
-            (point_pspace[0] - pe_pspace[0]) ** 2,
-            (point_pspace[1] - pe_pspace[1]) ** 2
-            + (point_pspace[2] - pe_pspace[2]) ** 2,
+            (point[0] - pe_pspace[0]) ** 2,
+            (point[1] - pe_pspace[1]) ** 2 + (point[2] - pe_pspace[2]) ** 2,
         )
 
     def to_pspace(self, point):
         if point[0] != 0:
-            pia = Fraction(point[1], point[0])
+            pia = sympy.Rational(point[1], point[0])
         else:
-            pia = Fraction(0, 1)
+            pia = sympy.Rational(0, 1)
 
         if self.Q - point[0] != 0:
-            pib = Fraction(point[2], (self.Q - point[0]))
+            pib = sympy.Rational(point[2], (self.Q - point[0]))
         else:
-            pib = Fraction(0, 1)
+            pib = sympy.Rational(0, 1)
 
-        return (Fraction(point[0], self.Q), pia, pib)
+        return (sympy.Rational(point[0], self.Q), pia, pib)
