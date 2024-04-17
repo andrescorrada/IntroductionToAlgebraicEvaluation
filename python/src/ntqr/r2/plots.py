@@ -20,13 +20,11 @@ def prepare_accuracy_axes(axes, title):
     for dax in (axes.xaxis, axes.yaxis):
         dax.set(
             major_locator=ticker.FixedLocator([50]),
-            major_formatter=ticker.FixedFormatter(["50"]),
+            major_formatter=ticker.PercentFormatter(),
             minor_locator=ticker.FixedLocator(
                 [0, 10, 20, 30, 40, 60, 70, 80, 90, 100]
             ),
-            minor_formatter=ticker.FixedFormatter(
-                ["0", "10", "20", "30", "40", "60", "70", "80", "90", "100"]
-            ),
+            minor_formatter=ticker.PercentFormatter(),
         )
 
     # Styling them
