@@ -50,6 +50,9 @@ def prepare_accuracy_axes(axes, title):
     for quad_label, pos in quad_label_info:
         axes.annotate(quad_label, pos, size=18, alpha=0.4)
 
+    axes.set_xlabel(r"$P_{i,a}$", fontsize=12)
+    axes.set_ylabel(r"$P_{i,b}$", fontsize=12)
+
     axes.set_aspect("equal", "box")
 
     return
