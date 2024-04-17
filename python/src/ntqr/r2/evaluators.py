@@ -651,7 +651,7 @@ class MajorityVotingEvaluation:
             self.compute_vote_pattern_evaluation(vps, flip)
             for vps, flip in [
                 (self.majority_right_vote_patterns, False),
-                (self.majority_wrong_vote_patterns, True),
+                (self.majority_wrong_vote_patterns, False),
             ]
         ]
 

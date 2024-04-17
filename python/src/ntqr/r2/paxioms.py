@@ -20,7 +20,7 @@ pjb = sympy.Symbol(r"P_{j, b}")
 pka = sympy.Symbol(r"P_{k, a}")
 pkb = sympy.Symbol(r"P_{k, b}")
 
-# Postulates before observing test results
+# Axioms before observing test results
 # One postulate is just about the prevalences
 prelances_sum_to_one = pa + pb - 1
 
@@ -47,7 +47,7 @@ single_binary_classifier_generating_set = [
 ]
 
 # The single classifier generating set only creates one postulate
-single_binary_classifier_postulate = pa * (pia - fai) - pb * (pib - fbi)
+single_binary_classifier_axiom = pa * (pia - fai) - pb * (pib - fbi)
 
 # Data sketch observables for the pair
 faiaj = sympy.Symbol(r"f_{a_i, a_j}")
@@ -80,7 +80,7 @@ pair_binary_classifiers_generating_set = [
 
 # The Groebner basis for the classifier pair generating set produces a
 # set of partially independent postulates
-pair_binary_classifiers_postulates = [
+pair_binary_classifiers_axioms = [
     (pia - fai) * (pjb - fbj) - (pib - fbi) * (pja - faj),
     (pia - fai) * (pjb - fbj) * ((pia - fai) + (pib - fbi))
     + (pia - fai) * (gijb - deltaij)

@@ -66,9 +66,6 @@ class PosteriorSingleEvaluations:
         # The b label frequency for the classifier
         Rb = int(self.tvc.classifier_label_frequency(classifier, "b") * self.Q)
 
-        evaluations = {}
-        min_qa = int(max(point[0] - 1000, 0))
-        max_qa = int(min(point[0] + 1000, self.Q))
         Qa = qa
         qa_candidates = []
         for Raa in range(0, Qa + 1):
@@ -76,10 +73,38 @@ class PosteriorSingleEvaluations:
                 if Raa - Rbb - Qa + Rb == 0:
                     distances = self.distances_to_target(Qa, Raa, Rbb, point)
                     qa_candidates.append((distances, (Raa, Rbb)))
-        qa_candidates.sort()
+        # Since all list items have the same distance to Qa,
+        # this sorting returns min total distance
+        qa_candidates.sort(key=lambda x: x[0][0] + x[0][1])
         evaluations = qa_candidates[:k]
 
         return evaluations
+
+    def find_k_nearest_at_prevalence_all_classifiers(
+        self, qa: int, points, k: int
+    ):
+        single_evals = [
+            self.find_k_nearest_at_prevalence(
+                classifier, qa, points[classifier], k
+            )
+            for classifier in range(3)
+        ]
+        joint_evals = []
+        for distances0, r0 in single_evals[0]:
+            qa_distance = distances0[0]
+            r0distance = distances0[1]
+            for distances1, r1 in single_evals[1]:
+                r1distance = distances1[1]
+                for distances2, r2 in single_evals[2]:
+                    r2distance = distances2[1]
+                    joint_evals.append(
+                        (
+                            qa_distance + r0distance + r1distance + r2distance,
+                            (r0, r1, r2),
+                        )
+                    )
+        joint_evals.sort()
+        return joint_evals[:k]
 
     def distances_to_target(self, Qa, Raa, Rbb, point):
         # point_pspace = self.to_pspace(point)

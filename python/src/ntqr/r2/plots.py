@@ -103,6 +103,7 @@ def compare_evaluations(
     figsize=(10, 5),
     legend_loc="best",
     withArrows=False,
+    suptitle=None,
 ):
     fig, axs = plt.subplots(
         1, len(evals) - 1, figsize=figsize, layout="constrained"
@@ -122,6 +123,8 @@ def compare_evaluations(
         )
         j += 1
 
+    if suptitle:
+        plt.suptitle(suptitle)
     plt.show()
 
     return
