@@ -11,8 +11,6 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import matplotlib.patches as mpatches
 
-from adjustText import adjust_text
-
 
 def prepare_accuracy_axes(axes, title):
     axes.set(title=title, xlim=(0, 100), ylim=(0, 100))
