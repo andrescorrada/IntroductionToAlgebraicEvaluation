@@ -500,7 +500,11 @@ class ErrorIndependentEvaluation:
         a = coeffs[2]
         c = coeffs[0]
         sqrTerm = sympy.sqrt(1 - 4 * c / a) / 2
-        return [sympy.Rational(1, 2) - sqrTerm, sympy.Rational(1, 2) + sqrTerm]
+        prev_expr = [
+            sympy.Rational(1, 2) - sqrTerm,
+            sympy.Rational(1, 2) + sqrTerm,
+        ]
+        return [sympy.simplify(expr) for expr in prev_expr]
 
     def classifier_a_label_accuracy(self, classifier: int, a_prevalence):
         """
@@ -546,7 +550,7 @@ class ErrorIndependentEvaluation:
         b_coeff = -4 * prodFDs - freqDiff**2
         c_coeff = other_moment * freqDiff
 
-        return (-a_coeff - b_coeff * a_prevalence) / c_coeff
+        return sympy.simplify((-a_coeff - b_coeff * a_prevalence) / c_coeff)
 
     def classifier_b_label_accuracy(self, classifier: int, a_prevalence):
         """
@@ -591,7 +595,7 @@ class ErrorIndependentEvaluation:
         b_coeff = 4 * prodFDs + freqDiff**2
         c_coeff = -other_moment * freqDiff
 
-        return (-a_coeff - b_coeff * a_prevalence) / c_coeff
+        return sympy.simplify((-a_coeff - b_coeff * a_prevalence) / c_coeff)
 
 
 class MajorityVotingEvaluation:

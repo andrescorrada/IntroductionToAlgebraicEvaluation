@@ -111,8 +111,10 @@ class PosteriorSingleEvaluations:
         pe_pspace = self.to_pspace((Qa, Raa, Rbb))
 
         return (
-            (point[0] - pe_pspace[0]) ** 2,
-            (point[1] - pe_pspace[1]) ** 2 + (point[2] - pe_pspace[2]) ** 2,
+            sympy.simplify((point[0] - pe_pspace[0]) ** 2),
+            sympy.simplify(
+                (point[1] - pe_pspace[1]) ** 2 + (point[2] - pe_pspace[2]) ** 2
+            ),
         )
 
     def to_pspace(self, point):
