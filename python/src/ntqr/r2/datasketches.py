@@ -42,6 +42,8 @@ trio_vote_patterns: tuple[tuple[Label, ...], ...] = (
 
 trio_pairs = ((0, 1), (0, 2), (1, 2))
 
+opposite_label = {"a": "b", "b": "a"}
+
 
 # To compute algebraic functions of classifier statistics,
 # we need helper functions that pick out the trio vote patterns
@@ -232,6 +234,25 @@ class TrioLabelVoteCounts:
             The aligned vote counts observed for the given label.
         """
         return self.label_vote_counts[label]
+
+    def flip_classifiers_label_decisions(
+        self, classifiers: Iterable, label: Label
+    ):
+        flipped_data_sketch = {}
+        opp_label = opposite_label[label]
+        flipped_data_sketch[opp_label] = self.label_vote_counts[opp_label]
+        flipped_vote_counts = {}
+        for vp, count in self.label_vote_counts[label].items():
+            new_pattern = tuple(
+                [
+                    opposite_label[vp[i]] if i in classifiers else vp[i]
+                    for i in range(3)
+                ]
+            )
+            flipped_vote_counts[new_pattern] = count
+        flipped_data_sketch[label] = flipped_vote_counts
+
+        return TrioLabelVoteCounts(flipped_data_sketch)
 
 
 @dataclass(frozen=True)
