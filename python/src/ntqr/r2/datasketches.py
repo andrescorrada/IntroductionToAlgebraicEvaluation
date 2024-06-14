@@ -354,6 +354,30 @@ class TrioVoteCounts:
             ]
         )
 
+    def classifier_label_responses(self, classifier: int, label: Label) -> int:
+        """
+        Calculates number of responses with label by classifier.
+
+        Parameters
+        ----------
+        classifier : int
+            DESCRIPTION.
+        label : Label
+            DESCRIPTION.
+
+        Returns
+        -------
+        int
+            Number of times the classifier decided an item was label.
+
+        """
+        return sum(
+            [
+                self.vote_counts[votes]
+                for votes in classifier_label_votes(classifier, label)
+            ]
+        )
+
     def pair_label_frequency(
         self, pair: Iterable[int], label: Label
     ) -> sympy.Rational:
@@ -378,6 +402,32 @@ class TrioVoteCounts:
         return sum(
             [
                 vote_frequencies[votes]
+                for votes in classifiers_labels_votes(pair, (label, label))
+            ]
+        )
+
+    def pair_label_responses(
+        self, pair: Iterable[int], label: Label
+    ) -> sympy.Rational:
+        """
+        Computes number of times a pair voted with the same label.
+
+        Parameters
+        ----------
+        pair : Iterable[int, int]
+            Classifier indicies.
+        label : Label
+            The label.
+
+        Returns
+        -------
+        int:
+            Number of items pair voted with the same label.
+
+        """
+        return sum(
+            [
+                self.vote_counts[votes]
                 for votes in classifiers_labels_votes(pair, (label, label))
             ]
         )

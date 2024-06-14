@@ -54,15 +54,18 @@ rbjb = sympy.Symbol(r"R_{b_j,b}")
 raka = sympy.Symbol(r"R_{a_k,a}")
 rbkb = sympy.Symbol(r"R_{b_k,b}")
 
-Raiaja = sympy.Symbol(r"R_{a_i, a_j; a}")
-Raiaka = sympy.Symbol(r"R_{a_i, a_k; a}")
-Rajaka = sympy.Symbol(r"R_{a_j, a_k; a}")
+raiaja = sympy.Symbol(r"R_{a_i, a_j; a}")
+raiaka = sympy.Symbol(r"R_{a_i, a_k; a}")
+rajaka = sympy.Symbol(r"R_{a_j, a_k; a}")
 
-Rbibjb = sympy.Symbol(r"R_{b_i, b_j; b}")
-Rbibkb = sympy.Symbol(r"R_{b_i, b_k; b}")
-Rbjbkb = sympy.Symbol(r"R_{b_j, b_k; b}")
+rbibjb = sympy.Symbol(r"R_{b_i, b_j; b}")
+rbibkb = sympy.Symbol(r"R_{b_i, b_k; b}")
+rbjbkb = sympy.Symbol(r"R_{b_j, b_k; b}")
 
-# Evaluation datasketch variables
-fai = sympy
-
-pair_correlation_axiom_first_type =
+pair_correlation_axiom_first_type = (
+    q**2 * raia * rbjb
+    + qa * qb * rai * rbj
+    - q * qa * (rbib + rai) * rbjb
+    - q * qb * (raja + rbj) * raia
+    + q * qa * qb * (raiaja + rbibjb)
+)
