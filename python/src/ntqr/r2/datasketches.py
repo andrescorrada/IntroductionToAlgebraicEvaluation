@@ -1,5 +1,5 @@
 """@author: Andrés Corrada-Emmanuel."""
-import math
+import math, itertools
 
 # The mathematics of evaluating finite samples is, by construction, one
 # of estimating integer fractions. We import this module so we can create
@@ -27,45 +27,32 @@ VoteFrequencies = Mapping[Votes, sympy.Rational]
 
 
 # Some definitions and utilities to help various classes
-
-# Three binary classifiers have eight possible voting patterns
-trio_vote_patterns: tuple[tuple[Label, ...], ...] = (
-    ("a", "a", "a"),
-    ("a", "a", "b"),
-    ("a", "b", "a"),
-    ("a", "b", "b"),
-    ("b", "a", "a"),
-    ("b", "a", "b"),
-    ("b", "b", "a"),
-    ("b", "b", "b"),
-)
-
-trio_pairs = ((0, 1), (0, 2), (1, 2))
-
 opposite_label = {"a": "b", "b": "a"}
 
 
 # To compute algebraic functions of classifier statistics,
-# we need helper functions that pick out the trio vote patterns
+# we need helper functions that pick out the vote patterns
 # where a classifer voted with a given label.
-def classifier_label_votes(classifier: int, label: Label) -> tuple[Votes, ...]:
+def classifier_label_votes(
+    classifier: int, label: Label, vote_patterns: Iterable[Votes]
+) -> tuple[Votes, ...]:
     """
-    All the trio vote patterns where classifier voted with label.
+    All the vote patterns where classifier voted with label.
 
     Parameters
     ----------
     classifier : int
-        Index of the classifier, one of (0, 1, 2).
+        Index of the classifier in the vote_patterns.
     label : Label
         The classifier label vote.
 
     Returns
     -------
     tuple[Votes, ...]
-        All the trio vote patterns where classifier voted with label.
+        All the vote patterns where classifier voted with label.
     """
     return tuple(
-        [votes for votes in trio_vote_patterns if votes[classifier] == label]
+        [votes for votes in vote_patterns if votes[classifier] == label]
     )
 
 
@@ -100,7 +87,9 @@ def votes_match(
 
 
 def classifiers_labels_votes(
-    classifiers: Iterable[int], labels: Iterable[Label]
+    classifiers: Iterable[int],
+    labels: Iterable[Label],
+    vote_patterns: Iterable[Votes],
 ) -> tuple[Votes, ...]:
     """Trio voting patterns that match labels by classifiers.
 
@@ -122,13 +111,12 @@ def classifiers_labels_votes(
     return tuple(
         [
             votes
-            for votes in trio_vote_patterns
+            for votes in vote_patterns
             if votes_match(votes, classifiers, labels)
         ]
     )
 
 
-@dataclass(frozen=True)
 class TrioLabelVoteCounts:
     """
     Data class for the by-label aligned votes of three binary classifiers.
@@ -140,23 +128,26 @@ class TrioLabelVoteCounts:
      'a':{('a', 'a', 'a'): int, ..., ('b', 'b', 'b'):int},
      'b':{('a', 'a', 'a'): int, ..., ('b', 'b', 'b'):int}
     }
+
+    DEPRECATED: This clas is being replaced with the upcoming LabelVoteCounts
+    for an arbitrary number of classifiers.
     """
 
-    label_vote_counts: Mapping[Label, Mapping[Votes, int]]
+    vote_patterns = list(itertools.product(*["ab" for i in range(3)]))
+    pairs = ((0, 1), (0, 2), (1, 2))
 
-    def __post_init__(self):
+    def __init__(self, label_vote_counts):
         """All labels and vote patterns are set."""
-        object.__setattr__(
-            self,
-            "label_vote_counts",
-            {
-                label: {
-                    votes: self.label_vote_counts.get(label, {}).get(votes, 0)
-                    for votes in trio_vote_patterns
-                }
-                for label in ("a", "b")
-            },
-        )
+
+        self.label_vote_counts = {
+            label: {
+                votes: label_vote_counts.get(label, {}).get(votes, 0)
+                for votes in self.vote_patterns
+            }
+            for label in ("a", "b")
+        }
+
+        # self.label_vote_counts = {"b":  1}
 
         object.__setattr__(
             self,
@@ -182,7 +173,7 @@ class TrioLabelVoteCounts:
             votes: sum(
                 [self.label_vote_counts[label][votes] for label in ("a", "b")]
             )
-            for votes in trio_vote_patterns
+            for votes in self.vote_patterns
         }
 
     def to_TrioVoteCounts(self):
@@ -255,7 +246,7 @@ class TrioLabelVoteCounts:
         return TrioLabelVoteCounts(flipped_data_sketch)
 
 
-@dataclass(frozen=True)
+@dataclass
 class TrioVoteCounts:
     """Data class to validate the test counts for three binary classifiers.
 
@@ -265,7 +256,15 @@ class TrioVoteCounts:
     This is the class that is used for evaluation on unlabeled data where
     we only have access to the aligned decisions of the binary classifiers
     and have no knowledge of label of any one item that was classified.
+
+    DEPRECATED: This class will be replaced with the ObservedVoteCounts class
+    that can handle an arbitrary number of classifiers.
     """
+
+    # Three binary classifiers have eight possible voting patterns
+    vote_patterns = list(itertools.product(*["ab" for i in range(3)]))
+
+    pairs = ((0, 1), (0, 2), (1, 2))
 
     vote_counts: VoteCounts
 
@@ -283,7 +282,271 @@ class TrioVoteCounts:
             "vote_counts",
             {
                 vote_pattern: self.vote_counts.get(vote_pattern, 0)
-                for vote_pattern in trio_vote_patterns
+                for vote_pattern in self.vote_patterns
+            },
+        )
+
+        if any([count for count in self.vote_counts.values() if (count < 0)]):
+            raise ValueError("No negative vote counts allowed.")
+
+        object.__setattr__(self, "test_size", sum(self.vote_counts.values()))
+
+        # The empty test is not allowed
+        if self.test_size == 0:
+            raise ValueError("The empty test is not allowed.")
+
+    def to_frequencies_exact(self) -> VoteFrequencies:
+        """
+        Turn vote integer counts to exact Fraction objects.
+
+        Returns
+        -------
+        VoteFrequencies:
+            Maps a trio vote pattern to its Fraction occurence in the test.
+        """
+        return {
+            vp: sympy.Rational(self.vote_counts[vp], self.test_size)
+            for vp in self.vote_counts.keys()
+        }
+
+    def to_frequencies_float(self) -> Mapping[Votes, float]:
+        """
+        Compute observerd voting pattern frequencies, inexactly, as floats.
+
+        Returns
+        -------
+        Mapping[Votes, float]:
+            Maps a trio vote pattern to its percentage occurence in the test
+            as an inexact float.
+
+        """
+        return {
+            vp: self.vote_counts[vp] / self.test_size
+            for vp in self.vote_counts.keys()
+        }
+
+    def classifier_label_frequency(
+        self, classifier: int, label: Label
+    ) -> sympy.Rational:
+        """
+        Calculate classifier label voting frequency.
+
+        Parameters
+        ----------
+        classifier : int
+            The index of the classifier.
+        label : Label
+            The label.
+
+        Returns
+        -------
+        sympy.Rational(label_vote_counts, test_size):
+            The fraction of times the classifier voted the label when
+            classifying items in the test.
+
+        """
+        vote_frequencies = self.to_frequencies_exact()
+        return sum(
+            [
+                vote_frequencies[votes]
+                for votes in classifier_label_votes(
+                    classifier, label, self.vote_patterns
+                )
+            ]
+        )
+
+    def classifier_label_responses(self, classifier: int, label: Label) -> int:
+        """
+        Calculates number of responses with label by classifier.
+
+        Parameters
+        ----------
+        classifier : int
+            DESCRIPTION.
+        label : Label
+            DESCRIPTION.
+
+        Returns
+        -------
+        int
+            Number of times the classifier decided an item was label.
+
+        """
+        return sum(
+            [
+                self.vote_counts[votes]
+                for votes in classifier_label_votes(
+                    classifier, label, self.vote_patterns
+                )
+            ]
+        )
+
+    def pair_label_frequency(
+        self, pair: Iterable[int], label: Label
+    ) -> sympy.Rational:
+        """
+        Compute frequency of times a pair voted with the same label.
+
+        Parameters
+        ----------
+        pair : Iterable[int, int]
+            Classifier indicies.
+        label : Label
+            The label.
+
+        Returns
+        -------
+        sympy.Rational:
+            The fraction of times a pair of classifiers voted with the
+            same label when classifying items in the test.
+
+        """
+        vote_frequencies = self.to_frequencies_exact()
+        return sum(
+            [
+                vote_frequencies[votes]
+                for votes in classifiers_labels_votes(
+                    pair, (label, label), self.vote_patterns
+                )
+            ]
+        )
+
+    def pair_label_responses(
+        self, pair: Iterable[int], label: Label
+    ) -> sympy.Rational:
+        """
+        Computes number of times a pair voted with the same label.
+
+        Parameters
+        ----------
+        pair : Iterable[int, int]
+            Classifier indicies.
+        label : Label
+            The label.
+
+        Returns
+        -------
+        int:
+            Number of items pair voted with the same label.
+
+        """
+        return sum(
+            [
+                self.vote_counts[votes]
+                for votes in classifiers_labels_votes(
+                    pair, (label, label), self.vote_patterns
+                )
+            ]
+        )
+
+    def pair_frequency_moment(
+        self, pair: Iterable[int], label: Label
+    ) -> sympy.Rational:
+        """
+        Calculate the label classifier pair frequency moment.
+
+        If (i, j) = pair, then this is -
+
+            f_{label_i, label_j} - f_{label_i} * f_{label_j}
+
+        The fraction of times the classifier pair voted with the same label
+        minus the product of their individual label voting frequencies.
+
+        Parameters
+        ----------
+        pair : Iterable(int, int)
+            The pair of classifiers.
+        label : Label
+            One of the binary labels.
+
+        Returns
+        -------
+        sympy.Rational:
+            The pair frequency moment as a Fraction object
+        """
+        label_frequencies = [
+            self.classifier_label_frequency(classifier, label)
+            for classifier in pair
+        ]
+        return self.pair_label_frequency(pair, label) - math.prod(
+            label_frequencies
+        )
+
+    def label_pairs_frequency_moments(
+        self, label: Label
+    ) -> Mapping[tuple[int, int], sympy.Rational]:
+        """All the label pair frequency moments."""
+        return {
+            pair: self.pair_frequency_moment(pair, label)
+            for pair in self.pairs
+        }
+
+    def trio_frequency_moment(self) -> sympy.Rational:
+        """
+        Calculate the 3rd frequency moment of a trio of binary classifiers.
+
+        Don't ask.
+        """
+        classifier_label_frequencies = [
+            self.classifier_label_frequency(classifier, "b")
+            for classifier in range(3)
+        ]
+        prod_frequencies = math.prod(classifier_label_frequencies)
+        pfmds = self.label_pairs_frequency_moments("b")
+        sum_prod = (
+            classifier_label_frequencies[0] * pfmds[(1, 2)]
+            + classifier_label_frequencies[1] * pfmds[(0, 2)]
+            + classifier_label_frequencies[2] * pfmds[(0, 1)]
+        )
+        return prod_frequencies + sum_prod
+
+
+@dataclass
+class ObservedVoteCounts:
+    """Data class to validate the test vote counts for an arbitrary number
+    of binary classifiers.
+
+    Initialized with a Mapping[Votes, int] of the form:
+        {('a', ..., a'): int, ..., ('b', ..., 'b'):int}
+
+    Class used during evaluations with unlabeled data where we do not
+    know the true label for each item labeled by the classifiers.
+    """
+
+    vote_counts: VoteCounts
+
+    def __post_init__(self):
+        """
+        Check we have counts for a valid evaluation of binary classifiers.
+
+        0. Determine the size of the ensemble and that all provided
+           vote patterns conform to it.
+        1. No negative counts.
+        2. Initialize all possible vote patterns by the trio.
+        3. The empty test - all counts zero - is not allowed.
+        """
+
+        # Start by determining the size of the ensemble is the same
+        # for all provided vote patterns
+        ensemble_sizes = [
+            len(vote_pattern) for vote_pattern in self.vote_counts.keys()
+        ]
+        assert len(set(ensemble_sizes)) == 1
+
+        # Construct the binary vote patterns for an ensemble
+        # of this size
+        self.ensemble_size = ensemble_sizes[0]
+        self.vote_patterns = itertools.product(
+            *["ab" for i in range(self.ensemble_size)]
+        )
+
+        # Make sure all patterns have a non-negative count.
+        object.__setattr__(
+            self,
+            "vote_counts",
+            {
+                vote_pattern: self.vote_counts.get(vote_pattern, 0)
+                for vote_pattern in self.vote_patterns
             },
         )
 

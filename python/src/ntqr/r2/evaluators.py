@@ -12,102 +12,27 @@ Misc variables:
 
 """
 
-import math
+import math, itertools
 import sympy
 from fractions import Fraction
 from typing_extensions import Iterable
 
 from ntqr.r2.datasketches import Label, Votes
-from ntqr.r2.datasketches import trio_vote_patterns, trio_pairs
+from ntqr.r2.datasketches import (
+    classifier_label_votes,
+    classifiers_labels_votes,
+)
 from ntqr.r2.datasketches import TrioLabelVoteCounts, TrioVoteCounts
 from ntqr.r2.examples import uciadult_label_counts
 
 
-def classifier_label_votes(classifier: int, label: Label) -> tuple[Votes, ...]:
-    """
-    Return trio vote patterns where classifier voted label.
-
-    Parameters
-    ----------
-    classifier : int
-        One of (0, 1, 2).
-    label : Label
-        One of ('a', 'b').
-
-    Returns
-    -------
-    Iterable[Votes]
-        All the trio vote patterns where classifier voted label.
-
-    """
-    return tuple(
-        [votes for votes in trio_vote_patterns if votes[classifier] == label]
-    )
-
-
-def votes_match(
-    votes: tuple[Label, ...],
-    classifiers: Iterable[int],
-    labels: Iterable[Label],
-) -> bool:
-    """
-    Return True if votes matches the labels for the classifiers.
-
-    Parameters
-    ----------
-    votes : Tuple[Label, ...]
-        Vote pattern for the trio.
-    classifiers : Iterable[int]
-        Classifiers to check.
-    labels : Iterable[Label]
-        Label voted by each classifier - the voting
-        sub-pattern we want a trio pattern to match.
-
-    Returns
-    -------
-    bool.
-
-    """
-    return all(
-        [
-            votes[classifier] == label
-            for classifier, label in zip(classifiers, labels)
-        ]
-    )
-
-
-def classifiers_labels_votes(
-    classifiers: Iterable[int], labels: Iterable[Label]
-) -> tuple[Votes, ...]:
-    """
-    Return all trio vote patterns that match labels by classifiers.
-
-    Parameters
-    ----------
-    classifiers : Iterable[int]
-        The indices of the classifiers in the trio
-        to match.
-    labels : Iterable[Label]
-        Voting sub-pattern by classifiers to match.
-
-    Returns
-    -------
-    tuple[Votes, ...]
-        Tuple of trio voting patterns that matched labels
-        for the classifiers.
-
-    """
-    return tuple(
-        [
-            votes
-            for votes in trio_vote_patterns
-            if votes_match(votes, classifiers, labels)
-        ]
-    )
-
-
 class SupervisedEvaluation:
     """Evaluation for experiments where the true labels are known."""
+
+    # While the classes are transitioned to ensembles of arbitrary size,
+    # this class is hard-wired for three classifiers
+    vote_patterns = list(itertools.product(*["ab" for i in range(3)]))
+    pairs = ((0, 1), (0, 2), (1, 2))
 
     def __init__(self, label_counts: TrioLabelVoteCounts):
         self.label_counts = label_counts
@@ -126,7 +51,7 @@ class SupervisedEvaluation:
                     label: self.pair_label_error_correlation(pair, label)
                     for label in ("a", "b")
                 }
-                for pair in trio_pairs
+                for pair in self.pairs
             },
             "3_way_correlation": {
                 trio: {
@@ -174,7 +99,9 @@ class SupervisedEvaluation:
     def classifier_label_accuracy(self, classifier: int, label: Label):
         """Compute classifier label accuracy."""
         test_size = self.label_counts.test_sizes[label]
-        classifier_votes = classifier_label_votes(classifier, label)
+        classifier_votes = classifier_label_votes(
+            classifier, label, self.vote_patterns
+        )
         label_counts = self.label_counts[label]
         correct_counts = [label_counts[votes] for votes in classifier_votes]
         return sympy.Rational(sum(correct_counts), test_size)
@@ -203,7 +130,9 @@ class SupervisedEvaluation:
             * sum(
                 [
                     label_counts[votes]
-                    for votes in classifiers_labels_votes(pair, (label, label))
+                    for votes in classifiers_labels_votes(
+                        pair, (label, label), self.vote_patterns
+                    )
                 ]
             )
             +
@@ -214,7 +143,7 @@ class SupervisedEvaluation:
                 [
                     label_counts[votes]
                     for votes in classifiers_labels_votes(
-                        pair, (label, o_label)
+                        pair, (label, o_label), self.vote_patterns
                     )
                 ]
             )
@@ -226,7 +155,7 @@ class SupervisedEvaluation:
                 [
                     label_counts[votes]
                     for votes in classifiers_labels_votes(
-                        pair, (o_label, label)
+                        pair, (o_label, label), self.vote_patterns
                     )
                 ]
             )
@@ -238,7 +167,7 @@ class SupervisedEvaluation:
                 [
                     label_counts[votes]
                     for votes in classifiers_labels_votes(
-                        pair, (o_label, o_label)
+                        pair, (o_label, o_label), self.vote_patterns
                     )
                 ]
             )
@@ -262,7 +191,7 @@ class SupervisedEvaluation:
                 [
                     label_counts[votes]
                     for votes in classifiers_labels_votes(
-                        triplet, (label, label, label)
+                        triplet, (label, label, label), self.vote_patterns
                     )
                 ]
             )
@@ -275,7 +204,7 @@ class SupervisedEvaluation:
                 [
                     label_counts[votes]
                     for votes in classifiers_labels_votes(
-                        triplet, (label, label, o_label)
+                        triplet, (label, label, o_label), self.vote_patterns
                     )
                 ]
             )
@@ -288,7 +217,7 @@ class SupervisedEvaluation:
                 [
                     label_counts[votes]
                     for votes in classifiers_labels_votes(
-                        triplet, (label, o_label, label)
+                        triplet, (label, o_label, label), self.vote_patterns
                     )
                 ]
             )
@@ -301,7 +230,7 @@ class SupervisedEvaluation:
                 [
                     label_counts[votes]
                     for votes in classifiers_labels_votes(
-                        triplet, (o_label, label, label)
+                        triplet, (o_label, label, label), self.vote_patterns
                     )
                 ]
             )
@@ -314,7 +243,7 @@ class SupervisedEvaluation:
                 [
                     label_counts[votes]
                     for votes in classifiers_labels_votes(
-                        triplet, (label, o_label, o_label)
+                        triplet, (label, o_label, o_label), self.vote_patterns
                     )
                 ]
             )
@@ -327,7 +256,7 @@ class SupervisedEvaluation:
                 [
                     label_counts[votes]
                     for votes in classifiers_labels_votes(
-                        triplet, (o_label, label, o_label)
+                        triplet, (o_label, label, o_label), self.vote_patterns
                     )
                 ]
             )
@@ -340,7 +269,7 @@ class SupervisedEvaluation:
                 [
                     label_counts[votes]
                     for votes in classifiers_labels_votes(
-                        triplet, (o_label, o_label, label)
+                        triplet, (o_label, o_label, label), self.vote_patterns
                     )
                 ]
             )
@@ -353,7 +282,9 @@ class SupervisedEvaluation:
                 [
                     label_counts[votes]
                     for votes in classifiers_labels_votes(
-                        triplet, (o_label, o_label, o_label)
+                        triplet,
+                        (o_label, o_label, o_label),
+                        self.vote_patterns,
                     )
                 ]
             )
@@ -612,6 +543,8 @@ class MajorityVotingEvaluation:
     logically consistent evaluations.
     """
 
+    vote_patterns = list(itertools.product(*["ab" for i in range(3)]))
+
     def __init__(self, vote_counts: TrioVoteCounts):
         """
         Initialize data structures.
@@ -636,7 +569,7 @@ class MajorityVotingEvaluation:
         self.majority_right_vote_patterns = {
             label: [
                 votes
-                for votes in trio_vote_patterns
+                for votes in self.vote_patterns
                 if votes.count(label) >= 2
             ]
             for label in self.labels
@@ -645,7 +578,7 @@ class MajorityVotingEvaluation:
         self.majority_wrong_vote_patterns = {
             label: [
                 votes
-                for votes in trio_vote_patterns
+                for votes in self.vote_patterns
                 if votes.count(label) <= 1
             ]
             for label in self.labels
@@ -700,10 +633,12 @@ class MajorityVotingEvaluation:
         return sum(
             [
                 self.vote_frequencies[vp]
-                for vp in vote_patterns[label]
+                for vp in vote_patterns[correct_label]
                 if vp[classifier] == correct_label
             ]
-        ) / sum([self.vote_frequencies[vp] for vp in vote_patterns[label]])
+        ) / sum(
+            [self.vote_frequencies[vp] for vp in vote_patterns[correct_label]]
+        )
 
     def to_float(self, sol):
         as_floats = {}

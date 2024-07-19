@@ -1,4 +1,5 @@
 """@author: Andrés Corrada-Emmanuel."""
+import itertools
 from fractions import Fraction
 
 import pytest
@@ -10,9 +11,11 @@ from ntqr.r2.datasketches import (
 )
 from ntqr.r2.examples import uciadult_label_counts
 
+trio_vote_patterns = list(itertools.product(*["ab" for i in range(3)]))
+
 
 def test_classifier_a_label_votes():
-    vote_patterns = classifier_label_votes(0, "a")
+    vote_patterns = classifier_label_votes(0, "a", trio_vote_patterns)
     assert vote_patterns == (
         ("a", "a", "a"),
         ("a", "a", "b"),
@@ -22,7 +25,7 @@ def test_classifier_a_label_votes():
 
 
 def test_classifier_b_label_votes():
-    vote_patterns = classifier_label_votes(0, "b")
+    vote_patterns = classifier_label_votes(0, "b", trio_vote_patterns)
     assert vote_patterns == (
         ("b", "a", "a"),
         ("b", "a", "b"),

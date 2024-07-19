@@ -115,16 +115,16 @@ def test_mv_evaluation():
             },
             "accuracy": [
                 {
-                    "a": sympy.Rational(20891, 28863),
-                    "b": sympy.Rational(7417, 7979),
+                    "a": sympy.Rational(7972, 28863),
+                    "b": sympy.Rational(562, 7979),
                 },
                 {
-                    "a": sympy.Rational(28370, 28863),
-                    "b": sympy.Rational(2178, 7979),
+                    "a": sympy.Rational(493, 28863),
+                    "b": sympy.Rational(5801, 7979),
                 },
                 {
-                    "a": sympy.Rational(21151, 28863),
-                    "b": sympy.Rational(7349, 7979),
+                    "a": sympy.Rational(7712, 28863),
+                    "b": sympy.Rational(630, 7979),
                 },
             ],
         },
