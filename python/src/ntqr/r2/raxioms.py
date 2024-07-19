@@ -18,13 +18,13 @@ rbj = sympy.Symbol(r"R_{b_j}")
 rak = sympy.Symbol(r"R_{a_k}")
 rbk = sympy.Symbol(r"R_{b_k}")
 
-Raiaj = sympy.Symbol(r"R_{a_i, a_j}")
-Raiak = sympy.Symbol(r"R_{a_i, a_k}")
-Rajak = sympy.Symbol(r"R_{a_j, a_k}")
+raiaj = sympy.Symbol(r"R_{a_i, a_j}")
+raiak = sympy.Symbol(r"R_{a_i, a_k}")
+rajak = sympy.Symbol(r"R_{a_j, a_k}")
 
-Rbibj = sympy.Symbol(r"R_{b_i, b_j}")
-Rbibk = sympy.Symbol(r"R_{b_i, b_k}")
-Rbjbk = sympy.Symbol(r"R_{b_j, b_k}")
+rbibj = sympy.Symbol(r"R_{b_i, b_j}")
+rbibk = sympy.Symbol(r"R_{b_i, b_k}")
+rbjbk = sympy.Symbol(r"R_{b_j, b_k}")
 
 #
 # Statistics of correctness
@@ -63,9 +63,18 @@ rbibkb = sympy.Symbol(r"R_{b_i, b_k; b}")
 rbjbkb = sympy.Symbol(r"R_{b_j, b_k; b}")
 
 pair_correlation_axiom_first_type = (
-    q**2 * raia * rbjb
-    + qa * qb * rai * rbj
-    - q * qa * (rbib + rai) * rbjb
-    - q * qb * (raja + rbj) * raia
-    + q * qa * qb * (raiaja + rbibjb)
+    q * qa * qb * (raiaja + rbibjb)
+    - q * (qb * raia * raja + qa * rbib * rbjb)
+    - qa * qb * (q * rbibj - rbi * rbj)
+    + (q * raia - qa * rai) * (q * rbjb - qb * rbj)
+)
+
+pair_correlation_axiom_three_classifiers = (
+    q
+    * (q * raia - qa * rai)
+    * (q * rbkb - qb * rbk)
+    * (qb * raja + qa * rbjb - qa * qb)
+    + q**2 * qa * (q * raka - qa * rak) * (qb * rbibjb - rbib * rbjb)
+    + q**2 * qb * (q * rbkb - qb * rbk) * (qa * raiaja - raia * raja)
+    - q * qa * qb * (q * rbibj - rbi * rbj) * (qb * raka + qa * rbkb - qa * qb)
 )

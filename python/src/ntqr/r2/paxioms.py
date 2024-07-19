@@ -39,6 +39,8 @@ fai = sympy.Symbol(r"f_{a_i}")
 fbi = sympy.Symbol(r"f_{b_i}")
 faj = sympy.Symbol(r"f_{a_j}")
 fbj = sympy.Symbol(r"f_{b_j}")
+fak = sympy.Symbol(r"f_{a_k}")
+fbk = sympy.Symbol(r"f_{b_k}")
 
 # The 'generating set' of polynomials for any binary classifier
 single_binary_classifier_generating_set = [
