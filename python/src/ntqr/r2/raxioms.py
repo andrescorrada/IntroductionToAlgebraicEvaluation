@@ -45,7 +45,10 @@ raia = sympy.Symbol(r"R_{a_i,a}")
 rbib = sympy.Symbol(r"R_{b_i,b}")
 
 # The single classifier generating set only creates one postulate
-single_binary_responder_axiom = (raia - rbib) - (qa - rbi)
+single_binary_responder_axiom = [
+    (q - rai) + (raia - rbib - qa),
+    (-rbi) + (-raia + rbib + qa),
+]
 
 # Symbols and axioms for pairs
 raja = sympy.Symbol(r"R_{a_j,a}")
@@ -62,19 +65,8 @@ rbibjb = sympy.Symbol(r"R_{b_i, b_j; b}")
 rbibkb = sympy.Symbol(r"R_{b_i, b_k; b}")
 rbjbkb = sympy.Symbol(r"R_{b_j, b_k; b}")
 
-pair_correlation_axiom_first_type = (
-    q * qa * qb * (raiaja + rbibjb)
-    - q * (qb * raia * raja + qa * rbib * rbjb)
-    - qa * qb * (q * rbibj - rbi * rbj)
-    + (q * raia - qa * rai) * (q * rbjb - qb * rbj)
-)
-
-pair_correlation_axiom_three_classifiers = (
-    q
-    * (q * raia - qa * rai)
-    * (q * rbkb - qb * rbk)
-    * (qb * raja + qa * rbjb - qa * qb)
-    + q**2 * qa * (q * raka - qa * rak) * (qb * rbibjb - rbib * rbjb)
-    + q**2 * qb * (q * rbkb - qb * rbk) * (qa * raiaja - raia * raja)
-    - q * qa * qb * (q * rbibj - rbi * rbj) * (qb * raka + qa * rbkb - qa * qb)
-)
+pair_binary_responders_axiom = [
+    (qb - (rai + raj) + raiaj) + ((raia + raja) - (raiaja + rbibjb)),
+    (qa - (rbi + rbj) + rbibj) + ((rbib + rbjb) - (raiaja + rbibjb)),
+]
+three_responders_axiom = []
