@@ -18,20 +18,28 @@
 
 
 Evaluation of noisy decision makers in unsupervised settings is a fundamental
-safety engineering problem. This library contains the algebraic postulates that
-govern **any** evaluation/grading of noisy binary classifiers/responders.
-"Noisy" means that the decision makers (humans, robots, algorithms, etc.) are
-not always correct. Using the counts of how often a group/ensemble of them
-agreed and disagreed while responding to a finite test, we can infer their
-average statistics of correctness.
+safety engineering problem. This library contains algorithms that treat this
+problem from a logical point of view. The use of logic to keep us safer is
+well known in many engineering contexts. Software that is used to safely shutdown
+nuclear plants is certified by using methods from formal software verification
+to logically prove they comply with their specified use. The NTQR package brings
+the framework of formal verification to unsupervised evaluations.
 
-For a high level, conceptual understanding of what you can do with the
-evaluation algorithms and postulates in this package, check out the conceptual
-guide. The formalism of NTQR logic is what makes it invaluable for safety
-applications. In unsupervised settings, your AI is flying blind when it comes
-to assessing itself on unlabeled data. The algorithms in this package allow
-you to use a group of classifiers to grade themselves.
+A simple demonstration of the power of logic to clarify possible group evaluations
+for noisy experts is given by the example of two of them taking a common test
+and disagreeing on at least one answer. We can immediately deduce that it is
+impossible for **both** to be 100% correct. Notice the power of this elimination
+argument. We do not need to know anything about the test or its correct answers.
+By just looking at how they agree and disagree, we can immediately deduce what
+group evaluations are impossible. The NTQR package carries this out by formulating
+algebraic logical axioms that must be obeyed by all evaluations of a given type
+or model.
 
+The current version is building out the axioms and logic for the case of binary
+classifiers and responders. Future versions will consider 3 or more classes.
+At a high level, this package contains a logic of formally verifying binary
+evaluations and evaluators and logical tools that use the axioms of that
+logic with additional assumptions.
 All the complicated algebraic geometry computations here are meant to
 accomplish only one thing - give you a logically consistent framework for
 validating **any** algorithm that evaluates classifiers on a test that used
