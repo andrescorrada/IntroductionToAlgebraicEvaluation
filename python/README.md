@@ -7,13 +7,13 @@
 ```
 
 :::{figure-md}
-![Prevalence estimates](./img/uciAdultEvalPrevalenceGauges.png)
+![Prevalence estimates](./img/threeLLMsBIGBenchMistakeMultistepArithmetic.png)
 
-**The prevalence estimates for the two labels in
-    a single evaluation using the UCI Adult dataset. The green
-    triangle is the correct value. "AE" is the exact, error
-    independent evaluator. "MV" is the majority voting
-    evaluator.**
+**The only evaluations possible for three LLMs (Claude, Mistral, ChatGPT) that
+graded a fourth one (PaLM2) doing the multistep-arithmetic test in the BIG-Bench-Mistake
+dataset. Using the axiom for the single binary classifier, we can reduce each LLMs possible
+evaluations as grader of the PaLM2 to the circumscribed planes inside the space of
+all possible evaluations.**
 :::
 
 
