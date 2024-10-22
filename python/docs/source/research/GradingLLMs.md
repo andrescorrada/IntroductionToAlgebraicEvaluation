@@ -45,9 +45,35 @@ do a pretty good job evaluating the responses of an LLM to philosophy queries.
 This is very much in line with demonstrations that LLMs can pass bar
 exams, etc.
 
+## Terminating endless monitoring chains with multiple-choice exams
+
+The confusion between the literal/semantic interpretation of binary tests and
+their logical nature is rampant in the AI/ML research community. This takes many
+forms,
+1. Confusing the task with the nature of the agent. If an AI agent or LLM takes a binary test or does binary classification that does not mean the agent **is** or can only be used as a binary classifier. An agent may be evaluated in their performance as a binary classifier/responder. But this does not make the agent **only** a binary classifier.
+2. Confusing the task of binary classification with the task of responding to a binary response test. During a binary classification evaluation, we are assured of the semantic equality between responses to different questions. The label 'a' means, say, 'dog' in all questions. But binary response tests also can have their responses mapped to two labels for each questions. But the meaning of answering 'a' in one question need not have semantic relation to also responding 'a' in other questions in the test. In either the literal or logical interpretation of the test, we can still talk about the number of correct responses to 'a' or 'b' questions.
+
+Another confusion by AI/ML researchers is not understanding the nature of unsupervised evaluation and how this affects AI safety. A recent paper 
+by Meta and KAUST researchers, [Agent-as-Judge: Evaluate Agents with Agents](https://arxiv.org/abs/2410.10934), has the following dismissal of 
+the utility of multiple choice exams -
+
+> And thus agentic systems should be evaluated like a human, with
+> rich evaluative feedback which looks at the full thought and action trajectory; evaluating an agentic system
+> in the traditional way is like evaluating a student using multiple-choice testing—a comparatively unreliable
+> estimator (Park, 2010).
+
+Never mind that multiple-choice exams are extensively used to help us evaluate humans as they learn. They are a workhorse of evaluations.
+In addition, it is somewhat absurd to complain about unreliable tests when this whole paper shows that agents are **also** unreliable judges
+other agents! All tests have their flaws and their proper use should reflect that understanding.
+
+But most importantly, the much maligned multiple-choice exams have a very important role to play in AI safety. They can terminate endless
+monitoring chains - a fundamental problem in unsupervised evaluation. Who checks that our monitoring systems is working correctly? Who grades
+the graders? For that you need to have a formal verification framework. Only multiple-choice exams can terminate endless monitoring chains
+since we can formalize its axioms and verification. That is a central purpose of the algorithms in the `ntqr` package.
+
 ## How to grade LLMs on binary response tests
 
-This version (0.1) of the Python package can be used to grade {math}`R=2`
+This version (0.3) of the Python package can be used to grade {math}`R=2`
 exams. The conceptual-algorithm for doing so goes as follows
 
 1. Collect a bunch of binary response questions, they could be on one subject
