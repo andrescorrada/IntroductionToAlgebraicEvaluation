@@ -64,7 +64,7 @@ the utility of multiple choice exams -
 
 Never mind that multiple-choice exams are extensively used to help us evaluate humans as they learn. They are a workhorse of evaluations.
 In addition, it is somewhat absurd to complain about unreliable tests when this whole paper shows that agents are **also** unreliable judges
-other agents! All tests have their flaws and their proper use should reflect that understanding.
+of other agents! All tests have their flaws and their proper use should reflect that understanding.
 
 But most importantly, the much maligned multiple-choice exams have a very important role to play in AI safety. They can terminate endless
 monitoring chains - a fundamental problem in unsupervised evaluation. Who checks that our monitoring systems is working correctly? Who grades
