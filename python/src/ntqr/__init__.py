@@ -22,3 +22,5 @@ from ntqr.r2.evaluators import (
     ErrorIndependentEvaluation,
     MajorityVotingEvaluation,
 )
+
+import ntqr.r3.raxioms

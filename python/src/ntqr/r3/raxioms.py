@@ -50,6 +50,11 @@ class SingleClassifierAxioms:
 
     Attributes
     ----------
+
+    question_numbers : List[simpy.Symbol..]
+        The variables for the count of correct questions for each true
+        label.
+
     responses : List[simpy.Symbol..]
         The variables for the observed interger count of the three classes
         ('a', 'b', 'c') in the test.
@@ -86,3 +91,100 @@ class SingleClassifierAxioms:
         Checks if the variable substitutions in 'eval_dict' make all three
         axioms identically zero.
     """
+
+    def __init__(self, labels, classifier):
+        "Constructs variables for 'labels' and the axioms they must satisfy."
+
+        self.questions_number = {
+            label: sympy.Symbol(r"Q_" + label) for label in labels
+        }
+        self.responses = self.response_variables(labels, classifier)
+        self.responses_by_label = self.label_response_variables(
+            labels, classifier
+        )
+
+        # Construct the three, dependent axioms for a single classifier
+        self.algebraic_expressions = {}
+        for i_true in range(len(labels)):
+
+            true_label = labels[i_true]
+            true_label_responses = self.responses_by_label[true_label]
+            q_number = self.questions_number[true_label]
+
+            mistakes_out_of_label = q_number
+            mistakes_into_label = 0
+            for i_response in range(len(labels)):
+                response_label = labels[i_response]
+                if i_response != i_true:
+                    mistakes_out_of_label -= true_label_responses[
+                        response_label
+                    ]
+                    mistakes_into_label += self.responses_by_label[
+                        response_label
+                    ][true_label]
+
+            self.algebraic_expressions[true_label] = (
+                mistakes_out_of_label
+                + mistakes_into_label
+                - self.responses[true_label]
+            )
+
+    def response_variables(self, labels, classifier):
+        """
+        Constructs observable response variables given 'labels' and
+        'classifier'.
+
+        Parameters
+        ----------
+        labels : List
+            Labels to use.
+        classifier : int
+            Index of classifier.
+
+        Returns
+        -------
+        Dictionary of by-label response counts, one per label.
+        """
+
+        clsfr_str = str(classifier)
+        vars = {}
+        for label in labels:
+            vars[label] = sympy.Symbol(
+                r"R_{" + label + r"_{" + clsfr_str + r"}}"
+            )
+
+        return vars
+
+    def label_response_variables(self, labels, classifier):
+        """
+        Constructs variables associated with correct and wrong
+        response counts given true label.
+
+        Parameters
+        ----------
+        labels : List
+            Labels to use.
+        classifier : int
+            Index of classifier.
+
+        Returns
+        -------
+        Dictionary of by-label response counts, three per label.
+        """
+
+        clsfr_str = str(classifier)
+        vars = {}
+        for tlabel in labels:
+            vars[tlabel] = {}
+            for rlabel in labels:
+                vars[tlabel][rlabel] = sympy.Symbol(
+                    r"R_{" + rlabel + r"_{" + clsfr_str + r"}," + tlabel + r"}"
+                )
+
+        return vars
+
+    def evaluate_axioms(self):
+        pass
+
+    def satisfies_axioms(self):
+        pass
