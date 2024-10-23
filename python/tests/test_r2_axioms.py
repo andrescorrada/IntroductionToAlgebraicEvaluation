@@ -1,4 +1,5 @@
 """@author: Andrés Corrada-Emmanuel."""
+
 import pytest
 import sympy
 
@@ -19,5 +20,5 @@ from ntqr.r2.examples import uciadult_label_counts
         (1, sympy.Rational(16803485, 1357332964)),
     ),
 )
-def test_one_classifier_postulate(label_accuracies, voting_frequencies):
+def test_one_classifier_axiom(label_accuracies, voting_frequencies):
     pass

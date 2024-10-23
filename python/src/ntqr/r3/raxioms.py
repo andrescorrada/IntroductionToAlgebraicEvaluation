@@ -183,8 +183,37 @@ class SingleClassifierAxioms:
 
         return vars
 
-    def evaluate_axioms(self):
-        pass
+    def evaluate_axioms(self, eval_dict):
+        """
+        Evaluates axioms given 'eval_dict'.
 
-    def satisfies_axioms(self):
-        pass
+        Parameters
+        ----------
+        eval_dict: Map[sympySymbol -> value]
+
+        Returns
+        -------
+        Dict mapping label to axiom expression.
+        """
+
+        return {
+            label: axiom.subs(eval_dict)
+            for label, axiom in self.algebraic_expressions.items()
+        }
+
+    def satisfies_axioms(self, eval_dict):
+        """
+        Tests axioms are satisfied for 'eval_dict' values.
+
+        Parameters
+        ----------
+        eval_dict: Map[sympySymbol -> value]
+
+        Returns
+        -------
+        Boolean: returns True if the axioms are identically zero, False
+        otherwise.
+        """
+
+        evaluated_axioms = self.evaluate_axioms(eval_dict)
+        return all([(axiom == 0) for axiom in evaluated_axioms.values()])
