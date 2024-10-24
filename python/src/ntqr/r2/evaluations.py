@@ -5,10 +5,8 @@ For any finite test there is a finite set of evaluations possible. The
 classes in this module compute them.
 
 Classes:
-    APrioriSingleEvaluations - Before we see any test results, we can construct
-    all possible evaluations given the size of the test.
-    PosterioriSingleEvaluations - Once we have test results, we can restrict
-    the full set to the evaluations that are consistent with them.
+    SingleClassifierEvaluations: Class related to the evaluations for a
+    single classifier consistent with its observed test responses.
 
 Functions:
 
