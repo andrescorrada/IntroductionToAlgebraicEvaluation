@@ -15,31 +15,92 @@ Functions:
 Misc variables:
 
 """
+
 import sympy
 
 from ntqr.r2.datasketches import VoteCounts
 
 
-class APrioriSingleEvaluations:
-    """All possible evaluations for a test of size Q."""
+class SingleClassifierEvaluations:
+    """
+    Single classifier evaluations in (Q_a, Q_b, R_{b_i, a}, R_{a_i,b})
+    space.
+    """
 
-    def __init__(self, Q: int):
+    def __init__(self, Q, single_axioms):
+
         self.Q = Q
+        self.axioms = single_axioms
 
-    def all_possible_evaluations(self):
+    def number_aprior_evaluations(self):
         """
         Calculates all the possible evaluations for a binary response test
         with Q questions.
 
         Returns
         -------
-        Mapping[int, List[Tuple[int, int]]]
-            Mapping from Q_a to all possible [R_a_a, R_b_b]
+        int
 
         """
-        return {}
+        q = self.Q
+        return 1 / 6 * (q + 1) * (q + 2) * (q + 3)
+
+    def evaluations_at_qa_qb(self, eval_dict):
+        """
+        Returns all evaluations logically consistent with the
+        single classifier axiom given the correct number of each
+        label and a classifier's responses.
+
+        In binary classification we have Q_a + Q_b = Q. Thus, we
+        really need to specify only two of the three (Q, Q_a, Q_b).
+        Making a choice is arbitrary and breaks the symmetry in the
+        algebra between the two labels. Instead, we specify Q_a, and
+        Q_b and since we have Q from the instance initialization, we
+        do a quality check (logic check) of the equality between the
+        three quantities.
+        """
+        questions_number = self.axioms.questions_number
+        vars_to_check = [
+            question_number for question_number in questions_number.values()
+        ]
+        vars_to_check += [
+            response_variable
+            for response_variable in self.axioms.responses.values()
+        ]
+        assert all([(var in eval_dict) for var in vars_to_check])
+
+        # Copy the input eval dict
+        work_dict = eval_dict.copy()
+
+        wrong_vars = [
+            wrong_var
+            for true_label in self.axioms.labels
+            for wrong_var in self.axioms.responses_by_label[true_label][
+                "errors"
+            ].values()
+        ]
+        print(wrong_vars)
+
+        q_label_vals = [
+            eval_dict[questions_number[label]] for label in self.axioms.labels
+        ]
+        evals = [
+            (rl2l1, rl1l2)
+            for rl2l1 in range(0, q_label_vals[0] + 1)
+            for rl1l2 in range(0, q_label_vals[1] + 1)
+            if self._check_axiom_consistency_(
+                work_dict, {wrong_vars[0]: rl2l1, wrong_vars[1]: rl1l2}
+            )
+        ]
+
+        return evals
+
+    def _check_axiom_consistency_(self, eval_dict, errors_dict):
+        eval_dict.update(errors_dict)
+        return self.axioms.satisfies_axioms(eval_dict)
 
 
+# This class needs to be deleted and code that uses refactored
 class PosteriorSingleEvaluations:
     """Evaluations logically consistent with observed responses."""
 

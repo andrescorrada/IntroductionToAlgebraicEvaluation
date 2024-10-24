@@ -23,4 +23,6 @@ from ntqr.r2.evaluators import (
     MajorityVotingEvaluation,
 )
 
+import ntqr.r2
+import ntqr.r3
 import ntqr.r3.raxioms

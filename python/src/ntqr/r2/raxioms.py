@@ -48,6 +48,9 @@ class SingleClassifierAxioms:
     def __init__(self, labels, classifier):
         "Constructs variables for 'labels' and the axioms they must satisfy."
 
+        self.labels = labels
+        self.classifier = classifier
+
         vars = SingleClassifierVariables(labels, classifier)
         self.questions_number = vars.questions_number
         self.responses = vars.responses
