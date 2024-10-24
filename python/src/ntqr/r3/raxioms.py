@@ -40,6 +40,7 @@ P_i_a_a = 1 - P_i_b_a - P_i_c_a
 """
 
 import sympy
+from ntqr.statistics import SingleClassifierVariables
 
 
 class SingleClassifierAxioms:
@@ -95,13 +96,10 @@ class SingleClassifierAxioms:
     def __init__(self, labels, classifier):
         "Constructs variables for 'labels' and the axioms they must satisfy."
 
-        self.questions_number = {
-            label: sympy.Symbol(r"Q_" + label) for label in labels
-        }
-        self.responses = self.response_variables(labels, classifier)
-        self.responses_by_label = self.label_response_variables(
-            labels, classifier
-        )
+        vars = SingleClassifierVariables(labels, classifier)
+        self.questions_number = vars.questions_number
+        self.responses = vars.responses
+        self.responses_by_label = vars.responses_by_label
 
         # Construct the three, dependent axioms for a single classifier
         self.algebraic_expressions = {}
@@ -128,60 +126,6 @@ class SingleClassifierAxioms:
                 + mistakes_into_label
                 - self.responses[true_label]
             )
-
-    def response_variables(self, labels, classifier):
-        """
-        Constructs observable response variables given 'labels' and
-        'classifier'.
-
-        Parameters
-        ----------
-        labels : List
-            Labels to use.
-        classifier : int
-            Index of classifier.
-
-        Returns
-        -------
-        Dictionary of by-label response counts, one per label.
-        """
-
-        clsfr_str = str(classifier)
-        vars = {}
-        for label in labels:
-            vars[label] = sympy.Symbol(
-                r"R_{" + label + r"_{" + clsfr_str + r"}}"
-            )
-
-        return vars
-
-    def label_response_variables(self, labels, classifier):
-        """
-        Constructs variables associated with correct and wrong
-        response counts given true label.
-
-        Parameters
-        ----------
-        labels : List
-            Labels to use.
-        classifier : int
-            Index of classifier.
-
-        Returns
-        -------
-        Dictionary of by-label response counts, three per label.
-        """
-
-        clsfr_str = str(classifier)
-        vars = {}
-        for tlabel in labels:
-            vars[tlabel] = {}
-            for rlabel in labels:
-                vars[tlabel][rlabel] = sympy.Symbol(
-                    r"R_{" + rlabel + r"_{" + clsfr_str + r"}," + tlabel + r"}"
-                )
-
-        return vars
 
     def evaluate_axioms(self, eval_dict):
         """
