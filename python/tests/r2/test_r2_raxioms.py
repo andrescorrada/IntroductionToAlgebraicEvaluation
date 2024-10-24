@@ -1,24 +1,37 @@
-"""@author: Andrés Corrada-Emmanuel."""
+"""Tests to check the ntqr.r2.raxioms module."""
 
 import pytest
-import sympy
 
-from ntqr.r2.datasketches import (
-    TrioVoteCounts,
-    TrioLabelVoteCounts,
-    classifier_label_votes,
+import ntqr.r2.raxioms
+
+labels = ["a", "b"]
+classifier = "k"
+
+
+r2axioms = ntqr.r2.raxioms.SingleClassifierAxioms(labels, classifier)
+
+eval_dict = {
+    var: val for var, val in zip(r2axioms.questions_number.values(), [3, 7])
+}
+eval_dict.update(
+    {var: val for var, val in zip(r2axioms.responses.values(), [5, 5])}
 )
 
-from ntqr.r2.examples import uciadult_label_counts
+wrong_vars = [
+    var
+    for true_label in r2axioms.labels
+    for var in r2axioms.responses_by_label[true_label]["errors"].values()
+]
 
 
 @pytest.mark.parametrize(
-    "label_accuracies, voting_frequencies",
+    "update_dict, satisfies_axioms",
     (
-        (1, sympy.Rational(18432653, 1357332964)),
-        (1, sympy.Rational(18272925, 1357332964)),
-        (1, sympy.Rational(16803485, 1357332964)),
+        ({var: val for var, val in zip(wrong_vars, (0, 2))}, True),
+        ({var: val for var, val in zip(wrong_vars, (1, 2))}, False),
     ),
 )
-def test_one_classifier_axiom(label_accuracies, voting_frequencies):
-    pass
+def test_evaluations_at_qa_qb(update_dict, satisfies_axioms):
+    eval_dict.update(update_dict)
+    test_val = r2axioms.satisfies_axioms(eval_dict)
+    assert test_val == satisfies_axioms
