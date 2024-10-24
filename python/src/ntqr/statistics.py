@@ -82,15 +82,35 @@ class SingleClassifierVariables:
         Returns
         -------
         Dictionary of by-label response counts, three per label.
+        In addition, each label contains a 'correct' dictionary
+        that contains the true_label and its associated count.
+        An 'errors' dictionary is indexed by possible wrong
+        label assignments.
         """
 
         clsfr_str = str(classifier)
         vars = {}
-        for tlabel in labels:
-            vars[tlabel] = {}
-            for rlabel in labels:
-                vars[tlabel][rlabel] = sympy.Symbol(
-                    r"R_{" + rlabel + r"_{" + clsfr_str + r"}," + tlabel + r"}"
+        for true_label in labels:
+            label_vars = vars.setdefault(true_label, {})
+            label_vars_correct = label_vars.setdefault("correct", {})
+            label_vars_error = label_vars.setdefault("errors", {})
+
+            for response_label in labels:
+                curr_var = sympy.Symbol(
+                    r"R_{"
+                    + response_label
+                    + r"_{"
+                    + clsfr_str
+                    + r"},"
+                    + true_label
+                    + r"}"
                 )
+                label_vars[response_label] = curr_var
+
+                # Now we add it to either 'correct' or 'errors'
+                if response_label != true_label:
+                    label_vars_error[response_label] = curr_var
+                else:
+                    label_vars_correct[true_label] = curr_var
 
         return vars
