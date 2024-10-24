@@ -4,52 +4,119 @@ This is the space of integers possible since we are dealing with finite
 tests. Statistics of correctness are given as integers. In the case of
 R=2 the evaluation of a single classifier/responder is (Q_a, R_a_a, R_b_b).
 """
+
 import sympy
+from ntqr.statistics import SingleClassifierVariables
 
-#
-# Observables
-#
-q = sympy.Symbol(r"Q")
 
-rai = sympy.Symbol(r"R_{a_i}")
-rbi = sympy.Symbol(r"R_{b_i}")
-raj = sympy.Symbol(r"R_{a_j}")
-rbj = sympy.Symbol(r"R_{b_j}")
-rak = sympy.Symbol(r"R_{a_k}")
-rbk = sympy.Symbol(r"R_{b_k}")
+class SingleClassifierAxioms:
+    """
+    The axioms of a single R=2 classifier
 
-raiaj = sympy.Symbol(r"R_{a_i, a_j}")
-raiak = sympy.Symbol(r"R_{a_i, a_k}")
-rajak = sympy.Symbol(r"R_{a_j, a_k}")
+    ...
 
-rbibj = sympy.Symbol(r"R_{b_i, b_j}")
-rbibk = sympy.Symbol(r"R_{b_i, b_k}")
-rbjbk = sympy.Symbol(r"R_{b_j, b_k}")
+    Attributes
+    ----------
 
-#
-# Statistics of correctness
-#
+    question_numbers : List[simpy.Symbol..]
+        The variables for the count of correct questions for each true
+        label.
 
-# The number of 'a' and 'b' questions in the test
-qa = sympy.Symbol(r"Q_a")
-qb = sympy.Symbol(r"Q_b")
+    responses : List[simpy.Symbol..]
+        The variables for the observed interger count of the two classes.
+        Generically of the form,
 
-# Postulates before observing test results
-# One postulate is just about the size of the test and how it is
-# composed of 'a' and 'b' correct questions.
-correct_answers_must_equal_test_size = qa + qb - q
+        R_{l_i} : number of 'l' responses by classifier 'i'
 
-# Insteard of percentage correct, we talk about total number
-# of correct responses to a question type
-raia = sympy.Symbol(r"R_{a_i,a}")
-rbib = sympy.Symbol(r"R_{b_i,b}")
+    correctness_variables: List[simpy.Symbol..]
+        The variables associated with correct and wrong responses given
+        the true label. Generically of the form,
 
-# The single classifier generating set only creates one postulate
-single_binary_responder_axiom = [
-    (q - rai) + (raia - rbib - qa),
-    (-rbi) + (-raia + rbib + qa),
-]
+        R_{l_i, l_true}: number of 'l' responses by classifier 'i' given
+        true label 'l_true'.
 
+
+    Methods
+    -------
+    evaluate_axioms(eval_dict): List[expression, expression, expression]
+        Evaluates the axioms given the variable substitutions in 'eval_dict'.
+    satisfies_axioms(eval_dict): Boolean
+        Checks if the variable substitutions in 'eval_dict' make all three
+        axioms identically zero.
+    """
+
+    def __init__(self, labels, classifier):
+        "Constructs variables for 'labels' and the axioms they must satisfy."
+
+        vars = SingleClassifierVariables(labels, classifier)
+        self.questions_number = vars.questions_number
+        self.responses = vars.responses
+        self.responses_by_label = vars.responses_by_label
+
+        # Construct the three, dependent axioms for a single classifier
+        self.algebraic_expressions = {}
+        for i_true in range(len(labels)):
+
+            true_label = labels[i_true]
+            true_label_responses = self.responses_by_label[true_label]
+            q_number = self.questions_number[true_label]
+
+            mistakes_out_of_label = q_number
+            mistakes_into_label = 0
+            for i_response in range(len(labels)):
+                response_label = labels[i_response]
+                if i_response != i_true:
+                    mistakes_out_of_label -= true_label_responses[
+                        response_label
+                    ]
+                    mistakes_into_label += self.responses_by_label[
+                        response_label
+                    ][true_label]
+
+            self.algebraic_expressions[true_label] = (
+                mistakes_out_of_label
+                + mistakes_into_label
+                - self.responses[true_label]
+            )
+
+    def evaluate_axioms(self, eval_dict):
+        """
+        Evaluates axioms given 'eval_dict'.
+
+        Parameters
+        ----------
+        eval_dict: Map[sympySymbol -> value]
+
+        Returns
+        -------
+        Dict mapping label to axiom expression.
+        """
+
+        return {
+            label: axiom.subs(eval_dict)
+            for label, axiom in self.algebraic_expressions.items()
+        }
+
+    def satisfies_axioms(self, eval_dict):
+        """
+        Tests axioms are satisfied for 'eval_dict' values.
+
+        Parameters
+        ----------
+        eval_dict: Map[sympySymbol -> value]
+
+        Returns
+        -------
+        Boolean: returns True if the axioms are identically zero, False
+        otherwise.
+        """
+
+        evaluated_axioms = self.evaluate_axioms(eval_dict)
+        return all([(axiom == 0) for axiom in evaluated_axioms.values()])
+
+
+## The following code needs to be refactored into classes for
+## pair and triplet axioms
 # Symbols and axioms for pairs
 raja = sympy.Symbol(r"R_{a_j,a}")
 rbjb = sympy.Symbol(r"R_{b_j,b}")
@@ -65,8 +132,8 @@ rbibjb = sympy.Symbol(r"R_{b_i, b_j; b}")
 rbibkb = sympy.Symbol(r"R_{b_i, b_k; b}")
 rbjbkb = sympy.Symbol(r"R_{b_j, b_k; b}")
 
-pair_binary_responders_axiom = [
-    (qb - (rai + raj) + raiaj) + ((raia + raja) - (raiaja + rbibjb)),
-    (qa - (rbi + rbj) + rbibj) + ((rbib + rbjb) - (raiaja + rbibjb)),
-]
+# pair_binary_responders_axiom = [
+#     (qb - (rai + raj) + raiaj) + ((raia + raja) - (raiaja + rbibjb)),
+#     (qa - (rbi + rbj) + rbibj) + ((rbib + rbjb) - (raiaja + rbibjb)),
+# ]
 three_responders_axiom = []
