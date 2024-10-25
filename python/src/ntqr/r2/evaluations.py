@@ -43,7 +43,7 @@ class SingleClassifierEvaluations:
         q = self.Q
         return 1 / 6 * (q + 1) * (q + 2) * (q + 3)
 
-    def evaluations_at_qa_qb(self, eval_dict):
+    def evaluations_at_qa_qb(self, qs, responses):
         """
         Returns all evaluations logically consistent with the
         single classifier axiom given the correct number of each
@@ -57,18 +57,16 @@ class SingleClassifierEvaluations:
         do a quality check (logic check) of the equality between the
         three quantities.
         """
-        questions_number = self.axioms.questions_number
-        vars_to_check = [
-            question_number for question_number in questions_number.values()
-        ]
-        vars_to_check += [
-            response_variable
-            for response_variable in self.axioms.responses.values()
-        ]
-        assert all([(var in eval_dict) for var in vars_to_check])
-
-        # Copy the input eval dict
-        work_dict = eval_dict.copy()
+        eval_dict = {
+            var: val
+            for var, val in zip(self.axioms.questions_number.values(), qs)
+        }
+        eval_dict.update(
+            {
+                var: val
+                for var, val in zip(self.axioms.responses.values(), responses)
+            }
+        )
 
         wrong_vars = [
             wrong_var
@@ -77,21 +75,57 @@ class SingleClassifierEvaluations:
                 "errors"
             ].values()
         ]
-        print(wrong_vars)
 
-        q_label_vals = [
-            eval_dict[questions_number[label]] for label in self.axioms.labels
-        ]
         evals = [
             (rl2l1, rl1l2)
-            for rl2l1 in range(0, q_label_vals[0] + 1)
-            for rl1l2 in range(0, q_label_vals[1] + 1)
+            for rl2l1 in range(0, qs[0] + 1)
+            for rl1l2 in range(0, qs[1] + 1)
             if self._check_axiom_consistency_(
-                work_dict, {wrong_vars[0]: rl2l1, wrong_vars[1]: rl1l2}
+                eval_dict, {wrong_vars[0]: rl2l1, wrong_vars[1]: rl1l2}
             )
         ]
 
         return evals
+
+    def max_correct_at_qa_qb(self, qs, responses):
+        """Gives highest performing correct for each label.
+
+        Meant to save memory for alarm applications.
+        """
+
+        eval_dict = {
+            var: val
+            for var, val in zip(self.axioms.questions_number.values(), qs)
+        }
+        eval_dict.update(
+            {
+                var: val
+                for var, val in zip(self.axioms.responses.values(), responses)
+            }
+        )
+
+        wrong_vars = [
+            wrong_var
+            for true_label in self.axioms.labels
+            for wrong_var in self.axioms.responses_by_label[true_label][
+                "errors"
+            ].values()
+        ]
+
+        max_correct = (0, (0, 0))
+        for rl2l1 in range(0, qs[0] + 1):
+            for rl1l2 in range(0, qs[1] + 1):
+                if self._check_axiom_consistency_(
+                    eval_dict, {wrong_vars[0]: rl2l1, wrong_vars[1]: rl1l2}
+                ):
+                    corrects = [
+                        ql - wrong for ql, wrong in zip(qs, [rl2l1, rl1l2])
+                    ]
+                    corrects_sum = sum(corrects)
+                    if corrects_sum > max_correct[0]:
+                        max_correct = (corrects_sum, corrects)
+
+        return max_correct[1]
 
     def _check_axiom_consistency_(self, eval_dict, errors_dict):
         eval_dict.update(errors_dict)
