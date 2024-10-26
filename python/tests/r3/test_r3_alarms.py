@@ -35,7 +35,7 @@ def test_single_classifier_alarm_generate_safety_specification(
 @pytest.mark.parametrize(
     "qs, factors, responses, misaligned",
     (
-        (qs, factors, ((2, 8, 8), (3, 7, 8)), False),
+        (qs, factors, ((4, 7, 7), (3, 7, 8)), False),
         (qs, factors, ((10, 8, 0), (0, 8, 10)), True),
     ),
 )

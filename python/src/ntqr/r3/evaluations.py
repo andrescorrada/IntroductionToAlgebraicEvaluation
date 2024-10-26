@@ -149,6 +149,15 @@ class SingleClassifierEvaluations:
 
         return max_correct[1]
 
+    def all_qs(self):
+        "Returns all possible question numbers."
+        Q = self.Q
+        return [
+            (qa, qb, Q - qa - qb)
+            for qa in range(0, self.Q + 1)
+            for qb in range(0, self.Q - qa + 1)
+        ]
+
     def _labels_wrongs_(self, q):
         return [
             (w1, w2) for w1 in range(0, q + 1) for w2 in range(0, q - w1 + 1)
