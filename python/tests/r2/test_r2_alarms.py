@@ -1,14 +1,19 @@
 """Tests for the module ntqr.r2.alarms."""
 
 import ntqr.r2.raxioms
-import ntqr.r2.alarms
+import ntqr.alarms
+import ntqr.r2.evaluations
 
 import pytest
 
 labels = ("a", "b")
 c1Axioms = ntqr.r2.raxioms.SingleClassifierAxioms(labels, "1")
 c2Axioms = ntqr.r2.raxioms.SingleClassifierAxioms(labels, "2")
-alarm = ntqr.r2.alarms.SingleClassifierAxiomAlarm(10, [c1Axioms, c2Axioms])
+alarm = ntqr.alarms.SingleClassifierAxiomAlarm(
+    10,
+    [c1Axioms, c2Axioms],
+    ntqr.r2.evaluations.SingleClassifierEvaluations,
+)
 
 # Better than 50%
 factors = (2, 2)

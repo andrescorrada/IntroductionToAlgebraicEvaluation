@@ -13,7 +13,9 @@ scEvaluations = ntqr.r2.evaluations.SingleClassifierEvaluations(10, r2axioms)
 
 def test_evaluations_at_qa_qb():
     evals = scEvaluations.evaluations_at_qs([3, 7], [5, 5])
-    assert evals == [(0, 2), (1, 3), (2, 4), (3, 5)]
+    assert evals == set(
+        [((0,), (2,)), ((1,), (3,)), ((2,), (4,)), ((3,), (5,))]
+    )
 
 
 def test_max_correct_at_qa_qb():
