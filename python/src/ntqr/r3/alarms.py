@@ -1,1 +1,0 @@
-"""@author: Andrés Corrada-Emmanuel."""
