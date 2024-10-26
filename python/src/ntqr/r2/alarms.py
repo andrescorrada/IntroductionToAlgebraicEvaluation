@@ -12,7 +12,7 @@ class SingleClassifierAxiomAlarm:
     """Alarm based on the single classifier axioms for the ensemble members
 
     Initialize with 'classifiers_axioms', list of
-    ntqr.r2.raxioms.SingleClassifierAxioms, one per classifier we want
+    ntqr.r3.raxioms.SingleClassifierAxioms, one per classifier we want
     to compare.
     """
 
