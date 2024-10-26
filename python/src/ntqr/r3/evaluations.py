@@ -15,6 +15,8 @@ Misc variables:
 
 """
 
+import itertools
+
 import sympy
 
 
@@ -45,24 +47,22 @@ class SingleClassifierEvaluations:
             prod *= Q + i
         return prod / 362880  # 9! division
 
-    def evaluations_at_qa_qb(self, eval_dict):
+    def evaluations_at_qs(self, qs, responses):
         """
         Returns all evaluations logically consistent with the
         single classifier axiom given the correct number of each
         label and a classifier's responses.
         """
-        questions_number = self.axioms.questions_number
-        vars_to_check = [
-            question_number for question_number in questions_number.values()
-        ]
-        vars_to_check += [
-            response_variable
-            for response_variable in self.axioms.responses.values()
-        ]
-        assert all([(var in eval_dict) for var in vars_to_check])
-
-        # Copy the input eval dict
-        work_dict = eval_dict.copy()
+        eval_dict = {
+            var: val
+            for var, val in zip(self.axioms.questions_number.values(), qs)
+        }
+        eval_dict.update(
+            {
+                var: val
+                for var, val in zip(self.axioms.responses.values(), responses)
+            }
+        )
 
         wrong_vars = [
             [
@@ -74,29 +74,88 @@ class SingleClassifierEvaluations:
             for true_label in self.axioms.labels
         ]
 
-        q_label_vals = [
-            eval_dict[questions_number[label]] for label in self.axioms.labels
-        ]
         evals = set(
             [
-                ((rl2l1, rl3l1), (rl1l2, rl3l2), (rl1l3, rl2l3))
-                for rl2l1 in range(0, q_label_vals[0] + 1)
-                for rl3l1 in range(0, q_label_vals[0] - rl2l1 + 1)
-                for rl1l2 in range(0, q_label_vals[1] + 1)
-                for rl3l2 in range(0, q_label_vals[1] - rl1l2 + 1)
-                for rl1l3 in range(0, q_label_vals[2] + 1)
-                for rl2l3 in range(0, q_label_vals[2] - rl1l3 + 1)
+                (first_lbl_wrong, second_lbl_wrong, third_lbl_wrong)
+                for first_lbl_wrong in self._labels_wrongs_(qs[0])
+                for second_lbl_wrong in self._labels_wrongs_(qs[1])
+                for third_lbl_wrong in self._labels_wrongs_(qs[2])
                 if self._check_axiom_consistency_(
-                    work_dict,
-                    wrong_vars,
-                    ((rl2l1, rl3l1), (rl1l2, rl3l2), (rl1l3, rl2l3)),
+                    eval_dict,
+                    itertools.chain(*wrong_vars),
+                    itertools.chain(
+                        first_lbl_wrong, second_lbl_wrong, third_lbl_wrong
+                    ),
                 )
             ]
         )
 
         return evals
 
+    def max_correct_at_qs(self, qs, responses):
+        """Gives highest performing correct for each label.
+
+        Meant to save memory for alarm applications.
+        """
+
+        eval_dict = {
+            var: val
+            for var, val in zip(self.axioms.questions_number.values(), qs)
+        }
+        eval_dict.update(
+            {
+                var: val
+                for var, val in zip(self.axioms.responses.values(), responses)
+            }
+        )
+
+        wrong_vars = [
+            [
+                wrong_var
+                for wrong_var in self.axioms.responses_by_label[true_label][
+                    "errors"
+                ].values()
+            ]
+            for true_label in self.axioms.labels
+        ]
+
+        max_correct = (0, (0, 0, 0))
+
+        for first_label_wrongs in self._labels_wrongs_(qs[0]):
+            vars = wrong_vars[0]
+            vals = first_label_wrongs
+            for second_label_wrongs in self._labels_wrongs_(qs[1]):
+                vars += wrong_vars[1]
+                vals += second_label_wrongs
+                for third_label_wrong in self._labels_wrongs_(qs[2]):
+                    vars += wrong_vars[2]
+                    vals += third_label_wrong
+
+                    if self._check_axiom_consistency_(eval_dict, vars, vals):
+                        corrects = [
+                            ql - sum(wrongs)
+                            for ql, wrongs in zip(
+                                qs,
+                                [
+                                    first_label_wrongs,
+                                    second_label_wrongs,
+                                    third_label_wrong,
+                                ],
+                            )
+                        ]
+                        corrects_sum = sum(corrects)
+                        if corrects_sum > max_correct[0]:
+                            max_correct = (corrects_sum, corrects)
+
+        return max_correct[1]
+
+    def _labels_wrongs_(self, q):
+        return [
+            (w1, w2) for w1 in range(0, q + 1) for w2 in range(0, q - w1 + 1)
+        ]
+
     def _check_axiom_consistency_(self, eval_dict, wrong_vars, wrong_vals):
-        for vars, vals in zip(wrong_vars, wrong_vals):
-            eval_dict.update({var: val for var, val in zip(vars, vals)})
+        eval_dict.update(
+            {var: val for var, val in zip(wrong_vars, wrong_vals)}
+        )
         return self.axioms.satisfies_axioms(eval_dict)

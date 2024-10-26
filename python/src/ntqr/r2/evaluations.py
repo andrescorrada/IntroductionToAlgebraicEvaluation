@@ -14,6 +14,8 @@ Misc variables:
 
 """
 
+import itertools
+
 import sympy
 
 from ntqr.r2.datasketches import VoteCounts
@@ -69,21 +71,27 @@ class SingleClassifierEvaluations:
         )
 
         wrong_vars = [
-            wrong_var
+            [
+                wrong_var
+                for wrong_var in self.axioms.responses_by_label[true_label][
+                    "errors"
+                ].values()
+            ]
             for true_label in self.axioms.labels
-            for wrong_var in self.axioms.responses_by_label[true_label][
-                "errors"
-            ].values()
         ]
 
-        evals = [
-            (rl2l1, rl1l2)
-            for rl2l1 in range(0, qs[0] + 1)
-            for rl1l2 in range(0, qs[1] + 1)
-            if self._check_axiom_consistency_(
-                eval_dict, {wrong_vars[0]: rl2l1, wrong_vars[1]: rl1l2}
-            )
-        ]
+        evals = set(
+            [
+                (first_lbl_wrong, second_lbl_wrong)
+                for first_lbl_wrong in self._labels_wrongs_(qs[0])
+                for second_lbl_wrong in self._labels_wrongs_(qs[1])
+                if self._check_axiom_consistency_(
+                    eval_dict,
+                    itertools.chain(*wrong_vars),
+                    itertools.chain(first_lbl_wrong, second_lbl_wrong),
+                )
+            ]
+        )
 
         return evals
 
@@ -105,21 +113,31 @@ class SingleClassifierEvaluations:
         )
 
         wrong_vars = [
-            wrong_var
+            [
+                wrong_var
+                for wrong_var in self.axioms.responses_by_label[true_label][
+                    "errors"
+                ].values()
+            ]
             for true_label in self.axioms.labels
-            for wrong_var in self.axioms.responses_by_label[true_label][
-                "errors"
-            ].values()
         ]
 
         max_correct = (0, (0, 0))
-        for rl2l1 in range(0, qs[0] + 1):
-            for rl1l2 in range(0, qs[1] + 1):
-                if self._check_axiom_consistency_(
-                    eval_dict, {wrong_vars[0]: rl2l1, wrong_vars[1]: rl1l2}
-                ):
+
+        for first_label_wrongs in self._labels_wrongs_(qs[0]):
+            vars = wrong_vars[0]
+            vals = first_label_wrongs
+            for second_label_wrongs in self._labels_wrongs_(qs[1]):
+                vars += wrong_vars[1]
+                vals += second_label_wrongs
+
+                if self._check_axiom_consistency_(eval_dict, vars, vals):
                     corrects = [
-                        ql - wrong for ql, wrong in zip(qs, [rl2l1, rl1l2])
+                        ql - sum(wrongs)
+                        for ql, wrongs in zip(
+                            qs,
+                            [first_label_wrongs, second_label_wrongs],
+                        )
                     ]
                     corrects_sum = sum(corrects)
                     if corrects_sum > max_correct[0]:
@@ -127,8 +145,13 @@ class SingleClassifierEvaluations:
 
         return max_correct[1]
 
-    def _check_axiom_consistency_(self, eval_dict, errors_dict):
-        eval_dict.update(errors_dict)
+    def _labels_wrongs_(self, q):
+        return [(w1,) for w1 in range(0, q + 1)]
+
+    def _check_axiom_consistency_(self, eval_dict, wrong_vars, wrong_vals):
+        eval_dict.update(
+            {var: val for var, val in zip(wrong_vars, wrong_vals)}
+        )
         return self.axioms.satisfies_axioms(eval_dict)
 
 
