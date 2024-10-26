@@ -53,7 +53,7 @@ class SingleClassifierAxiomAlarm:
             for axioms in self.classifiers_axioms
         ]
         max_corrects = [
-            sca_eval.max_correct_at_qa_qb(qs, cresponses)
+            sca_eval.max_correct_at_qs(qs, cresponses)
             for sca_eval, cresponses in zip(sca_evals, responses)
         ]
 

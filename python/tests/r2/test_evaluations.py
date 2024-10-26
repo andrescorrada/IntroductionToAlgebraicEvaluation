@@ -12,10 +12,10 @@ scEvaluations = ntqr.r2.evaluations.SingleClassifierEvaluations(10, r2axioms)
 
 
 def test_evaluations_at_qa_qb():
-    evals = scEvaluations.evaluations_at_qa_qb([3, 7], [5, 5])
+    evals = scEvaluations.evaluations_at_qs([3, 7], [5, 5])
     assert evals == [(0, 2), (1, 3), (2, 4), (3, 5)]
 
 
 def test_max_correct_at_qa_qb():
-    max_correct = scEvaluations.max_correct_at_qa_qb([3, 7], [5, 5])
+    max_correct = scEvaluations.max_correct_at_qs([3, 7], [5, 5])
     assert max_correct == [3, 5]

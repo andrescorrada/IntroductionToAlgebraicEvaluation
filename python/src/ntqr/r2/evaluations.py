@@ -43,7 +43,7 @@ class SingleClassifierEvaluations:
         q = self.Q
         return 1 / 6 * (q + 1) * (q + 2) * (q + 3)
 
-    def evaluations_at_qa_qb(self, qs, responses):
+    def evaluations_at_qs(self, qs, responses):
         """
         Returns all evaluations logically consistent with the
         single classifier axiom given the correct number of each
@@ -87,7 +87,7 @@ class SingleClassifierEvaluations:
 
         return evals
 
-    def max_correct_at_qa_qb(self, qs, responses):
+    def max_correct_at_qs(self, qs, responses):
         """Gives highest performing correct for each label.
 
         Meant to save memory for alarm applications.
