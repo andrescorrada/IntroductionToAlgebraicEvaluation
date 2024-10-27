@@ -19,11 +19,9 @@ all possible evaluations.**
 
 Evaluation of noisy decision makers in unsupervised settings is a fundamental
 safety engineering problem. This library contains algorithms that treat this
-problem from a logical point of view. The use of logic to keep us safer is
-well known in many engineering contexts. Software that is used to safely shutdown
-nuclear plants is certified by using methods from formal software verification
-to logically prove they comply with their specified use. The NTQR package brings
-the framework of formal verification to unsupervised evaluations.
+problem from a logical point of view by considering the axiomatic relationships
+that must govern how groups may be performing given how they agree and disagree
+in their answers to a common test.
 
 A simple demonstration of the power of logic to clarify possible group evaluations
 for noisy experts is given by the example of two of them taking a common test
@@ -34,6 +32,32 @@ By just looking at how they agree and disagree, we can immediately deduce what
 group evaluations are impossible. The NTQR package carries this out by formulating
 algebraic logical axioms that must be obeyed by all evaluations of a given type
 or model.
+
+Using logic as an aid for safety is well known in other industries. Formal
+software verification is one requirement for certifying the software that
+carries out emergency shutdowns of nuclear plants. Autonomous vehicles are
+field tested using linear temporal logic.
+
+But logic seems out of place with how we engineer AI agents nowadays,
+mostly as statistical algorithms that depend and rely on a well developed set
+of ideas from probability theory. In addition, for some readers it may remind
+them of the symbolic AI systems that were developed before probability theory
+became the basic tool for building algorithms. These used knowledge bases and
+tried to reason about the world and their actions. The logic of unsupervised
+evaluation we are talking about is none of those.
+
+It is not a logic about how to make decisions. That is what the symbolic
+systems try to do. They do withs using a **world model**. These are hard
+define except in simulated worlds. Evaluations are not like that. A binary
+test is a binary test in any domain. The logic of unsupervised evaluation
+requires **evaluation models**. And these are trivial to specify and construct.
+
+
+The use of logic to keep us safer is
+well known in many engineering contexts. Software that is used to safely shutdown
+nuclear plants is certified by using methods from formal software verification
+to logically prove they comply with their specified use. The NTQR package brings
+the framework of formal verification to unsupervised evaluations.
 
 The current version is building out the axioms and logic for the case of binary
 classifiers and responders. Future versions will consider 3 or more classes.

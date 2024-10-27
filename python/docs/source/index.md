@@ -17,8 +17,6 @@ notebooks/LogicOfUnsupervisedEvaluationTutorial
 notebooks/ExactAlgebraicSolutionErrorIndependent
 research/GradingLLMs
 research/EvaluatingLLMsThatGradeOtherLLMs
-research/MathematicsOfAlgebraicEvaluation
-research/TheScienceOfAlgebraicEvaluation
 ntqr
 ```
 
