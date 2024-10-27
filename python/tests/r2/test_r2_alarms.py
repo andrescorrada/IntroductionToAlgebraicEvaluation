@@ -27,10 +27,8 @@ qs = (4, 6)
 def test_single_classifier_alarm_generate_safety_specification(
     qs, factors, corrects, satisfies
 ):
-    satisfies_safety_specification = alarm.generate_safety_specification(
-        factors
-    )
-    assert satisfies_safety_specification(qs, corrects) == satisfies
+    safety_specification = ntqr.alarms.SafetySpecification(factors)
+    assert safety_specification.is_satisfied(qs, corrects) == satisfies
 
 
 alarm = ntqr.alarms.SingleClassifierAxiomAlarm(
@@ -38,6 +36,7 @@ alarm = ntqr.alarms.SingleClassifierAxiomAlarm(
     [c1Axioms, c2Axioms],
     ntqr.r2.evaluations.SingleClassifierEvaluations,
 )
+alarm.set_safety_specification(factors)
 
 
 @pytest.mark.parametrize(
@@ -49,11 +48,7 @@ alarm = ntqr.alarms.SingleClassifierAxiomAlarm(
     ),
 )
 def test_misalignment_alarm_at_qs(alarm, qs, factors, responses, misaligned):
-    satisfies_safety_spec = alarm.generate_safety_specification(factors)
-    misalignment_test = alarm.misaligned_at_qs(
-        satisfies_safety_spec, qs, responses
-    )
-    print(misalignment_test)
+    misalignment_test = alarm.misaligned_at_qs(qs, responses)
     assert misalignment_test == misaligned
 
 
@@ -62,6 +57,7 @@ alarm = ntqr.alarms.SingleClassifierAxiomAlarm(
     [c1Axioms, c2Axioms],
     ntqr.r2.evaluations.SingleClassifierEvaluations,
 )
+alarm.set_safety_specification(factors)
 
 
 @pytest.mark.parametrize(
@@ -72,5 +68,4 @@ alarm = ntqr.alarms.SingleClassifierAxiomAlarm(
     ),
 )
 def test_misalignment_alarm(alarm, factors, responses, misaligned):
-    satisfies_safety_spec = alarm.generate_safety_specification(factors)
-    assert alarm.are_misaligned(satisfies_safety_spec, responses) == misaligned
+    assert alarm.are_misaligned(responses) == misaligned

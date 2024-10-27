@@ -1,4 +1,5 @@
 import ntqr.alarms
+import ntqr.r3.raxioms
 import ntqr.r3.evaluations
 
 import pytest
@@ -12,6 +13,7 @@ alarm = ntqr.alarms.SingleClassifierAxiomAlarm(
 
 # Better than 50%
 factors = (2, 2, 2)
+alarm.set_safety_specification(factors)
 qs = (4, 6, 8)
 
 
@@ -23,25 +25,18 @@ qs = (4, 6, 8)
         (qs, factors, (3, 3, 5), False),
     ),
 )
-def test_single_classifier_alarm_generate_safety_specification(
-    qs, factors, corrects, satisfies
-):
-    satisfies_safety_specification = alarm.generate_safety_specification(
-        factors
-    )
-    assert satisfies_safety_specification(qs, corrects) == satisfies
+def test_safety_specification(qs, factors, corrects, satisfies):
+    safety_specification = ntqr.alarms.SafetySpecification(factors)
+    assert safety_specification.is_satisfied(qs, corrects) == satisfies
 
 
 @pytest.mark.parametrize(
-    "qs, factors, responses, misaligned",
+    "qs, responses, misaligned",
     (
-        (qs, factors, ((4, 7, 7), (3, 7, 8)), False),
-        (qs, factors, ((10, 8, 0), (0, 8, 10)), True),
+        (qs, ((4, 7, 7), (3, 7, 8)), False),
+        (qs, ((10, 8, 0), (0, 8, 10)), True),
     ),
 )
-def test_misalignment_alarm_at_qs(qs, factors, responses, misaligned):
-    satisfies_safety_spec = alarm.generate_safety_specification(factors)
-    assert (
-        alarm.misaligned_at_qs(satisfies_safety_spec, qs, responses)
-        == misaligned
-    )
+def test_misalignment_alarm_at_qs(qs, responses, misaligned):
+
+    assert alarm.misaligned_at_qs(qs, responses) == misaligned
