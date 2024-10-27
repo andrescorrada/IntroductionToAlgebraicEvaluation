@@ -45,7 +45,7 @@ class SingleClassifierEvaluations:
         q = self.Q
         return 1 / 6 * (q + 1) * (q + 2) * (q + 3)
 
-    def evaluations_at_qs(self, qs, responses):
+    def errors_at_qs(self, qs, responses):
         """
         Returns all evaluations logically consistent with the
         single classifier axiom given the correct number of each
@@ -81,19 +81,24 @@ class SingleClassifierEvaluations:
         ]
 
         evals = set(
-            [
-                (first_lbl_wrong, second_lbl_wrong)
-                for first_lbl_wrong in self._labels_wrongs_(qs[0])
-                for second_lbl_wrong in self._labels_wrongs_(qs[1])
-                if self._check_axiom_consistency_(
-                    eval_dict,
-                    itertools.chain(*wrong_vars),
-                    itertools.chain(first_lbl_wrong, second_lbl_wrong),
-                )
-            ]
+            (first_lbl_wrong, second_lbl_wrong)
+            for first_lbl_wrong in self._labels_wrongs_(qs[0])
+            for second_lbl_wrong in self._labels_wrongs_(qs[1])
+            if self._check_axiom_consistency_(
+                eval_dict,
+                itertools.chain(*wrong_vars),
+                itertools.chain(first_lbl_wrong, second_lbl_wrong),
+            )
         )
 
         return evals
+
+    def correct_at_qs(self, qs, responses):
+        errors_at_qs = self.errors_at_qs(qs, responses)
+        return set(
+            ((ql - sum(label_errors)) for ql, label_errors in zip(qs, errors))
+            for errors in errors_at_qs
+        )
 
     def max_correct_at_qs(self, qs, responses):
         """Gives highest performing correct for each label.
@@ -146,11 +151,12 @@ class SingleClassifierEvaluations:
         return max_correct[1]
 
     def all_qs(self):
-        "Returns all possible question numbers."
+        """Return all possible question numbers."""
         Q = self.Q
         return [(qa, Q - qa) for qa in range(0, self.Q + 1)]
 
     def _labels_wrongs_(self, q):
+        """Return all possible incorrect given Q_l."""
         return [(w1,) for w1 in range(0, q + 1)]
 
     def _check_axiom_consistency_(self, eval_dict, wrong_vars, wrong_vals):

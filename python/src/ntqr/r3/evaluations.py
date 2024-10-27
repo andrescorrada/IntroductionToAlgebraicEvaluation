@@ -47,7 +47,7 @@ class SingleClassifierEvaluations:
             prod *= Q + i
         return prod / 362880  # 9! division
 
-    def evaluations_at_qs(self, qs, responses):
+    def errors_at_qs(self, qs, responses):
         """
         Returns all evaluations logically consistent with the
         single classifier axiom given the correct number of each
@@ -75,22 +75,27 @@ class SingleClassifierEvaluations:
         ]
 
         evals = set(
-            [
-                (first_lbl_wrong, second_lbl_wrong, third_lbl_wrong)
-                for first_lbl_wrong in self._labels_wrongs_(qs[0])
-                for second_lbl_wrong in self._labels_wrongs_(qs[1])
-                for third_lbl_wrong in self._labels_wrongs_(qs[2])
-                if self._check_axiom_consistency_(
-                    eval_dict,
-                    itertools.chain(*wrong_vars),
-                    itertools.chain(
-                        first_lbl_wrong, second_lbl_wrong, third_lbl_wrong
-                    ),
-                )
-            ]
+            (first_lbl_wrong, second_lbl_wrong, third_lbl_wrong)
+            for first_lbl_wrong in self._labels_wrongs_(qs[0])
+            for second_lbl_wrong in self._labels_wrongs_(qs[1])
+            for third_lbl_wrong in self._labels_wrongs_(qs[2])
+            if self._check_axiom_consistency_(
+                eval_dict,
+                itertools.chain(*wrong_vars),
+                itertools.chain(
+                    first_lbl_wrong, second_lbl_wrong, third_lbl_wrong
+                ),
+            )
         )
 
         return evals
+
+    def correct_at_qs(self, qs, responses):
+        errors_at_qs = self.errors_at_qs(qs, responses)
+        return set(
+            ((ql - sum(label_errors)) for ql, label_errors in zip(qs, errors))
+            for errors in errors_at_qs
+        )
 
     def max_correct_at_qs(self, qs, responses):
         """Gives highest performing correct for each label.
