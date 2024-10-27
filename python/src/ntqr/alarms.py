@@ -5,6 +5,8 @@ using the agreements and disagreements between classifiers to detect
 if they are misaligned given a safety specification.
 """
 
+import itertools
+
 
 class SingleClassifierAxiomAlarm:
     """Alarm based on the single classifier axioms for the ensemble members
@@ -12,6 +14,9 @@ class SingleClassifierAxiomAlarm:
     Initialize with 'classifiers_axioms', list of
     ntqr.r3.raxioms.SingleClassifierAxioms, one per classifier we want
     to compare.
+
+    Also needs class that does SingleClassifierEvaluations given the
+    axioms as 'cls_single_evals'
     """
 
     def __init__(self, Q, classifiers_axioms, cls_single_evals):
@@ -27,25 +32,11 @@ class SingleClassifierAxiomAlarm:
             for axioms in self.classifiers_axioms
         ]
 
-    def generate_safety_specification(self, factors):
-        """Creates a safety specification function query given min label
-        accuracies."""
+    def set_safety_specification(self, factors):
+        """Set alarm's safetySpecification given factors"""
+        self.safety_specification = SafetySpecification(factors)
 
-        def satisfies_safety_specification(qs, correct_responses):
-            """Checks that list of label accuracies satisfy the
-            equation, factor*correct_response - ql > 0."""
-            tests = [
-                (factor * correct_response - ql) > 0 if ql > 0 else True
-                for factor, correct_response, ql in zip(
-                    factors, correct_responses, qs
-                )
-            ]
-            # print("tests for safety specification: ", tests, " ", all(tests))
-            return all(tests)
-
-        return satisfies_safety_specification
-
-    def misaligned_at_qs(self, safety_spec, qs, responses):
+    def misaligned_at_qs(self, qs, responses):
         """Boolean test to see if the classifiers violate the safety
         specification at given questions correct number."""
 
@@ -57,26 +48,21 @@ class SingleClassifierAxiomAlarm:
         ]
 
         return any(
-            [
-                (not safety_spec(qs, max_correct))
-                for max_correct in max_corrects
-            ]
+            (not self.safety_specification.is_satisfied(qs, max_correct))
+            for max_correct in max_corrects
         )
 
-    def misalignment_trace(self, safety_spec, responses):
+    def misalignment_trace(self, responses):
         "Boolean trace of the classifiers test alignment."
         all_qs = self.evals[0].all_qs()
         trace = set(
-            [
-                (qs, self.misaligned_at_qs(safety_spec, qs, responses))
-                for qs in all_qs
-            ]
+            (qs, self.misaligned_at_qs(qs, responses)) for qs in all_qs
         )
         return trace
 
-    def are_misaligned(self, safety_spec, responses):
+    def are_misaligned(self, responses):
         "Boolean test of misaligned"
-        trace = self.misalignment_trace(safety_spec, responses)
+        trace = self.misalignment_trace(responses)
         return all(list(zip(*trace))[1])
 
     def check_responses(self, qs, responses):
@@ -101,3 +87,48 @@ class SingleClassifierAxiomAlarm:
             print("checks ", [qs_check, responses_check])
 
         return all([qs_check, responses_check])
+
+
+class SafetySpecification:
+    """Simple example of a safety specification.
+    Parameters:
+    ----------
+    factors: list of factors to be used in safety
+    specification tests, one per label.
+    """
+
+    def __init__(self, factors):
+
+        self.factors = factors
+
+    def is_satisfied(self, qs, correct_responses):
+        """Checks that list of label accuracies satisfy the
+        safety specification.
+
+        Returns True if all labels satisfy the equation
+          factor*correct_response - ql > 0
+        given each label's factor and assumed number in
+        the unknown test answer key, False otherwise."""
+        tests = [
+            (factor * correct_response - ql) > 0 if ql > 0 else True
+            for factor, correct_response, ql in zip(
+                self.factors, correct_responses, qs
+            )
+        ]
+        return all(tests)
+
+    def pair_safe_evaluations_at_qs(self, qs):
+        """All pair evaluations satisfying safety spec at given qs."""
+        correct_ranges = [
+            [
+                q_correct
+                for q_correct in range(0, ql + 1)
+                if ((factor * q_correct) - ql > 0)
+            ]
+            for factor, ql in zip(self.factors, qs)
+        ]
+
+        return [
+            itertools.product(correct_range, repeat=2)
+            for correct_range in correct_ranges
+        ]

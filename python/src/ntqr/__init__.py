@@ -25,4 +25,3 @@ from ntqr.r2.evaluators import (
 
 import ntqr.r2
 import ntqr.r3
-import ntqr.r3.raxioms
