@@ -18,10 +18,13 @@ import itertools
 
 import sympy
 
+import ntqr.evaluations
 from ntqr.r2.datasketches import VoteCounts
 
 
-class SingleClassifierEvaluations:
+class SingleClassifierEvaluations(
+    ntqr.evaluations.SingleClassifierEvaluations
+):
     """
     Single classifier evaluations in (Q_a, Q_b, R_{b_i, a}, R_{a_i,b})
     space.
@@ -29,10 +32,9 @@ class SingleClassifierEvaluations:
 
     def __init__(self, Q, single_axioms):
 
-        self.Q = Q
-        self.axioms = single_axioms
+        super().__init__(Q, single_axioms)
 
-    def number_aprior_evaluations(self):
+    def number_apriori_evaluations(self):
         """
         Calculates all the possible evaluations for a binary response test
         with Q questions.
@@ -82,8 +84,8 @@ class SingleClassifierEvaluations:
 
         evals = set(
             (first_lbl_wrong, second_lbl_wrong)
-            for first_lbl_wrong in self._labels_wrongs_(qs[0])
-            for second_lbl_wrong in self._labels_wrongs_(qs[1])
+            for first_lbl_wrong in self._label_wrongs_(qs[0])
+            for second_lbl_wrong in self._label_wrongs_(qs[1])
             if self._check_axiom_consistency_(
                 eval_dict,
                 itertools.chain(*wrong_vars),
@@ -92,13 +94,6 @@ class SingleClassifierEvaluations:
         )
 
         return evals
-
-    def correct_at_qs(self, qs, responses):
-        errors_at_qs = self.errors_at_qs(qs, responses)
-        return set(
-            ((ql - sum(label_errors)) for ql, label_errors in zip(qs, errors))
-            for errors in errors_at_qs
-        )
 
     def max_correct_at_qs(self, qs, responses):
         """Gives highest performing correct for each label.
@@ -129,10 +124,10 @@ class SingleClassifierEvaluations:
 
         max_correct = (0, (0, 0))
 
-        for first_label_wrongs in self._labels_wrongs_(qs[0]):
+        for first_label_wrongs in self._label_wrongs_(qs[0]):
             vars = wrong_vars[0]
             vals = first_label_wrongs
-            for second_label_wrongs in self._labels_wrongs_(qs[1]):
+            for second_label_wrongs in self._label_wrongs_(qs[1]):
                 vars += wrong_vars[1]
                 vals += second_label_wrongs
 
@@ -155,15 +150,9 @@ class SingleClassifierEvaluations:
         Q = self.Q
         return [(qa, Q - qa) for qa in range(0, self.Q + 1)]
 
-    def _labels_wrongs_(self, q):
+    def _label_wrongs_(self, ql):
         """Return all possible incorrect given Q_l."""
-        return [(w1,) for w1 in range(0, q + 1)]
-
-    def _check_axiom_consistency_(self, eval_dict, wrong_vars, wrong_vals):
-        eval_dict.update(
-            {var: val for var, val in zip(wrong_vars, wrong_vals)}
-        )
-        return self.axioms.satisfies_axioms(eval_dict)
+        return [(num_wrong,) for num_wrong in range(0, ql + 1)]
 
 
 # This class needs to be deleted and code that uses refactored
