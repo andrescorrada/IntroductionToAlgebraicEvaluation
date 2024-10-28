@@ -48,6 +48,7 @@ extensions = [
 
 autoapi_dirs = ["../../src"]
 autoapi_type = "python"
+autoapi_generate_api_docs = True
 # autosummary_generate = True  # Turn on sphinx.ext.autosummary
 # autodoc_mock_imports = ["ntqr"]
 
