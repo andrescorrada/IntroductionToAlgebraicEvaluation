@@ -17,6 +17,6 @@ notebooks/LogicOfUnsupervisedEvaluationTutorial
 notebooks/ExactAlgebraicSolutionErrorIndependent
 research/GradingLLMs
 research/EvaluatingLLMsThatGradeOtherLLMs
-ntqr
+autoapi/index
 ```
 

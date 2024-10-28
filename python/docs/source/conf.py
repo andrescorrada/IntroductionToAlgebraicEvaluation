@@ -12,10 +12,13 @@
 #
 import os
 import sys
+from pathlib import Path
+from ntqr import __version__ as ntqr_version
 
-import ntqr
 
-sys.path.insert(0, os.path.abspath(".."))
+sys.path.insert(0, str(Path("..", "..", "src").resolve()))
+# sys.path.insert(0, str(Path("..", "src").resolve()))
+# sys.path.insert(0, str(Path("..").resolve()))
 
 
 # -- Project information -----------------------------------------------------
@@ -25,7 +28,7 @@ copyright = "2024, Andrés Corrada-Emmanuel, Walker Lee, Adam Sloat"
 authors = ["Andrés Corrada-Emmanuel", "Walker Lee", "Adam Sloat"]
 
 # The full version, including alpha/beta/rc tags
-version = ntqr.__version__
+version = ntqr_version
 release = version
 
 
@@ -37,10 +40,16 @@ release = version
 extensions = [
     "myst_parser",
     "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
     "sphinx.ext.mathjax",
     "nbsphinx",
+    "autoapi",
 ]
 
+autoapi_dirs = ["../../src"]
+autoapi_type = "python"
+# autosummary_generate = True  # Turn on sphinx.ext.autosummary
+# autodoc_mock_imports = ["ntqr"]
 
 myst_enable_extensions = [
     "colon_fence",

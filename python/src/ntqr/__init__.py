@@ -11,7 +11,7 @@ Misc variables:
     uci_adult_test_example
 """
 
-__version__ = "0.3.2"
+__version__ = "0.4"
 
 from ntqr.r2.examples import uciadult_label_counts
 
@@ -23,5 +23,6 @@ from ntqr.r2.evaluators import (
     MajorityVotingEvaluation,
 )
 
+import ntqr.statistics
 import ntqr.r2
 import ntqr.r3
