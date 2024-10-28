@@ -43,7 +43,7 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.mathjax",
     "nbsphinx",
-    "autoapi.extension",
+    "autoapi",
 ]
 
 autoapi_dirs = ["../../src"]
