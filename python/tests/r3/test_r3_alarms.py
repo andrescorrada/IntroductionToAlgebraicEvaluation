@@ -26,7 +26,7 @@ qs = (4, 6, 8)
     ),
 )
 def test_safety_specification(qs, factors, corrects, satisfies):
-    safety_specification = ntqr.alarms.SafetySpecification(factors)
+    safety_specification = ntqr.alarms.LabelsSafetySpecification(factors)
     assert safety_specification.is_satisfied(qs, corrects) == satisfies
 
 

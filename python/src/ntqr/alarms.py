@@ -35,7 +35,7 @@ class SingleClassifierAxiomAlarm:
     def set_safety_specification(self, factors):
         """Set alarm's safetySpecification given factors"""
         assert len(factors) == len(self.labels)
-        self.safety_specification = SafetySpecification(factors)
+        self.safety_specification = LabelsSafetySpecification(factors)
 
     def misaligned_at_qs(self, qs, responses):
         """Boolean test to see if the classifiers violate the safety
@@ -90,7 +90,7 @@ class SingleClassifierAxiomAlarm:
         return all([qs_check, responses_check])
 
 
-class SafetySpecification:
+class LabelsSafetySpecification:
     """Simple example of a safety specification.
     Parameters:
     ----------
@@ -132,4 +132,48 @@ class SafetySpecification:
         return [
             itertools.product(correct_range, repeat=2)
             for correct_range in correct_ranges
+        ]
+
+
+class GradeSafetySpecification:
+    """Simple example of a safety specification.
+    Parameters:
+    ----------
+    factors: list of factors to be used in safety
+    specification tests, one per label.
+
+    Returns:
+    -------
+    True if all labels satisfy factor_l*max_correct_l - ql > 0,
+    False otherwise
+    """
+
+    def __init__(self, factors):
+
+        self.factors = factors
+
+    def is_satisfied(self, qs, correct_responses):
+        """Checks that list of label accuracies satisfy the
+        safety specification.
+
+        Returns True if the max correct answers for labels satisfy
+          factor*sum(correct_label) - Q > 0 given questions
+          numbers 'qs',
+          False otherwise.
+        """
+        Q = sum(qs)
+        grade_test = self.factor * sum(correct_responses) - Q > 0
+        return grade_test
+
+    def pair_safe_evaluations_at_qs(self, qs):
+        """All pair evaluations satisfying safety spec at given qs."""
+        ql_ranges = (
+            [q_correct for q_correct in range(0, ql + 1)] for ql in qs
+        )
+        pair_safe_evaluations = filter(
+            lambda rs: self.is_satisfied(qs, rs), itertools.product(*ql_ranges)
+        )
+        return [
+            itertools.product(correct_range, repeat=2)
+            for correct_range in zip(*pair_safe_evaluations)
         ]

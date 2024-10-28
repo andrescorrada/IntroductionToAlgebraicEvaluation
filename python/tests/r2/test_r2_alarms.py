@@ -27,7 +27,7 @@ qs = (4, 6)
 def test_single_classifier_alarm_generate_safety_specification(
     qs, factors, corrects, satisfies
 ):
-    safety_specification = ntqr.alarms.SafetySpecification(factors)
+    safety_specification = ntqr.alarms.LabelsSafetySpecification(factors)
     assert safety_specification.is_satisfied(qs, corrects) == satisfies
 
 
