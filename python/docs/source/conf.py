@@ -41,7 +41,7 @@ extensions = [
     "myst_parser",
     "sphinx.ext.mathjax",
     "nbsphinx",
-    "autoapi",
+    "autoapi.extension",
 ]
 
 autoapi_dirs = [str(Path("..", "..", "src"))]
