@@ -52,52 +52,33 @@ define except in simulated worlds. Evaluations are not like that. A binary
 test is a binary test in any domain. The logic of unsupervised evaluation
 requires **evaluation models**. And these are trivial to specify and construct.
 
-
-The use of logic to keep us safer is
-well known in many engineering contexts. Software that is used to safely shutdown
-nuclear plants is certified by using methods from formal software verification
-to logically prove they comply with their specified use. The NTQR package brings
-the framework of formal verification to unsupervised evaluations.
-
 The current version is building out the axioms and logic for the case of binary
-classifiers and responders. Future versions will consider 3 or more classes.
-At a high level, this package contains a logic of formally verifying binary
-evaluations and evaluators and logical tools that use the axioms of that
-logic with additional assumptions.
-All the complicated algebraic geometry computations here are meant to
-accomplish only one thing - give you a logically consistent framework for
-validating **any** algorithm that evaluates classifiers on a test that used
-unlabeled data. This logical framework has three properties that make it
-useful in AI safety applications:
+classifiers and responders (R=2) and 3-class classifiers (R=3).
+The current version (v0.4) has
+taken a big step by using the case of 3-class classification to go back and
+rewrite the 2-class (binary) classification case. In the process, it has now
+become obvious how to create an alarm for any number of classes using just
+the algorithms used here that depend on just the single classifier axioms.
 
-1. It is **universal**. The algorithms here apply to any domain. There is no
-   Out of Distribution (OOD) problem when you use algebraic evaluation because
-   it does not use any probability theory. By only using summary statistics of
-   how a group of classifiers labeled a test set, we can treat all classifiers,
-   whether human or robotic, as black boxes. There are no hyperparameters
-   to tune or set in NTQR algorithms. If they were, these algorithms could
-   not claim to be universal.
-
-2. It is **complete**. The finite nature of any test given to a group of
-   binary classifiers means we can guarantee the existence of a complete
-   set of postulates that must be obeyed during any evaluation. Completeness
-   is a logical safety shield. It allows us to create theorem provers that
-   can unequivocably detect violations of the logical consistency of **any**
-   grading algorithm. This is demonstrated here by the error-independent
-   evaluator outputting an irrational number for test ratios that can only
-   be rationals.
-
-3. It allows you to create **self-alarming** evaluation algorithms.
-   Algebraic evaluation algorithms warn when their assumptions are wrong. This
-   is the single most important safety feature of algebraic evaluation.
-   No method that uses representation of the domain or probability theory
-   can do this. Charles Perrow, the author of "Normal Accidents", said
-
-     > Unfortunately, most warning systems do not warn us that
-     > they can no longer warn us.
-
-   This package aleviates that problem. Algebraic evaluation can detect many
-   cases where its evaluation assumptions are wrong.
+Brief guide:
+1. Formal verification of unsupervised evaluations: The NTQR package is
+  working out the logic for verifying unsupervised evaluations - what are
+  the group evaluations that are consistent with how the test takers agree
+  and disagree on multiple-choice exams? The page "Formal verification of
+  evaluations" explains this further.
+2. A way to stop infinite monitoring chains: Who grades the graders? Montioring
+  unsupervised test takers raises the specter of endless graders or monitors.
+  By having a logic of unsupervised evaluation, we can stop those infinite
+  chains. We can verify that pairs of classifiers are misaligned, for example.
+  Take a look at the "Logical Alarms" Jupyter notebook.
+3. Jury evaluation theorems: Jury decision theorems - when does the crowd
+  decide wisely? - go as far back as Condorcet's 1785 theorem proving that majority
+  voting makes the crowd wiser for better than average jury members. The NTQR
+  package contains the first jury evaluation theorem - when does the crowd
+  evaluate itself wisely? It turns out it does this better than majority voting
+  can decide. This has important consequences for how we shoud design
+  safer Ai systems. Check out the "Evaluation is easier than decision"
+  page.
 
 >**Warning**
 This library is under heavy development and is presently meant only
