@@ -39,18 +39,16 @@ release = version
 # ones.
 extensions = [
     "myst_parser",
-    "sphinx.ext.autodoc",
-    "sphinx.ext.autosummary",
     "sphinx.ext.mathjax",
     "nbsphinx",
     "autoapi",
 ]
 
-autoapi_dirs = ["../../src"]
+autoapi_dirs = [str(Path("..", "..", "src"))]
 autoapi_type = "python"
 autoapi_generate_api_docs = True
 # autoapi_modules = {"ntqr": None}
-autoapi_keep_files = True
+autoapi_keep_files = False
 autoapi_template_dir = "_templates/autoapi/python"
 # autosummary_generate = True  # Turn on sphinx.ext.autosummary
 # autodoc_mock_imports = ["ntqr"]
