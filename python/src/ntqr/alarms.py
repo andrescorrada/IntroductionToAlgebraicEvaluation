@@ -34,6 +34,7 @@ class SingleClassifierAxiomAlarm:
 
     def set_safety_specification(self, factors):
         """Set alarm's safetySpecification given factors"""
+        assert len(factors) == len(self.labels)
         self.safety_specification = SafetySpecification(factors)
 
     def misaligned_at_qs(self, qs, responses):

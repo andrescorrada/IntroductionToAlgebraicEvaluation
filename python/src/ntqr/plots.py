@@ -64,7 +64,7 @@ def plot_pair_logical_alarm_at_qs(labels, classifiers, qs, responses, plt=plt):
     label_safety_evals = safety_specification.pair_safe_evaluations_at_qs(qs)
 
     # Start building plot
-    figs, axs = plt.subplots(1, num_labels)
+    fig, axs = plt.subplots(1, num_labels)
     for ql, ax, pair_label_values, safety_evals, label_vars in zip(
         qs, axs, classifier_evals_by_label, label_safety_evals, classifier_vars
     ):
@@ -74,6 +74,8 @@ def plot_pair_logical_alarm_at_qs(labels, classifiers, qs, responses, plt=plt):
             )
         else:
             ax.axis("off")
+
+    fig.tight_layout(pad=2.0)
 
     plt.show()
 
