@@ -20,6 +20,5 @@ evaluation_is_easier
 formal_verification
 research/GradingLLMs
 research/EvaluatingLLMsThatGradeOtherLLMs
-autoapi/index
 ```
 
