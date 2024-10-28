@@ -48,7 +48,7 @@ extensions = [
 
 autoapi_dirs = ["../../src"]
 autoapi_type = "python"
-autoapi_generate_api_docs = True
+autoapi_generate_api_docs = False
 autoapi_modules = {"ntqr": None}
 autoapi_keep_files = False
 # autosummary_generate = True  # Turn on sphinx.ext.autosummary
