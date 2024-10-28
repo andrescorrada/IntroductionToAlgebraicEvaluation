@@ -15,6 +15,7 @@ conceptual
 notebooks/Tutorial
 notebooks/LogicOfUnsupervisedEvaluationTutorial
 notebooks/ExactAlgebraicSolutionErrorIndependent
+notebooks/LogicalAlarmsMisalignedClassifiers
 research/GradingLLMs
 research/EvaluatingLLMsThatGradeOtherLLMs
 autoapi/index
