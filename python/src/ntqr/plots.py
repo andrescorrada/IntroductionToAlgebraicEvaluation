@@ -60,7 +60,9 @@ def plot_pair_logical_alarm_at_qs(labels, classifiers, qs, responses, plt=plt):
         ]
     )
 
-    safety_specification = ntqr.alarms.SafetySpecification([2] * num_labels)
+    safety_specification = ntqr.alarms.LabelsSafetySpecification(
+        [2] * num_labels
+    )
     label_safety_evals = safety_specification.pair_safe_evaluations_at_qs(qs)
 
     # Start building plot
