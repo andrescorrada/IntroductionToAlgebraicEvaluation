@@ -7,7 +7,7 @@ import pytest
 labels = ("a", "b", "c")
 c1Axioms = ntqr.r3.raxioms.SingleClassifierAxioms(labels, "1")
 c2Axioms = ntqr.r3.raxioms.SingleClassifierAxioms(labels, "2")
-alarm = ntqr.alarms.SingleClassifierAxiomAlarm(
+alarm = ntqr.alarms.SingleClassifierAxiomsAlarm(
     18, [c1Axioms, c2Axioms], ntqr.r3.evaluations.SingleClassifierEvaluations
 )
 

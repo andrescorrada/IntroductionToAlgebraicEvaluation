@@ -31,7 +31,7 @@ def test_single_classifier_alarm_generate_safety_specification(
     assert safety_specification.is_satisfied(qs, corrects) == satisfies
 
 
-alarm = ntqr.alarms.SingleClassifierAxiomAlarm(
+alarm = ntqr.alarms.SingleClassifierAxiomsAlarm(
     10,
     [c1Axioms, c2Axioms],
     ntqr.r2.evaluations.SingleClassifierEvaluations,
@@ -52,7 +52,7 @@ def test_misalignment_alarm_at_qs(alarm, qs, factors, responses, misaligned):
     assert misalignment_test == misaligned
 
 
-alarm = ntqr.alarms.SingleClassifierAxiomAlarm(
+alarm = ntqr.alarms.SingleClassifierAxiomsAlarm(
     20,
     [c1Axioms, c2Axioms],
     ntqr.r2.evaluations.SingleClassifierEvaluations,
