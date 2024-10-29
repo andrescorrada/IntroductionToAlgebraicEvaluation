@@ -3,12 +3,53 @@
 Formal verification of unsupervised evaluations is carried out by
 using the agreements and disagreements between classifiers to detect
 if they are misaligned given a safety specification.
+
+The 'atomic' logical test for the alarms is a look at the group
+evaluations that are logically consistent with how the classifiers
+aligned in their decisions and an assumed number of corrects for
+each label in the true, but unknown, answer key for the exam.
+
+For example, in a test with three possible responses or classes
+for each question, we need to specify,
+
+    qs = (q_label_1, q_label_2, q_label_3)
+
+where
+
+    sum(qs) = Q,
+
+with Q the size of the test. So a test with Q=10, could have a qs setting of, 
+(5,3,2) since sum(5,3,2) = 10.
+
+This atomic misalignment test at fixed qs value then allows you
+to create custom alarms depending on your application domain.
+Some examples,
+
+1. The prevalence of classes in your tests is biased toward
+small amounts of one label or the other. In that case, you can construct
+an alarm as,
+
+        and([alarm.misaligned_at_qs(qs, responses) for qs my_range()])
+
+2. The method `ntqr.SingleClassifierAxiomsAlarm.are_misaligned`
+is a test for fully unsupervised settings and is equivalent to,
+
+        and([alarm.misaligned_at_qs((qa,Q-qa), rs) for qa in range(0,Q+1)])
+
+That is, the only thing you have are the classifier responses and the
+size of the test, Q.
+
+3. You believe that your classifiers are high performing and therefore
+will only accept (Q_label_1, Q_label_2, ...) settings for which
+all your classifiers are better than x% at detecting all the labels.
+This turns the atomic logical test into a measuring instrument for
+the prevalence of the labels in the tested dataset.
 """
 
 import itertools
 
 
-class SingleClassifierAxiomAlarm:
+class SingleClassifierAxiomsAlarm:
     """Alarm based on the single classifier axioms for the ensemble members
 
     Initialize with 'classifiers_axioms', list of
@@ -39,7 +80,8 @@ class SingleClassifierAxiomAlarm:
 
     def misaligned_at_qs(self, qs, responses):
         """Boolean test to see if the classifiers violate the safety
-        specification at given questions correct number."""
+        specification at given questions correct number.
+        """
 
         assert self.check_responses(qs, responses)
 
@@ -109,7 +151,8 @@ class LabelsSafetySpecification:
         Returns True if all labels satisfy the equation
           factor*correct_response - ql > 0
         given each label's factor and assumed number in
-        the unknown test answer key, False otherwise."""
+        the unknown test answer key, False otherwise.
+        """
         tests = [
             (factor * correct_response - ql) > 0 if ql > 0 else True
             for factor, correct_response, ql in zip(
@@ -138,12 +181,12 @@ class LabelsSafetySpecification:
 class GradeSafetySpecification:
     """Simple example of a safety specification.
     Parameters:
-    ----------
+    -----------
     factors: list of factors to be used in safety
     specification tests, one per label.
 
     Returns:
-    -------
+    --------
     True if all labels satisfy factor_l*max_correct_l - ql > 0,
     False otherwise
     """
