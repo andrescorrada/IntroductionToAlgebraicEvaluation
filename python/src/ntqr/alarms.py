@@ -29,21 +29,38 @@ Some examples,
 small amounts of one label or the other. In that case, you can construct
 an alarm as,
 
-        and([alarm.misaligned_at_qs(qs, responses) for qs my_range()])
+        all([alarm.misaligned_at_qs(qs, responses) for qs my_range()])
 
 2. The method `ntqr.SingleClassifierAxiomsAlarm.are_misaligned`
 is a test for fully unsupervised settings and is equivalent to,
 
-        and([alarm.misaligned_at_qs((qa,Q-qa), rs) for qa in range(0,Q+1)])
+        all([alarm.misaligned_at_qs((qa,Q-qa), rs) for qa in range(0,Q+1)])
 
-That is, the only thing you have are the classifier responses and the
+That is, the only thing you have are the classifiers' responses and the
 size of the test, Q.
 
 3. You believe that your classifiers are high performing and therefore
 will only accept (Q_label_1, Q_label_2, ...) settings for which
 all your classifiers are better than x% at detecting all the labels.
 This turns the atomic logical test into a measuring instrument for
-the prevalence of the labels in the tested dataset.
+the prevalence of the labels in the tested dataset. The method
+
+    SingleClassifierAxiomsAlarm.are_misaligned( responses )
+
+is the fully unsupervised version of what logical alarms can do.
+It detects (imperfectly!) if at least one member in an ensemble is
+violating a user provided safety specification when doing classification
+with R classes.
+
+The name 'are_misaligned' should make clear that this detects when
+classifiers are misaligned **and** this is not the same thing as being
+correct. If a pair of classifiers are being tested, if both are wrong
+in the same way, `.are_misaligned` will return False.
+
+The user is encouraged to think of these alarms as building blocks for
+algorithms that use the philosophy of error-detecting codes. For example,
+by having three classifiers, as long as one of them is behaving correctly,
+`.are_misaligned` will return True.
 """
 
 import itertools
@@ -80,7 +97,7 @@ class SingleClassifierAxiomsAlarm:
 
     def misaligned_at_qs(self, qs, responses):
         """Boolean test to see if the classifiers violate the safety
-        specification at given questions correct number.
+        specification at given questions correct numbers, qs.
         """
 
         assert self.check_responses(qs, responses)
@@ -96,7 +113,12 @@ class SingleClassifierAxiomsAlarm:
         )
 
     def misalignment_trace(self, responses):
-        "Boolean trace of the classifiers test alignment."
+        """Boolean trace of the classifiers test alignment over all
+        possible qs values for a test of size Q.
+
+        responses: Iterator over classifier ordered label responses.
+        Generically of the form (num_label_1_responses, num_label_2_res...)
+        """
         all_qs = self.evals[0].all_qs()
         trace = set(
             (qs, self.misaligned_at_qs(qs, responses)) for qs in all_qs
@@ -104,12 +126,21 @@ class SingleClassifierAxiomsAlarm:
         return trace
 
     def are_misaligned(self, responses):
-        "Boolean test of misaligned"
+        "Boolean AND of the misalignment trace given responses."
         trace = self.misalignment_trace(responses)
         return all(list(zip(*trace))[1])
 
     def check_responses(self, qs, responses):
-        "Checks logical constraints on responses."
+        """Checks logical constraints on responses.
+        1. The sum of label correct questions equals the size of the test.
+
+            sum(qs) = Q
+
+        2. All classifiers label responses also sum to the test size.
+
+            all( (sum(classifer_rsps) == Q) for classifier_rsps in responses)
+
+        """
         q = sum(qs)
         if q == self.Q:
             qs_check = True
@@ -133,14 +164,23 @@ class SingleClassifierAxiomsAlarm:
 
 
 class LabelsSafetySpecification:
-    """Simple example of a safety specification.
-    Parameters:
-    ----------
-    factors: list of factors to be used in safety
-    specification tests, one per label.
-    """
+    """Simple example of safety specification for each label."""
 
     def __init__(self, factors):
+        """
+
+
+        Parameters
+        ----------
+        factors : List[int]
+            List of factors to be used in safety specification tests,
+            one per label.
+
+        Returns
+        -------
+        None.
+
+        """
 
         self.factors = factors
 
@@ -179,19 +219,22 @@ class LabelsSafetySpecification:
 
 
 class GradeSafetySpecification:
-    """Simple example of a safety specification.
-    Parameters:
-    -----------
-    factors: list of factors to be used in safety
-    specification tests, one per label.
-
-    Returns:
-    --------
-    True if all labels satisfy factor_l*max_correct_l - ql > 0,
-    False otherwise
-    """
+    """Simple example of a grade safety specification."""
 
     def __init__(self, factors):
+        """
+
+
+        Parameters
+        ----------
+        factors: list of int
+            Label accuracy is required to be better than Q_label/factor.
+
+        Returns
+        -------
+        None.
+
+        """
 
         self.factors = factors
 
@@ -199,10 +242,18 @@ class GradeSafetySpecification:
         """Checks that list of label accuracies satisfy the
         safety specification.
 
-        Returns True if the max correct answers for labels satisfy
-          factor*sum(correct_label) - Q > 0 given questions
-          numbers 'qs',
-          False otherwise.
+        Parameters
+        ----------
+        qs : list of int
+            Number of label questions in the test.
+        correct_responses : iterable of list of ints
+            Number of label correct responses, one per label.
+
+        Returns
+        -------
+        True if the max correct answers for labels satisfy
+        factor*sum(correct_label) - Q > 0 given questions
+        numbers qs, False otherwise.
         """
         Q = sum(qs)
         grade_test = self.factor * sum(correct_responses) - Q > 0
