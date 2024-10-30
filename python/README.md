@@ -74,7 +74,7 @@ Brief guide:
 3. Jury evaluation theorems: Jury decision theorems - when does the crowd
   decide wisely? - go as far back as Condorcet's 1785 theorem proving that majority
   voting makes the crowd wiser for better than average jury members. The NTQR
-  package contains the first jury evaluation theorem - when does the crowd
+  package contains jury evaluation theorems - when does the crowd
   evaluate itself wisely? It turns out it does this better than majority voting
   can decide. This has important consequences for how we shoud design
   safer Ai systems. Check out the "Evaluation is easier than decision"

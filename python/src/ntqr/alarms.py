@@ -63,23 +63,45 @@ by having three classifiers, as long as one of them is behaving correctly,
 `.are_misaligned` will return True.
 """
 
+from collections.abc import Sequence, Iterator
 import itertools
+
+import ntqr
 
 
 class SingleClassifierAxiomsAlarm:
-    """Alarm based on the single classifier axioms for the ensemble members
+    """Alarm based on the single classifier axioms for the ensemble members.
 
-    Initialize with 'classifiers_axioms', list of
-    ntqr.r3.raxioms.SingleClassifierAxioms, one per classifier we want
-    to compare.
+    Although this alarm considers only single classifier axioms, they all
+    share the variables related to the number of different question types
+    in a test. For example, a binary test has two question types. This allows
+    us to consider what evaluations are possible for a group of classifiers
+    at **fixed** number of questions.
 
-    Also needs class that does SingleClassifierEvaluations given the
-    axioms as 'cls_single_evals'
+    Said another way, when we only consider the individual number of
+    responses for each classifier, we are aligning the group responses on
+    the whole test, not individual questions in it. Future classes will
+    consider what happens when we count how pairs of them are aligned at
+    the question level.
+
     """
 
-    def __init__(self, Q, classifiers_axioms, cls_single_evals):
-        """"""
+    def __init__(
+        self,
+        Q: int,
+        classifiers_axioms: Sequence[
+            ntqr.r2.raxioms.SingleClassifierAxioms
+            | ntqr.r3.raxioms.SingleClassifierAxioms
+        ],
+        cls_single_evals: ntqr.evaluations.SingleClassifierEvaluations,
+    ) -> None:
+        """To initialize
 
+        Parameters
+        ----------
+        Q : int
+            The size of the test.
+        """
         self.Q = Q
 
         self.classifiers_axioms = classifiers_axioms
@@ -90,16 +112,40 @@ class SingleClassifierAxiomsAlarm:
             for axioms in self.classifiers_axioms
         ]
 
-    def set_safety_specification(self, factors):
-        """Set alarm's safetySpecification given factors"""
+    def set_safety_specification(self, factors: Sequence[int]) -> None:
+        """Set alarm's safetySpecification given factors.
+
+        Currently defaulting to LabelsSafetySpecification
+
+        Parameters
+        ----------
+        factors : Sequence[int]
+            Sequence of factors that will satisfy factor*q_l_correct - q_l > 0
+
+        Returns
+        -------
+        None
+        """
         assert len(factors) == len(self.labels)
         self.safety_specification = LabelsSafetySpecification(factors)
 
-    def misaligned_at_qs(self, qs, responses):
-        """Boolean test to see if the classifiers violate the safety
-        specification at given questions correct numbers, qs.
-        """
+    def misaligned_at_qs(
+        self, qs: Sequence[int], responses: Sequence[Sequence[int]]
+    ) -> bool:
+        """Tests if responses are misaligned at qs.
 
+        Parameters
+        ----------
+        qs : Sequence[int]
+            Count of label in answer key.
+        responses: Sequence[Sequence[int]]
+            Label responses by each classifier
+
+        Returns
+        -------
+        bool
+            Whether one or more classifiers violated the safety specification.
+        """
         assert self.check_responses(qs, responses)
 
         max_corrects = [
@@ -112,12 +158,21 @@ class SingleClassifierAxiomsAlarm:
             for max_correct in max_corrects
         )
 
-    def misalignment_trace(self, responses):
-        """Boolean trace of the classifiers test alignment over all
-        possible qs values for a test of size Q.
+    def misalignment_trace(
+        self, responses: Sequence[Sequence[int]]
+    ) -> set[tuple[Sequence[int], bool]]:
+        """Test classifiers misalignment at all label question numbers.
 
-        responses: Iterator over classifier ordered label responses.
-        Generically of the form (num_label_1_responses, num_label_2_res...)
+        Parameter
+        --------
+        responses: Sequence[Sequence[int]]
+            The number of label responses by each classifier
+
+        Returns
+        -------
+        set[tuple[Sequence[int], bool]]
+            The set of (qs, misalignment_test_result) for all possible
+            qs settings in a test of size Q.
         """
         all_qs = self.evals[0].all_qs()
         trace = set(
@@ -125,13 +180,28 @@ class SingleClassifierAxiomsAlarm:
         )
         return trace
 
-    def are_misaligned(self, responses):
-        "Boolean AND of the misalignment trace given responses."
+    def are_misaligned(self, responses: Sequence[Sequence[int]]) -> bool:
+        """Boolean AND of the misalignment trace given responses.
+
+        Parameters
+        ----------
+        responses : Sequence[Sequence[int]]
+            The number of label responses by each classifier
+
+        Returns
+        -------
+        bool
+            True if the classifiers have no qs setting at which all
+            classifiers satisfy the safety specification, False otherwise.
+        """
         trace = self.misalignment_trace(responses)
         return all(list(zip(*trace))[1])
 
-    def check_responses(self, qs, responses):
-        """Checks logical constraints on responses.
+    def check_responses(
+        self, qs: Sequence[int], responses: Sequence[Sequence[int]]
+    ) -> bool:
+        """Check logical constraints on responses.
+
         1. The sum of label correct questions equals the size of the test.
 
             sum(qs) = Q
@@ -139,6 +209,18 @@ class SingleClassifierAxiomsAlarm:
         2. All classifiers label responses also sum to the test size.
 
             all( (sum(classifer_rsps) == Q) for classifier_rsps in responses)
+
+        Parameter
+        --------
+        qs : Sequence[int]
+            Count of label in answer key.
+        responses: Sequence[Sequence[int]]
+            The number of label responses by each classifier
+
+        Returns
+        -------
+        bool
+            True if requirements 1 and 2 are satisfied, False otherwise.
 
         """
         q = sum(qs)
@@ -154,11 +236,6 @@ class SingleClassifierAxiomsAlarm:
         )
 
         consistency_check = all([qs_check, responses_check])
-        if consistency_check == False:
-            print("q ", q, "Q ", self.Q),
-            print("qs ", qs)
-            print("responses ", responses)
-            print("checks ", [qs_check, responses_check])
 
         return all([qs_check, responses_check])
 
@@ -166,9 +243,8 @@ class SingleClassifierAxiomsAlarm:
 class LabelsSafetySpecification:
     """Simple example of safety specification for each label."""
 
-    def __init__(self, factors):
-        """
-
+    def __init__(self, factors: Sequence[int]) -> None:
+        """Class initializer.
 
         Parameters
         ----------
@@ -181,17 +257,27 @@ class LabelsSafetySpecification:
         None.
 
         """
-
         self.factors = factors
 
-    def is_satisfied(self, qs, correct_responses):
-        """Checks that list of label accuracies satisfy the
-        safety specification.
+    def is_satisfied(
+        self, qs: Sequence[int], correct_responses: Sequence[int]
+    ):
+        """Check correct_responses at qs setting satisfy safety specification
 
-        Returns True if all labels satisfy the equation
-          factor*correct_response - ql > 0
-        given each label's factor and assumed number in
-        the unknown test answer key, False otherwise.
+        Parameters
+        ----------
+        qs : Sequence[int]
+            Count of label in answer key.
+        responses: Sequence[Sequence[int]]
+            The number of label responses by each classifier
+
+        Returns
+        -------
+        bool
+            True if classifier assumed number of correct responses
+            satisfy the safety specification, False otherwise.
+            Each number of assumed label correct responses must satisfy
+            factor*q_label_correct - q_label > 0.
         """
         tests = [
             (factor * correct_response - ql) > 0 if ql > 0 else True
@@ -201,8 +287,22 @@ class LabelsSafetySpecification:
         ]
         return all(tests)
 
-    def pair_safe_evaluations_at_qs(self, qs):
-        """All pair evaluations satisfying safety spec at given qs."""
+    def pair_safe_evaluations_at_qs(
+        self, qs: Sequence[int]
+    ) -> list[Iterator[tuple[int, int]]]:
+        """All pair evaluations satisfying safety spec at given qs.
+
+        Parameters
+        ----------
+        qs : Sequence[int]
+            Number of questions for each label.
+
+        Returns
+        -------
+        list[Iterator[tuple[int,int]]]
+            List of iterators, one per label, for the pair evaluations
+            that satisfy the safety specification.
+        """
         correct_ranges = [
             [
                 q_correct
@@ -238,22 +338,20 @@ class GradeSafetySpecification:
 
         self.factors = factors
 
-    def is_satisfied(self, qs, correct_responses):
+    def is_satisfied(self, qs: list[int], correct_responses: Sequence[int]):
         """Checks that list of label accuracies satisfy the
         safety specification.
 
         Parameters
         ----------
-        qs : list of int
+        qs : list(int)
             Number of label questions in the test.
-        correct_responses : iterable of list of ints
+        correct_responses : Sequence[int]
             Number of label correct responses, one per label.
 
         Returns
         -------
-        True if the max correct answers for labels satisfy
-        factor*sum(correct_label) - Q > 0 given questions
-        numbers qs, False otherwise.
+        Boolean
         """
         Q = sum(qs)
         grade_test = self.factor * sum(correct_responses) - Q > 0

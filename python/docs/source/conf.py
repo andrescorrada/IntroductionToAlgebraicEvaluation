@@ -42,16 +42,16 @@ extensions = [
     "sphinx.ext.mathjax",
     "nbsphinx",
     "autoapi.extension",
+    "sphinx.ext.napoleon",
 ]
 
 autoapi_dirs = [str(Path("..", "..", "src"))]
 autoapi_type = "python"
 autoapi_generate_api_docs = True
-# autoapi_modules = {"ntqr": None}
 autoapi_keep_files = False
 autoapi_template_dir = "_templates/autoapi/python"
-# autosummary_generate = True  # Turn on sphinx.ext.autosummary
-# autodoc_mock_imports = ["ntqr"]
+
+napoleon_include_init_with_doc = False
 
 myst_enable_extensions = [
     "colon_fence",
