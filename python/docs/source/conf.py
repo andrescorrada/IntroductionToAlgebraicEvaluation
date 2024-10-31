@@ -46,7 +46,7 @@ extensions = [
 ]
 
 nbsphinx_assume_equations = True
-nbsphinx_execute = "auto"
+nbsphinx_execute = "never"
 autoapi_dirs = [str(Path("..", "..", "src"))]
 autoapi_type = "python"
 autoapi_generate_api_docs = True
