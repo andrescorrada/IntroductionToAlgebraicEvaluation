@@ -39,12 +39,14 @@ release = version
 # ones.
 extensions = [
     "myst_parser",
-    "sphinx.ext.mathjax",
     "nbsphinx",
+    "sphinx.ext.mathjax",
     "autoapi.extension",
     "sphinx.ext.napoleon",
 ]
 
+nbsphinx_assume_equations = True
+nbsphinx_execute = "auto"
 autoapi_dirs = [str(Path("..", "..", "src"))]
 autoapi_type = "python"
 autoapi_generate_api_docs = True
@@ -54,8 +56,8 @@ autoapi_template_dir = "_templates/autoapi/python"
 napoleon_include_init_with_doc = False
 
 myst_enable_extensions = [
-    "colon_fence",
-    "dollarmath",
+    # "colon_fence",
+    # "dollarmath",
     "amsmath",
 ]
 

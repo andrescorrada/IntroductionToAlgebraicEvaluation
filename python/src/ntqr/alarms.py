@@ -67,6 +67,7 @@ from collections.abc import Sequence, Iterator
 import itertools
 
 import ntqr
+import ntqr.r2.raxioms, ntqr.r3.raxioms, ntqr.evaluations
 
 
 class SingleClassifierAxiomsAlarm:
@@ -163,8 +164,8 @@ class SingleClassifierAxiomsAlarm:
     ) -> set[tuple[Sequence[int], bool]]:
         """Test classifiers misalignment at all label question numbers.
 
-        Parameter
-        --------
+        Parameters
+        ----------
         responses: Sequence[Sequence[int]]
             The number of label responses by each classifier
 
@@ -210,8 +211,8 @@ class SingleClassifierAxiomsAlarm:
 
             all( (sum(classifer_rsps) == Q) for classifier_rsps in responses)
 
-        Parameter
-        --------
+        Parameters
+        ----------
         qs : Sequence[int]
             Count of label in answer key.
         responses: Sequence[Sequence[int]]
