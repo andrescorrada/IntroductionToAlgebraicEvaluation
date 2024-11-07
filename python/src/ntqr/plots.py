@@ -3,6 +3,8 @@
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 import itertools
+from collections.abc import Sequence
+from types import ModuleType
 
 import ntqr.r2.raxioms
 import ntqr.r3.raxioms
@@ -11,7 +13,33 @@ import ntqr.r3.evaluations
 import ntqr.alarms
 
 
-def plot_pair_logical_alarm_at_qs(labels, classifiers, qs, responses, plt=plt):
+def plot_pair_logical_alarm_at_qs(
+    labels: Sequence[str],
+    classifiers: Sequence[int | str],
+    qs: Sequence[int],
+    responses: Sequence[Sequence[int]],
+    plt: ModuleType = plt,
+):
+    """Plot pair possible evaluations given qs and responses.
+
+    Parameters
+    ----------
+    labels : Sequence[str]
+        The labels to be used.
+    classifiers : Sequence[str | int]
+        Classifier identifiers, could be integers or strings: 1 or 'i', eg.
+    qs: Sequence[int]
+        Number of label questions
+    responses : Sequence[Sequence[int]]
+        Number of label responses by each classifier.
+    plt: Handle into the pyplot module.
+
+    Returns
+    -------
+    None:
+        Plots a square of possible evaluations and safety specification
+        satisfying evaluations for each of the labels.
+    """
 
     num_labels = len(labels)
     assert len(classifiers) == 2
