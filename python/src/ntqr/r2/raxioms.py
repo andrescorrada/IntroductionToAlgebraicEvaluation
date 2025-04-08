@@ -56,10 +56,10 @@ class SingleClassifierAxioms:
         self.responses = vars.responses
         self.responses_by_label = vars.responses_by_label
 
-        # Construct the three, dependent axioms for a single classifier
+        # Construct the dependent axioms for a single classifier.
+        # These are always equal to the number of labels.
         self.algebraic_expressions = {}
         for i_true in range(len(labels)):
-
             true_label = labels[i_true]
             true_label_responses = self.responses_by_label[true_label]
             q_number = self.questions_number[true_label]

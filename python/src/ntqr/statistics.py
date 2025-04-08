@@ -4,6 +4,7 @@ for evaluation models.
 """
 
 import sympy
+from typing_extensions import Union, Literal, Mapping, Iterable
 
 
 class SingleClassifierVariables:
@@ -16,18 +17,27 @@ class SingleClassifierVariables:
         The variables for the count of correct questions for each true
         label.
 
-    responses : List[simpy.Symbol..]
+    responses : Mapping[label, simpy.Symbol]
         The variables for the observed interger count of labels in
         the test. Generally, of the form
 
-        R_{l, i} : Number of 'l' label responses by classifier 'i'
+        R_{l_ i} : Number of 'l' label responses by classifier 'i'
 
-    correctness_variables: List[simpy.Symbol..]
+    responses_by_label: Mapping[label, simpy.Symbol]
         The variables associated with correct and wrong responses given
         the true label.
 
-        R_{l_r_{i}, l_true} : Number of l_r responses by classifier 'i'
+        Variables are of the form,
+        R_{l_i, l_true} : Number of l responses by classifier 'i'
         given true label, l_true.
+
+        Given true label, responses_by_label[label] returns a dictionary
+        with keys:
+            'correct': the variable for correct responses given true label.
+            'errors': dictionary, indexed by wrong label, to incorrect
+            responses.
+            'l_1', 'l_2': dictionary, indexed by response label, given
+            true_label.
     """
 
     def __init__(self, labels, classifier):
@@ -82,8 +92,8 @@ class SingleClassifierVariables:
         Returns
         -------
         Dictionary of by-label response counts, three per label.
-        In addition, each label contains a 'correct' dictionary
-        that contains the true_label and its associated count.
+        In addition, each label contains a 'correct' key
+        that points to the variable associated with correct responses.
         An 'errors' dictionary is indexed by possible wrong
         label assignments.
         """
@@ -92,7 +102,6 @@ class SingleClassifierVariables:
         vars = {}
         for true_label in labels:
             label_vars = vars.setdefault(true_label, {})
-            label_vars_correct = label_vars.setdefault("correct", {})
             label_vars_error = label_vars.setdefault("errors", {})
 
             for response_label in labels:
@@ -111,6 +120,6 @@ class SingleClassifierVariables:
                 if response_label != true_label:
                     label_vars_error[response_label] = curr_var
                 else:
-                    label_vars_correct[true_label] = curr_var
+                    label_vars["correct"] = curr_var
 
         return vars
