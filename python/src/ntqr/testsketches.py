@@ -49,19 +49,24 @@ class QuestionAlignedDecisions:
 
         """
         # All the keys must be the same length
-        assert len(set([len(key) for key in observed_responses.keys()])) == 1
+        if not len(set([len(key) for key in observed_responses.keys()])) == 1:
+            raise ValueError("Not all decision tuples have the same length.")
 
         # Fill up a new dictionary with AlignedDecisions keys
         N = len(list(observed_responses.keys())[0])
 
-        assert all(
+        if not all(
             [
                 self.decision_in_possible_set(
                     product(labels, repeat=N), decision
                 )
                 for decision in observed_responses.keys()
             ]
-        )
+        ):
+            raise ValueError(
+                """One or more decisions in 'observed_responses' 
+                contain label(s) not in 'labels' arg."""
+            )
 
         self.counts = {
             decisions: observed_responses.get(decisions, 0)
