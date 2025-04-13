@@ -48,8 +48,14 @@ class QuestionAlignedDecisions:
         None.
 
         """
+        # It must have some keys
+        if len([key for key in observed_responses.keys()]) == 0:
+            raise ValueError("There must be at least one decision key.")
+
         # All the keys must be the same length
-        if not len(set([len(key) for key in observed_responses.keys()])) == 1:
+        key_lengths = list([len(key) for key in observed_responses.keys()])
+
+        if not (len(set(key_lengths)) == 1):
             raise ValueError("Not all decision tuples have the same length.")
 
         # Fill up a new dictionary with AlignedDecisions keys
@@ -79,6 +85,7 @@ class QuestionAlignedDecisions:
         decision: Sequence[Label],
     ) -> bool:
         """
+        Why is this function here?
 
 
         Parameters
