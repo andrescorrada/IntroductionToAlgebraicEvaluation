@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from typing import Self
 from typing_extensions import Collection, Mapping, Sequence
 from itertools import product
 
@@ -78,6 +79,32 @@ class QuestionAlignedDecisions:
             decisions: observed_responses.get(decisions, 0)
             for decisions in product(labels, repeat=N)
         }
+
+        # And remember the labels used in the decisions keys
+        self.labels = labels
+
+    def marginalize(self, indices: Sequence[int]) -> Self:
+        """
+        Marginalizes the observed responses to the specifed
+        indices.
+
+        Parameters
+        ----------
+        indices : Sequence[int]
+            DESCRIPTION.
+
+        Returns
+        -------
+        Self
+            DESCRIPTION.
+
+        """
+        new_counts = {}
+        for key, count in self.counts.items():
+            new_key = tuple([key[i] for i in indices])
+            new_counts[new_key] = new_counts.setdefault(new_key, 0) + count
+
+        return QuestionAlignedDecisions(new_counts, self.labels)
 
     def decision_in_possible_set(
         self,
