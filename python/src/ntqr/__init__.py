@@ -25,9 +25,9 @@ from ntqr.r2.evaluators import (
     MajorityVotingEvaluation,
 )
 
-import ntqr.statistics
-import ntqr.r2
-import ntqr.r3
+# import ntqr.statistics
+# import ntqr.r2
+# import ntqr.r3
 
 
 class Label(str):

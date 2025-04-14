@@ -4,7 +4,173 @@ for evaluation models.
 """
 
 import sympy
-from typing_extensions import Union, Literal, Mapping, Iterable
+from typing_extensions import Iterable, Literal, Mapping, Sequence, Union
+from itertools import product
+
+import ntqr
+
+
+class NClassifiersVariables:
+    """
+    Statistical responses variables for N classifiers.
+
+
+    Attributes
+    ----------
+
+    qs : List[simpy.Symbol..]
+        The Q_l_i variables. There are R of them.
+
+    responses : Mapping[Sequence[Label], simpy.Symbol]
+        The variables associated with the R^N possible decision
+        tuples for question aligned responses.
+
+    responses_by_label : Mapping[Label, Mapping[...]]
+        The response variables for N-aligned responses given true label.
+
+    """
+
+    def __init__(self, labels: ntqr.Labels, classifiers: Sequence[str]):
+        """
+
+
+        Parameters
+        ----------
+        labels : Labels
+            Labels for the question responses.
+        classifiers : Sequence[str]
+            Labels for the classifiers.
+
+        Returns
+        -------
+        None.
+
+        """
+        self.responses = self._response_variables(labels, classifiers)
+        self.responses_by_label = self._label_response_variables(
+            labels, classifiers
+        )
+
+    def _response_variables(self, labels, classifiers):
+        """
+        Constructs observable response variables given 'labels' and
+        'classifiers'.
+
+        Parameters
+        ----------
+        labels : List
+            Labels to use.
+        classifiers : Sequence[str]
+            Labels to use for the classifiers. The label should support
+            being stringified.
+
+        Returns
+        -------
+        Dictionary of by-label response counts, one per label.
+        """
+
+        clsfr_strs = [str(classifier) for classifier in classifiers]
+        vars = {}
+
+        # The possible responses by N classifiers outputting R labels
+        # a set of size R^N
+        vars = {
+            decisions: sympy.Symbol(
+                r"R_{" + self.seq_str(decisions, clsfr_strs) + r"}"
+            )
+            for decisions in product(labels, repeat=len(classifiers))
+        }
+        return vars
+
+    def _label_response_variables(self, labels, classifiers):
+        """
+        Constructs variables associated with correct and wrong
+        response counts given true label.
+
+        Parameters
+        ----------
+        labels : Sequence[Label]
+            Labels to use.
+        classifier : Sequence[str]
+            Index of classifier.
+
+        Returns
+        -------
+        Dictionary of by-label response counts, three per label.
+        In addition, each label contains a 'correct' key
+        that points to the variable associated with correct responses.
+        An 'errors' dictionary is indexed by possible wrong
+        label assignments.
+        """
+
+        clsfr_strs = [str(classifier) for classifier in classifiers]
+
+        vars = {
+            true_label: {
+                decisions: self.label_r_var_symbol(
+                    decisions, classifiers, true_label
+                )
+                for decisions in product(labels, repeat=len(classifiers))
+            }
+            for true_label in labels
+        }
+
+        # Now we define the all correct variable and the
+        # not-all-correct variables
+        for true_label in labels:
+            all_correct = tuple([true_label for classifier in classifiers])
+
+            # The single variable corresponding to all of the classifiers
+            # being correct on the true label.
+            vars[true_label]["all_correct"] = self.label_r_var_symbol(
+                all_correct,
+                classifiers,
+                true_label,
+            )
+
+            # The variables where at least one classifier is wrong
+            vars[true_label]["errors"] = {
+                decisions: self.label_r_var_symbol(
+                    decisions, classifiers, true_label
+                )
+                for decisions in product(labels, repeat=len(classifiers))
+                if decisions != all_correct
+            }
+
+        return vars
+
+    def seq_str(self, decisions, classifiers) -> str:
+        """
+
+
+        Parameters
+        ----------
+        decisions : Sequence[labels]
+            A sequence of N labels.
+        clsfr_strs : TYPE
+            The N classifier labels.
+
+        Returns
+        -------
+        Comma separated string of the forms l_c.
+
+        """
+        return ",".join(
+            [
+                label + r"_{" + classifier + r"}"
+                for label, classifier in zip(decisions, classifiers)
+            ]
+        )
+
+    def label_r_var_symbol(self, decisions, classifiers, label):
+        return sympy.Symbol(
+            r"R_{" + self.seq_str(decisions, classifiers) + r"," + label + r"}"
+        )
+
+    def r_var_symbol(self, decisions, classifiers):
+        return sympy.Symbol(
+            r"R_{" + self.seq_str(decisions, classifiers) + r"}"
+        )
 
 
 class SingleClassifierVariables:
