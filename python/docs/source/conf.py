@@ -38,15 +38,33 @@ release = version
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "myst_parser",
-    "nbsphinx",
+    # "myst_parser",  # "nbsphinx",
+    "myst_nb",
     "sphinx.ext.mathjax",
     "autoapi.extension",
     "sphinx.ext.napoleon",
 ]
 
-nbsphinx_assume_equations = True
-nbsphinx_execute = "never"
+source_suffix = {
+    ".rst": "restructuredtext",
+    ".ipynb": "myst-nb",
+    ".myst": "myst-nb",
+}
+
+nb_ipywidgets_js = {
+    "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js": {
+        "integrity": "sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=",
+        "crossorigin": "anonymous",
+    },
+    "https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.6/dist/embed-amd.js": {
+        "data-jupyter-widgets-cdn": "https://cdn.jsdelivr.net/npm/",
+        "crossorigin": "anonymous",
+    },
+}
+
+
+# nbsphinx_assume_equations = True
+# nbsphinx_execute = "always"
 autoapi_dirs = [str(Path("..", "..", "src"))]
 autoapi_type = "python"
 autoapi_generate_api_docs = True
