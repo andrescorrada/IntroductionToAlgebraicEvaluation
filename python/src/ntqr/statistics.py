@@ -3,16 +3,18 @@ Module with classes that encapsulate the production of statistical variables
 for evaluation models.
 """
 
-import sympy
-from typing_extensions import Iterable, Literal, Mapping, Sequence, Union
 from itertools import product
+from types import MappingProxyType
+from typing_extensions import Iterable, Literal, Mapping, Sequence, Union
+
+import sympy
 
 import ntqr
 
 
-class NClassifiersVariables:
+class MClassifiersVariables:
     """
-    Statistical responses variables for N classifiers.
+    Statistical responses variables for M classifiers.
 
 
     Attributes
@@ -22,11 +24,11 @@ class NClassifiersVariables:
         The Q_l_i variables. There are R of them.
 
     responses : Mapping[Sequence[Label], simpy.Symbol]
-        The variables associated with the R^N possible decision
+        The variables associated with the R^M possible decision
         tuples for question aligned responses.
 
     responses_by_label : Mapping[Label, Mapping[...]]
-        The response variables for N-aligned responses given true label.
+        The response variables for M-aligned responses given true label.
 
     """
 
@@ -46,9 +48,14 @@ class NClassifiersVariables:
         None.
 
         """
-        self.responses = self._response_variables(labels, classifiers)
-        self.responses_by_label = self._label_response_variables(
-            labels, classifiers
+        self.responses = MappingProxyType(
+            self._response_variables(labels, classifiers)
+        )
+        self.responses_by_label = MappingProxyType(
+            self._label_response_variables(labels, classifiers)
+        )
+        self.qs = MappingProxyType(
+            {label: sympy.Symbol(r"Q_" + label) for label in labels}
         )
 
     def _response_variables(self, labels, classifiers):
@@ -103,8 +110,6 @@ class NClassifiersVariables:
         label assignments.
         """
 
-        clsfr_strs = [str(classifier) for classifier in classifiers]
-
         vars = {
             true_label: {
                 decisions: self.label_r_var_symbol(
@@ -157,7 +162,7 @@ class NClassifiersVariables:
         """
         return ",".join(
             [
-                label + r"_{" + classifier + r"}"
+                label + r"_{" + str(classifier) + r"}"
                 for label, classifier in zip(decisions, classifiers)
             ]
         )
