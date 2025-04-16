@@ -65,6 +65,7 @@ nb_ipywidgets_js = {
 
 # nbsphinx_assume_equations = True
 # nbsphinx_execute = "always"
+nb_execution_mode = "off"
 autoapi_dirs = [str(Path("..", "..", "src"))]
 autoapi_type = "python"
 autoapi_generate_api_docs = True
