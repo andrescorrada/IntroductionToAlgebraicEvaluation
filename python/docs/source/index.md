@@ -16,6 +16,7 @@ notebooks/Tutorial
 notebooks/LogicOfUnsupervisedEvaluationTutorial
 notebooks/ExactAlgebraicSolutionErrorIndependent
 notebooks/LogicalAlarmsMisalignedClassifiers
+notebooks/AlgebraAndGeometryOfNTQR
 evaluation_is_easier
 formal_verification
 research/GradingLLMs

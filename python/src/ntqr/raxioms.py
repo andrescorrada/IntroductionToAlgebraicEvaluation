@@ -4,6 +4,8 @@ from itertools import combinations, product
 from types import MappingProxyType
 from typing_extensions import Iterable, Literal, Mapping, Sequence, Union
 
+import sympy
+
 from ntqr import Labels
 from ntqr.statistics import MClassifiersVariables
 
@@ -100,7 +102,7 @@ class MAxiomIdeals:
         responses_by_label = vars.responses_by_label
 
         axioms_by_label = {
-            l_true: (
+            l_true: sympy.UnevaluatedExpr(
                 responses[(l_true,)]
                 - qs[l_true]
                 + sum(responses_by_label[l_true]["errors"].values())
