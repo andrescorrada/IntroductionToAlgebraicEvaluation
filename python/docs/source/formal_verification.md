@@ -53,9 +53,9 @@ In addition, an R-class test can have many models. The simplest one is where
 we just count the number of label responses for a given classifier. This is
 the one being used for the current alarm implementations. But we could look
 at an evaluation model for how pairs aligned in answering the questions. For
-$R$ classes, a pair would have $R^2$ possible decision patterns. In general,
-we could construct models for any number of classifiers, $R^N$. So far,
-NTQR has code for the $R=2,3$ cases.
+{math}`R` classes, a pair would have {math}`R^2` possible decision patterns.
+In general, we could construct models for any number of classifiers,
+{math}`R^N`. NTQR code is starting to support arbitrary number of labels.
 
 The above does not exhaust the number of models possible for a finite test.
 We could start considering evaluations by aligning the classifier decisions
