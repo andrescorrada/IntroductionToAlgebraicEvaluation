@@ -129,7 +129,7 @@ class MAxiomsLabelSimplexes:
         self.m_simplexes = {}
         self.responses = {}
         for m_current in range(1, m + 1):
-            curr_m_responses = self.m_responses(m)
+            curr_m_responses = self.m_responses(m_current)
             # We now flatten the complicated dictionary of observed
             # responses by creating a flat dictionary that has
             # m-response variables pointing to their observed count
