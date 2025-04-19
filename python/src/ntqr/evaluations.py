@@ -6,16 +6,19 @@ and its associated axioms.
 """
 
 from collections.abc import Sequence
-from itertools import product, filterfalse
+from itertools import combinations, filterfalse, product
+from typing_extensions import Sequence, Mapping
 
+import sympy
 
 from ntqr import Labels
 from ntqr.testsketches import QuestionAlignedDecisions
+from ntqr.statistics import MClassifiersVariables
 import ntqr.r2.raxioms
 import ntqr.r3.raxioms
 
 
-class AnswerKeyQs:
+class AnswerKeyQSimplex:
     """
     Class to generate all possible number of labels in an
     answer key given the test size, Q, and the labels. This
@@ -88,8 +91,100 @@ class AnswerKeyQs:
         return qs
 
 
-class UpToMLabelSimplexes:
-    """ """
+class MAxiomsLabelSimplexes:
+    """
+    Class for the trees of label response simplexes that are
+    rooted at each of the M subsets of N test-takers and continue
+    to the individual classifiers in the subset as leaves.
+    """
+
+    def __init__(
+        self,
+        labels: Sequence[str],
+        classifiers: Sequence[str],
+        responses: Mapping[tuple, int],
+        qs,
+        m,
+    ):
+        self.qs = qs
+        self.classifiers = classifiers
+
+        self.qad = QuestionAlignedDecisions(responses, labels)
+        # We must have as many classifier labels as the length of
+        # the response decision tuples.
+        if len(classifiers) != self.qad.N:
+            err_msg = (
+                "There must be as many classifiers({}) as the length of the"
+                + " response decision keys ({})."
+            )
+            raise ValueError(err_msg.format(len(classifiers), self.qad.N))
+        # Currently only supporting up to m=1.
+        if m == 0:
+            raise ValueError(
+                "Only M=1 axioms label simplexes supported currently."
+            )
+
+        self.qs = qs
+
+        self.m_simplexes = {}
+        self.responses = {}
+        for m_current in range(1, m + 1):
+            curr_m_responses = self.m_responses(m)
+            # We now flatten the complicated dictionary of observed
+            # responses by creating a flat dictionary that has
+            # m-response variables pointing to their observed count
+            # in the test.
+            self.responses[m_current] = {
+                m_subset: {
+                    var: m_subset_counts[decisions]
+                    for decisions, var in MClassifiersVariables(
+                        labels, m_subset
+                    ).responses.items()
+                }
+                for m_subset, m_subset_counts in curr_m_responses.items()
+            }
+
+    def m_responses(self, m: int) -> Mapping[tuple, Mapping[tuple, int]]:
+        """
+        Observed responses by all m-sized subsets of the classifiers.
+
+        Parameters
+        ----------
+        m : int
+            Size of the subsets of the classifiers that will be used.
+
+        Returns
+        -------
+        Mapping[tuple, Mapping[tuple, int]]
+            This is semantically of the form,
+                Mapping[m-subset-classifiers,
+                    Mapping[m-decisions, observed count]
+            A tuple that identifies the m-sized subset of N classifiers
+            points to a mapping of question aligned decisions by that
+            subset to the observed integer count in the test.
+
+        """
+        classifiers = self.classifiers
+        # This code is somewhat confusing because of the convenience for
+        # users to input test responses by a tuple ordering instead of
+        # subscripting decisions. '(a,b)'  is easier to write than
+        # set(a_i, b_j). It seems using the tuple is overall better
+        # for immutability transparency in Python. Using set(...) would
+        # not work and we would need immutable sets.
+        # Hence, we define m_subsets by their indices into the decision
+        # tuples in the user provided test responses.
+        m_subsets = combinations(range(len(classifiers)), m)
+        m_subsets_responses = self.qad.m_subset_indices_to_val(m)
+        # And now we want to return a dictionary that maps from
+        # the m-subset-indices to their decision tuple test counts.
+        ret_val = {
+            tuple([classifiers[i] for i in m_subset]): m_subsets_responses[
+                m_subset
+            ].counts
+            for m_subset in m_subsets
+        }
+
+        return ret_val
 
 
 class ClassifierQsSimplexes:

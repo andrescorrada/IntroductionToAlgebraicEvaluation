@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from typing import Self
 from typing_extensions import Collection, Mapping, Sequence
-from itertools import product
+from itertools import combinations, product
 
 from ntqr import Label, Labels, AlignedDecisions
 
@@ -60,12 +60,12 @@ class QuestionAlignedDecisions:
             raise ValueError("Not all decision tuples have the same length.")
 
         # Fill up a new dictionary with AlignedDecisions keys
-        N = len(list(observed_responses.keys())[0])
+        self.N = len(list(observed_responses.keys())[0])
 
         if not all(
             [
                 self.decision_in_possible_set(
-                    product(labels, repeat=N), decision
+                    product(labels, repeat=self.N), decision
                 )
                 for decision in observed_responses.keys()
             ]
@@ -77,7 +77,7 @@ class QuestionAlignedDecisions:
 
         self.counts = {
             decisions: observed_responses.get(decisions, 0)
-            for decisions in product(labels, repeat=N)
+            for decisions in product(labels, repeat=self.N)
         }
 
         # And remember the labels used in the decisions keys
@@ -105,6 +105,33 @@ class QuestionAlignedDecisions:
             new_counts[new_key] = new_counts.setdefault(new_key, 0) + count
 
         return QuestionAlignedDecisions(new_counts, self.labels)
+
+    def m_subset_indices_to_val(self, m: int) -> Mapping[tuple, int]:
+        """
+
+
+        Parameters
+        ----------
+        m : int
+            Size of the subsets of the aligned decisions to use.
+
+        Returns
+        -------
+        Mapping from m-sized subsets indices to observed response count.
+
+        """
+        if m > self.N:
+            raise ValueError(
+                "Size of m-subsets, m, cannot be larger than the number "
+                + "of test-takers, N"
+            )
+
+        indices_to_val = {
+            m_subset: self.marginalize(m_subset)
+            for m_subset in combinations(range(self.N), m)
+        }
+
+        return indices_to_val
 
     def decision_in_possible_set(
         self,
