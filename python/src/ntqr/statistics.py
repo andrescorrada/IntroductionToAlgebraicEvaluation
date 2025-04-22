@@ -51,12 +51,13 @@ class MClassifiersVariables:
         self.responses = MappingProxyType(
             self._response_variables(labels, classifiers)
         )
-        self.responses_by_label = MappingProxyType(
+        self.label_responses = MappingProxyType(
             self._label_response_variables(labels, classifiers)
         )
         self.qs = MappingProxyType(
             {label: sympy.Symbol(r"Q_" + label) for label in labels}
         )
+        self.classifiers = classifiers
 
     def _response_variables(self, labels, classifiers):
         """
