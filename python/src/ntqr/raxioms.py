@@ -127,10 +127,10 @@ class MAxiomsIdeal:
 
         axioms_by_label = {
             l_true: sympy.UnevaluatedExpr(
-                responses[(l_true,)]
-                - qs[l_true]
-                + sum(responses_by_label[l_true]["errors"].values())
-                - sum(
+                qs[l_true]
+                - responses[(l_true,)]
+                - sum(responses_by_label[l_true]["errors"].values())
+                + sum(
                     [
                         label_responses["errors"][(l_true,)]
                         for label, label_responses in responses_by_label.items()
