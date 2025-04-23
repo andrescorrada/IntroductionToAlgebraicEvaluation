@@ -64,7 +64,7 @@ class MAxiomsIdeal:
 
         # There is a an axiomatic ideal for every subset of the
         # classifiers of size m.
-        self.m_complex = {}
+        self._m_complex = {}
         for m_subset in combinations(classifiers, m):
             # An 'ideal' in this software needs to keep track
             # of equations and ways to refer to var symbols in it.
@@ -73,7 +73,7 @@ class MAxiomsIdeal:
             # but also all the equations in all of its subsets.
             # This is an algebraic ideal that tells us the new equations
             # that have to be obeyed by m-decision vars - no more.
-            subset_m_ideal = self.m_complex.setdefault(m_subset, {})
+            subset_m_ideal = self._m_complex.setdefault(m_subset, {})
 
             # Managing the vars is the hardest part.
             vars = subset_m_ideal.setdefault("vars", {})
@@ -103,6 +103,8 @@ class MAxiomsIdeal:
 
             subset_m_ideal["axioms"] = axiomatic_ideal
 
+        self.m_complex = MappingProxyType(self._m_complex)
+
     def _m_one_ideal(self, labels, m_subset):
         """
 
@@ -120,7 +122,7 @@ class MAxiomsIdeal:
             DESCRIPTION.
 
         """
-        vars = self.m_complex[m_subset]["vars"][m_subset]
+        vars = self._m_complex[m_subset]["vars"][m_subset]
         qs = vars.qs
         responses = vars.responses
         responses_by_label = vars.label_responses
@@ -159,7 +161,7 @@ class MAxiomsIdeal:
         None.
 
         """
-        pair_vars = self.m_complex[pair]["vars"][pair]
+        pair_vars = self._m_complex[pair]["vars"][pair]
         qs = pair_vars.qs
         m2_responses = pair_vars.responses
         m2_label_responses = pair_vars.label_responses
@@ -167,11 +169,11 @@ class MAxiomsIdeal:
         # Now we have to build the variables for m1 decision
         # tuples.
         m1_responses = {
-            m1: self.m_complex[pair]["vars"][m1].responses
+            m1: self._m_complex[pair]["vars"][m1].responses
             for m1 in combinations(pair, 1)
         }
         m1_label_responses = {
-            m1: self.m_complex[pair]["vars"][m1].label_responses
+            m1: self._m_complex[pair]["vars"][m1].label_responses
             for m1 in combinations(pair, 1)
         }
 

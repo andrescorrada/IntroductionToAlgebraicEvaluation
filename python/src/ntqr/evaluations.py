@@ -7,6 +7,7 @@ and its associated axioms.
 
 from collections.abc import Sequence
 from itertools import combinations, filterfalse, product
+from types import MappingProxyType
 from typing_extensions import Sequence, Mapping
 
 import sympy
@@ -14,6 +15,7 @@ import sympy
 from ntqr import Labels
 from ntqr.testsketches import QuestionAlignedDecisions
 from ntqr.statistics import MClassifiersVariables
+from ntqr.raxioms import MAxiomsIdeal
 import ntqr.r2.raxioms
 import ntqr.r3.raxioms
 
@@ -91,11 +93,35 @@ class AnswerKeyQSimplex:
         return qs
 
 
-class MAxiomsLabelSimplexes:
+class MLabelResponseSimplexes:
     """
-    Class for the trees of label response simplexes that are
-    rooted at each of the M subsets of N test-takers and continue
-    to the individual classifiers in the subset as leaves.
+    Class to manage the response simplexes associated with each label.
+
+    Each subset of sized-M for N classifiers has its own set of label
+    response simplexes, one for each of the R labels in the test. These
+    are the set of all possible values for statistics of aligned decisions
+    by the members of the m-subset GIVEN true label.
+
+    The a-priori logic of a test is that the sum of all possible responses
+    by a m-subset must exactly equal to the Q_label, the count of the label
+    in the answer key. This defines a simplex for a given label.
+
+    The posterior logic is that the simplexes for any given value of M,
+    M=m, have axioms that depend on all simplexes of value less than m.
+    Thus the M=2 simplexes involve variables from the two M=1 simplexes
+    that come from the classifier pair responses. The M=3 simplexes involve
+    all M=2 simplexes, and all M=1 simplexes. And so on.
+
+    This class is meant to internally manage that logical complexity
+    by keeping track of all the variables that are needed for each
+    simplex as well as the enclosing 'shells' that provide the values
+    for the response variables.
+
+    A separate class, MSubsetLabelResponseVarieties, combines the
+    functionality of this class and the ntqr.raxioms.MAxiomsIdeal
+    class to compute the subset of possible label test responses that
+    are logically consistent with the observed test results.
+
     """
 
     def __init__(
@@ -106,6 +132,7 @@ class MAxiomsLabelSimplexes:
         qs,
         m,
     ):
+        self.labels = labels
         self.qs = qs
         self.classifiers = classifiers
 
@@ -126,23 +153,64 @@ class MAxiomsLabelSimplexes:
 
         self.qs = qs
 
-        self.m_simplexes = {}
-        self.responses = {}
+        # We need to manage two sets of variables, the ones for the
+        # observed test responses, let's call them 'responses', and
+        # ones for those observed responses GIVEN true label. Call
+        # those 'label_responses'
+        # In addition, we want to set values for those vars. So
+        # everything is organized by the decision tuples of an m-subset
+        self.response_vars = {}
+        # In an unsupervised setting we have access to the response values
+        # after the test is taken.
+        self.response_vals = {}
+        # In unsupervised settings we only know these vars are needed.
+        self.label_response_vars = {}
+        #
+
+        # Everything is organized by subsets of the classifier labels.
+        # Then, the response vars then get pointed to by m-sized
+        # decision tuples:
+        #    m-subset -> m-decision tuple -> (var or val).
+        # For label response vars:
+        #    m-subset -> label -> m-decision tuples
+        # We need all the 1-decision vars, the 2-decision vars,
+        # up to m
         for m_current in range(1, m + 1):
-            curr_m_responses = self.m_responses(m_current)
-            # We now flatten the complicated dictionary of observed
-            # responses by creating a flat dictionary that has
-            # m-response variables pointing to their observed count
-            # in the test.
-            self.responses[m_current] = {
-                m_subset: {
-                    var: m_subset_counts[decisions]
-                    for decisions, var in MClassifiersVariables(
-                        labels, m_subset
-                    ).responses.items()
-                }
-                for m_subset, m_subset_counts in curr_m_responses.items()
-            }
+            m_response_vals = self.m_responses(m_current)
+            for m_subset in combinations(classifiers, m_current):
+                m_subset_vars = MClassifiersVariables(labels, m_subset)
+                self.response_vars.update({m_subset: m_subset_vars.responses})
+                self.label_response_vars.update(
+                    {m_subset: m_subset_vars.label_responses}
+                )
+                self.response_vals[m_subset] = m_response_vals[m_subset]
+
+        # Now we construct the evaluation dict needed by SymPy to evaluate
+        # the axioms
+        self.response_eval_dict = {
+            var: val
+            for var, val in zip(
+                [
+                    var
+                    for m_subset, m_decisions_dict in self.response_vars.items()
+                    for var in m_decisions_dict.values()
+                ],
+                [
+                    val
+                    for m_subset, m_decisions_dict in self.response_vals.items()
+                    for val in m_decisions_dict.values()
+                ],
+            )
+        }
+        # And add the q_s values
+        self.q_vars = MappingProxyType(
+            {label: sympy.Symbol(r"Q_" + label) for label in labels}
+        )
+        self.response_eval_dict.update(
+            {self.q_vars[label]: val for label, val in zip(labels, self.qs)}
+        )
+
+        self.test_axioms = MappingProxyType(self.instantiate_axioms(m))
 
     def m_responses(self, m: int) -> Mapping[tuple, Mapping[tuple, int]]:
         """
@@ -186,78 +254,124 @@ class MAxiomsLabelSimplexes:
 
         return ret_val
 
-
-class ClassifierQsSimplexes:
-    """
-    Super class for the possible evaluations of a single classifier
-    taking a test with R possible responses. The classes currently
-    implemented are:
-        - ntqr.r2.evaluations.ClassifierQsSimplexes
-        - ntqr.r3.evaluations.ClassifierQsSimplexes
-
-    Given the number of label responses in a test by a classifier
-    and assumed value for the number of labels in the answer key,
-    (Q_a, Q_b, ...),  we can establish the set of values in the
-    R-dimensional simplex of each label.
-
-    There are R of these R-dimensional spaces! By test apriori
-    logic, the only possible evaluations are in an (R-1)-dimensional
-    simplex for each of thes R spaces.
-
-    The single classifier axioms connect the values across these R
-    spaces for each true label. Since there are R of these equations
-    and they are linear in R-spaces, this defines a surface in the
-    R(R-1)-dimensional space defined by the 'error' variables.
-
-    For example, in R=2 tests, the possible number of correct responses
-    for a classifier given Q_a and Q_b would be inside the square
-    defined by [0,Q_a]x[0,Q_b]. The single classifier axiom narrows
-    this to a line through this square.
-
-    Using the error variables, a point in the simplex can be represented
-    by a tuple of length 2 with each element a tuple of length 1:
-        ((R_{b_i}_a,) (R_{a_i}_b,))
-
-    For R=3 tests points in the simplex have the form:
-        ( (R_{b_i}_a, R_{c_i}_a),
-          (R_{a_i}_b, R_{c_i}_b),
-          (R_{a_i}_c, R_{b_i}_c) )
-
-    This simplex defines the largest possible set of evaluations
-    for a classifier given its test responses. Observations of
-    agreements and disagreements with other test takers cannot
-    be used to add to this set - only filter some out. Therefore,
-    this class serves as the base class for computing logically
-    consistent group evaluations.
-    """
-
-    def __init__(
-        self,
-        qs: Sequence[int],
-        aligned_decisions: QuestionAlignedDecisions,
-        classifier: int = 0,
-    ):
+    def label_m_decisions_var_range(self, classifiers, decisions, label):
         """
 
 
         Parameters
         ----------
-        qs : Sequence[int]
+        classifiers : TYPE
             DESCRIPTION.
-        aligned_decisions : QuestionAlignedDecisions
-            Counts of observed question aligned decision tuples. Each
-            decision tuple is of the same size N, each position indexing
-            the decision of a classifier.
-        classifier : int, optional
-           Index to the classifier for the decision keys in aligned_decisions.
-           The default is 0.
+        decisions : TYPE
+            DESCRIPTION.
+        label : TYPE
+            DESCRIPTION.
+
         Returns
         -------
         None.
 
         """
 
-        # Only
+    def instantiate_axioms(self, m: int):
+        """
+        Fills in the the observed response variables in all the M-axioms
+        from 1 to m.
+
+        Parameters
+        ----------
+        m : int
+            DESCRIPTION.
+
+        Returns
+        -------
+        Mapping[m_subset:instantiated_m_axioms]
+
+        """
+
+        axioms = {
+            m_subset: {
+                label: MAxiomsIdeal(self.labels, m_subset, m_current)
+                .m_complex[m_subset]["axioms"][label]
+                .subs(self.response_eval_dict)
+                for label in self.labels
+            }
+            for m_current in range(1, m + 1)
+            for m_subset in combinations(self.classifiers, m_current)
+        }
+
+        return axioms
+
+
+class MAxiomsVarieties:
+    """
+    Class to compute the test evaluation variety.
+
+    The test evaluation variety for M=m axioms is the set of
+    evaluations that are logically consistent with how we observe
+    the classifiers agreeing and disagreeing on the question
+    responses.
+    """
+
+    def __init__(
+        self,
+        labels: Sequence[str],
+        classifiers: Sequence[str],
+        responses: Mapping[tuple, int],
+        qs,
+        m,
+    ):
+        self.r_simplexes = MLabelResponseSimplexes(
+            labels, classifiers, responses, qs, m
+        )
+
+        # Since we have the responses and the value of on the
+        # Q-simplex, qs, we can construct all the axioms needed
+        # to define the evaluation ideals.
+
+        self.varieties = {}
+        for curr_m in range(1, m + 1):
+            pass
+
+
+class MAxiomsVariety:
+    """
+    Class to compute an M-subset evaluation variety given the M-axioms and
+    all M=m smaller.
+
+    The logical aspect of NTQR is that evaluation varieties occur for
+    nested sets of ideals. At any M<=N, there are a new set of algebraic
+    axioms involving M-response variables for the M-sized subset of the
+    classifiers we may want to consider.
+
+    Varieties at a given M involve the set of points in the new M-sized
+    response simplexes for each label. But they also eliminate points in
+    smaller m-sized varieties. This cascading elimination is the very
+    mechanism whereby we reduce the set of possible evaluations for all
+    classifiers.
+
+    Said another way, the union of smaller m-sized decision varities is larger
+    than or equal to the one when we impose the M-axioms. Given values of
+    label responses by smaller subsets, the supposed state of the answer key,
+    qs, there may be no integer values for the M-decisions label responses
+    that satisfy the M-axioms.
+
+    The class is incomplete for this release. That trimming logic still
+    under development. Currently it provides:
+        1. The M=1 evaluation varieties. These are the varieties lying in
+        the space of 1-decision tuples for each label.
+        2. It instantiates all the axioms given test responses.
+
+    """
+
+    def __init__(
+        self,
+        classifiers: tuple,
+        r_simplexes: MLabelResponseSimplexes,
+        m_minus_one_varieties: dict,
+        m: int,
+    ):
+        pass
 
 
 class SingleClassifierEvaluations:
