@@ -4,5 +4,5 @@ myst-parser>=4.0.0
 myst-nb==1.2.0
 #nbsphinx==0.9.3
 sphinx-autoapi==3.3.3
-furo==2023.9.10
+furo==2024.8.6
 ntqr==0.5
