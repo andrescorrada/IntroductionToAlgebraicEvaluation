@@ -11,7 +11,7 @@ Misc variables:
     uci_adult_test_example
 """
 
-__version__ = "0.4.2.3"
+__version__ = "0.5"
 from typing_extensions import Iterable, Sequence
 
 
