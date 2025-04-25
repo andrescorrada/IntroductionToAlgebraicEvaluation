@@ -61,6 +61,7 @@ class MAxiomsIdeal:
         None.
 
         """
+        self.labels = labels
 
         # There is a an axiomatic ideal for every subset of the
         # classifiers of size m.
@@ -95,7 +96,7 @@ class MAxiomsIdeal:
                 case 1:
                     axiomatic_ideal = self._m_one_ideal(labels, m_subset)
                 case 2:
-                    axiomatic_ideal = self._m_two_ideal(labels, m_subset)
+                    axiomatic_ideal = self._m_two_ideal(m_subset)
                 case _:
                     raise ValueError(
                         "Only up to M=2 axiom ideals are currently supported."
@@ -145,7 +146,7 @@ class MAxiomsIdeal:
 
         return axioms_by_label
 
-    def _m_two_ideal(self, labels, pair):
+    def _m_two_ideal(self, pair):
         """
 
 
@@ -161,6 +162,7 @@ class MAxiomsIdeal:
         None.
 
         """
+        labels = self.labels
         pair_vars = self._m_complex[pair]["vars"][pair]
         qs = pair_vars.qs
         m2_responses = pair_vars.responses
