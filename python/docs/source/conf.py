@@ -45,6 +45,23 @@ extensions = [
     "sphinx.ext.napoleon",
 ]
 
+myst_enable_extensions = [
+    "amsmath",
+    "attrs_inline",
+    "colon_fence",
+    "deflist",
+    "dollarmath",
+    "fieldlist",
+    "html_admonition",
+    "html_image",
+    "linkify",
+    "replacements",
+    "smartquotes",
+    "strikethrough",
+    "substitution",
+    "tasklist",
+]
+
 source_suffix = {
     ".rst": "restructuredtext",
     ".ipynb": "myst-nb",
