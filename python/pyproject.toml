@@ -39,6 +39,6 @@ Documentation="https://ntqr.readthedocs.org/en/latest"
 sphinx = [
     "sphinx>=8.2.3",
     "myst-parser",
-    "nbsphinx",
+    "myst-nb",
     "matplotlib",
 ]
