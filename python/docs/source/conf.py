@@ -81,7 +81,7 @@ nb_ipywidgets_js = {
 
 # nbsphinx_assume_equations = True
 # nbsphinx_execute = "always"
-nb_execution_mode = "off"
+nb_execution_mode = "auto"
 
 autoapi_dirs = [str(Path("..", "..", "src"))]
 autoapi_type = "python"
@@ -90,13 +90,6 @@ autoapi_keep_files = False
 autoapi_template_dir = "_templates/autoapi/python"
 
 napoleon_include_init_with_doc = False
-
-myst_amsmath_enable = True
-# myst_enable_extensions = [
-#     # "colon_fence",
-#     # "dollarmath",
-#     "amsmath",
-# ]
 
 mathjax_path = "https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
 
