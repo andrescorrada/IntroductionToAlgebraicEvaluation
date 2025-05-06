@@ -210,8 +210,6 @@ class MLabelResponseSimplexes:
             {self.q_vars[label]: val for label, val in zip(labels, self.qs)}
         )
 
-        self.test_axioms = MappingProxyType(self.instantiate_axioms(m))
-
     def m_responses(self, m: int) -> Mapping[tuple, Mapping[tuple, int]]:
         """
         Observed responses by all m-sized subsets of the classifiers.
@@ -254,54 +252,6 @@ class MLabelResponseSimplexes:
 
         return ret_val
 
-    def label_m_decisions_var_range(self, classifiers, decisions, label):
-        """
-
-
-        Parameters
-        ----------
-        classifiers : TYPE
-            DESCRIPTION.
-        decisions : TYPE
-            DESCRIPTION.
-        label : TYPE
-            DESCRIPTION.
-
-        Returns
-        -------
-        None.
-
-        """
-
-    def instantiate_axioms(self, m: int):
-        """
-        Fills in the the observed response variables in all the M-axioms
-        from 1 to m.
-
-        Parameters
-        ----------
-        m : int
-            DESCRIPTION.
-
-        Returns
-        -------
-        Mapping[m_subset:instantiated_m_axioms]
-
-        """
-
-        axioms = {
-            m_subset: {
-                label: MAxiomsIdeal(self.labels, m_subset, m_current)
-                .m_complex[m_subset]["axioms"][label]
-                .subs(self.response_eval_dict)
-                for label in self.labels
-            }
-            for m_current in range(1, m + 1)
-            for m_subset in combinations(self.classifiers, m_current)
-        }
-
-        return axioms
-
 
 class MAxiomsVarieties:
     """
@@ -321,17 +271,120 @@ class MAxiomsVarieties:
         qs,
         m,
     ):
+        self.labels = labels
+        self.classifiers = classifiers
+
         self.r_simplexes = MLabelResponseSimplexes(
             labels, classifiers, responses, qs, m
         )
 
-        # Since we have the responses and the value of on the
-        # Q-simplex, qs, we can construct all the axioms needed
+        # Since we have the responses and the value of qs on the
+        # Q-simplex, we can construct all the axioms needed
         # to define the evaluation ideals.
+
+        # We instantiate the test axioms at this qs. This will
+        # make them linear equations that only contain label
+        # response variables.
+        self.test_axioms = MappingProxyType(self.instantiate_axioms(m))
 
         self.varieties = {}
         for curr_m in range(1, m + 1):
             pass
+
+    def label_m_decisions_max(self, classifiers, decisions, label):
+        """
+        This function implements the 'ratchet of crowd evaluation'.
+
+        Every label response var is a positive integer between zero and,
+        at most, the Q_label assumed value. However, this max is most
+        of the time larger than the logically consistent solutions.
+
+        The max integer value is the minimum of:
+            1. Q_label
+            2. R_decisions
+            3. all R_decisions_label for the m (m-1)-sized subsets of
+               the classifier decisions.
+
+        Clearly the max of label response variables must be Q_label. But
+        if we observe the classifiers collectively producing a lower count,
+        then that is the max. For example, if we never observed a pair count
+        for (l_1, l_2) then all label response vars for this tuple must be
+        zero for all labels.
+
+        The same applies to the (m-1)-subsets of the decisions tuple given
+        the true label. No value of the response count for the m-sized
+        decisions tuple can be higher than any response count for the
+        (m-1)-sized subsets of the decisions.
+
+        Parameters
+        ----------
+        classifiers : Sequence[str]
+           Sequence of the classifier labels.
+        decisions : Sequence[Label]
+            The decisions tuple for the m-classifiers.
+        label : TYPE
+            The true label.
+
+        Returns
+        -------
+        Maximum integer value for the label response decisions.
+
+        """
+        pass
+
+    def label_response_simplex_points(self, ql, vars, maxs):
+        """
+        Generator of the allowed label response simplex points.
+
+        Parameters
+        ----------
+        ql : int
+            Assumed count of true label in the answer key.
+        vars : Sequence[Sympy.Symbol]
+            The label response variables for this simplex.
+        maxs : Sequence[int]
+            The maximum integer value for the label response vars.
+
+        Returns
+        -------
+        Generator of dictionaries specifying each simplex point.
+
+        """
+        ranges = (range(0, max + 1) for max in maxs)
+        all_points = product(*ranges)
+        for point in filter(lambda x: sum(x) <= ql, all_points):
+            yield {var: val for var, val in zip(vars, point)}
+
+    def instantiate_axioms(self, m: int):
+        """
+        Fills in the the observed response variables in all the M-axioms
+        from 1 to m.
+
+        Parameters
+        ----------
+        m : int
+            DESCRIPTION.
+
+        Returns
+        -------
+        Mapping[m_subset:instantiated_m_axioms]
+
+        """
+
+        response_eval_dict = self.r_simplexes.response_eval_dict
+
+        axioms = {
+            m_subset: {
+                label: MAxiomsIdeal(self.labels, m_subset, m_current)
+                .m_complex[m_subset]["axioms"][label]
+                .subs(response_eval_dict)
+                for label in self.labels
+            }
+            for m_current in range(1, m + 1)
+            for m_subset in combinations(self.classifiers, m_current)
+        }
+
+        return axioms
 
 
 class MAxiomsVariety:
