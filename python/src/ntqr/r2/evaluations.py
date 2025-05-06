@@ -26,18 +26,17 @@ class SingleClassifierEvaluations(
     ntqr.evaluations.SingleClassifierEvaluations
 ):
     """
-    Single classifier evaluations in (Q_a, Q_b, R_{b_i, a}, R_{a_i,b})
-    space.
+    Single classifier evaluations in (Q_a, Q_b, R_{b_i, a}, R_{a_i,b}) space.
+
+    Deprecated class.
     """
 
     def __init__(self, Q, single_axioms):
-
         super().__init__(Q, single_axioms)
 
     def number_apriori_evaluations(self):
         """
-        Calculates all the possible evaluations for a binary response test
-        with Q questions.
+        Calculate all the possible evaluations for a binary response test.
 
         Returns
         -------
@@ -49,9 +48,7 @@ class SingleClassifierEvaluations(
 
     def errors_at_qs(self, qs, responses):
         """
-        Returns all evaluations logically consistent with the
-        single classifier axiom given the correct number of each
-        label and a classifier's responses.
+        Return all evaluations logically consistent with responses.
 
         In binary classification we have Q_a + Q_b = Q. Thus, we
         really need to specify only two of the three (Q, Q_a, Q_b).
