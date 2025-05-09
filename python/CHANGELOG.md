@@ -13,11 +13,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
        These are ntqr.raxioms.MAxiomsIdeal and
        ntqr.evaluations.MLabelResponseSimplexes
 
+- v0.6 Added ntqr.evaluations classes to handle generic number of classifiers
+       and labels. Varieties up to m=2 are now computable.
+
 ### Changed
 
 ### Removed
 
 ## [0.5.1] - 2025-04-25
+## [0.6]   - 2025-05-09
 
 ### Added
 
