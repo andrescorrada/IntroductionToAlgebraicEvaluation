@@ -6,10 +6,10 @@ and its associated axioms.
 """
 
 from collections.abc import Sequence
-from itertools import combinations, filterfalse, product, tee
+from itertools import combinations, product, tee
 from types import MappingProxyType
 from typing import Iterable
-from typing_extensions import Sequence, Mapping
+from typing_extensions import Mapping
 
 import sympy
 
@@ -23,9 +23,10 @@ import ntqr.r3.raxioms
 
 class AnswerKeyQSimplex:
     """
-    Class to generate all possible number of labels in an
-    answer key given the test size, Q, and the labels. This
-    is a set of tuples of dimension R, the number of labels.
+    Class to generate all answer-key simplex points.
+
+    Given the test size, Q, and the labels (R=r) of them. This
+    is a set of tuples of dimension r, the number of labels.
 
     It exists in (R-1) space since, by construction, we
     must have their sum always equal to Q. The number of
@@ -43,7 +44,7 @@ class AnswerKeyQSimplex:
 
     def __init__(self, Q: int, labels: Labels):
         """
-
+        Class initializer.
 
         Parameters
         ----------
@@ -62,36 +63,26 @@ class AnswerKeyQSimplex:
 
         # The code is not safe or reliable beyond R=3 in
         # the current version.
+        self.labels = labels
         R = len(labels)
-        if R > 3:
-            raise NotImplementedError(
-                "Only values of R=2,3 supported currently."
-            )
-
         self.R = R
 
-    def qs(self):
+    def qs(self) -> Iterable[tuple[int]]:
         """
-        All possible number of label counts in an answer key
-        of size Q.
+        Generate all possible answer-key simplex points.
 
         Returns
         -------
-        iter[tuple[int]]
-            DESCRIPTION.
+        Iterable[tuple[int]]
+            Generator of all possible answer-key simplex points.
 
         """
-        Q = self.Q
-        match self.R:
-            case 2:
-                qs = [(qa, Q - qa) for qa in range(self.N)]
-            case 3:
-                qs = [
-                    (qa, qb, Q - qa - qb)
-                    for qa in range(self.N)
-                    for qb in range(self.N - qa)
-                ]
-        return qs
+        ranges = (range(0, self.N) for label in self.labels)
+        answer_key_simplex_points = filter(
+            lambda x: sum(x) == self.Q, product(*ranges)
+        )
+        for point in answer_key_simplex_points:
+            yield point
 
 
 class MLabelResponseSimplexes:
@@ -118,10 +109,10 @@ class MLabelResponseSimplexes:
     simplex as well as the enclosing 'shells' that provide the values
     for the response variables.
 
-    A separate class, MSubsetLabelResponseVarieties, combines the
-    functionality of this class and the ntqr.raxioms.MAxiomsIdeal
-    class to compute the subset of possible label test responses that
-    are logically consistent with the observed test results.
+    A separate class, MAxiomsVarieties, combines the functionality
+    of this class and the ntqr.raxioms.MAxiomsIdeal class to compute
+    the subset of possible label test responses that are logically
+    consistent with the observed test results.
 
     """
 
@@ -147,10 +138,8 @@ class MLabelResponseSimplexes:
             )
             raise ValueError(err_msg.format(len(classifiers), self.qad.N))
         # Currently only supporting up to m=1.
-        if m == 0:
-            raise ValueError(
-                "Only M=1 axioms label simplexes supported currently."
-            )
+        if m > 2:
+            raise NotImplementedError("Only M=1,2 axioms supported currently.")
 
         self.qs = qs
 
@@ -465,7 +454,29 @@ class MAxiomsVarieties:
         classifiers: Sequence[str],
         mpoint: Iterable[dict],
         mm1_point_dicts: Iterable[dict],
-    ):
+    ) -> dict:
+        """
+        Make dict specifying an m-variety point for these classifiers.
+
+        Parameters
+        ----------
+        classifiers : Sequence[str]
+            The classifiers for this variety.
+        mpoint : Iterable[dict]
+            The dicts, one per label, specifying the label m-response
+            vars values.
+        mm1_point_dicts : Iterable[dict]
+            The collection of m (m-1)-varieties for these classifiers.
+            This represents a single point in the (m-1)-varieties.
+
+
+        Returns
+        -------
+        point : dict
+            Dictionary with all the label response variables required
+            for the m-varity of these classifiers.
+
+        """
         point = {}
 
         for label_vars_dict in mpoint:
@@ -485,17 +496,17 @@ class MAxiomsVarieties:
         """
         Test if mpoint satisfies maxioms.
 
+        The variety is defined by all those points in the label
+        response simplexes that satisfy the m-axioms.
 
         Parameters
         ----------
         classifiers : Sequence[str]
-            DESCRIPTION.
+            The classifiers being considered.
         mpoint : Iterable[dict]
-            DESCRIPTION.
+            Iteratable of label response point dicts.
         maxioms : Sequence[sympy.UnevaluatedExpr]
-            DESCRIPTION.
-         : TYPE
-            DESCRIPTION.
+            The m-axioms reduced to only contain label m-response vars.
 
         Returns
         -------
@@ -503,7 +514,6 @@ class MAxiomsVarieties:
             DESCRIPTION.
 
         """
-
         merged_dict = {}
         for label_dict in mpoint:
             merged_dict.update(label_dict)
@@ -588,18 +598,22 @@ class MAxiomsVarieties:
         mm1_point: Iterable[dict],
     ) -> Iterable[dict]:
         """
+        Generate all label m-response vars points.
 
+        Each label has an m-response simplex that must
+        be logically consistent with lower m response varieties.
 
         Parameters
         ----------
         classifiers : Sequence[str]
-            DESCRIPTION.
+            The classifiers for this m-response simplex.
         label : str
-            DESCRIPTION.
+            The true label.
         ql : int
-            DESCRIPTION.
+            Assumed count of the true label in the answer key.
         mm1_point : Iteratable[dict]
-            DESCRIPTION.
+            The m (m-1)-varieties that define the starting point
+            for creating the m-variety of these classifiers.
 
         Returns
         -------
@@ -621,8 +635,17 @@ class MAxiomsVarieties:
 
     def instantiate_axioms(self, m: int):
         """
-        Fills in the the observed response variables in all the M-axioms
-        from 1 to m.
+        Fill in all response variables in the test axioms.
+
+        Any m-axiom contains three sets of variables:
+            1. The answer-key simplex variables. This function
+               fills them in with the values given during
+               class instantiation.
+            2. The observed response counts. This function fills
+               them in.
+            3. All label m or less response variables. These need
+               to be filled in as we move up the ladder of logical
+               consistency.
 
         Parameters
         ----------
@@ -634,7 +657,6 @@ class MAxiomsVarieties:
         Mapping[m_subset:instantiated_m_axioms]
 
         """
-
         response_eval_dict = self.r_simplexes.response_eval_dict
 
         axioms = {
@@ -651,51 +673,9 @@ class MAxiomsVarieties:
         return axioms
 
 
-class MAxiomsVariety:
-    """
-    Class to compute an M-subset evaluation variety given the M-axioms and
-    all M=m smaller.
-
-    The logical aspect of NTQR is that evaluation varieties occur for
-    nested sets of ideals. At any M<=N, there are a new set of algebraic
-    axioms involving M-response variables for the M-sized subset of the
-    classifiers we may want to consider.
-
-    Varieties at a given M involve the set of points in the new M-sized
-    response simplexes for each label. But they also eliminate points in
-    smaller m-sized varieties. This cascading elimination is the very
-    mechanism whereby we reduce the set of possible evaluations for all
-    classifiers.
-
-    Said another way, the union of smaller m-sized decision varities is larger
-    than or equal to the one when we impose the M-axioms. Given values of
-    label responses by smaller subsets, the supposed state of the answer key,
-    qs, there may be no integer values for the M-decisions label responses
-    that satisfy the M-axioms.
-
-    The class is incomplete for this release. That trimming logic still
-    under development. Currently it provides:
-        1. The M=1 evaluation varieties. These are the varieties lying in
-        the space of 1-decision tuples for each label.
-        2. It instantiates all the axioms given test responses.
-
-    """
-
-    def __init__(
-        self,
-        classifiers: tuple,
-        r_simplexes: MLabelResponseSimplexes,
-        m_minus_one_varieties: dict,
-        m: int,
-    ):
-        pass
-
-
 class SingleClassifierEvaluations:
     """
-    Base class for the evaluations of a single classifier
-    given its test responses. This set is a subset of all
-    possible evaluations.
+    Class for the evaluations of a single classifier given test responses.
 
     The axioms of unsupervised evaluation are algebraic filters
     that narrow the set of possible evaluations for test takers.
@@ -758,10 +738,7 @@ class SingleClassifierEvaluations:
 
 class EvaluationCuboid:
     """
-    The basic geometric object in establishing the evaluations logically
-    consistent with test takers responses is the cuboid of responses
-    that satisfy all the single classifier axioms given the assumed number
-    of correct responses.
+    The cuboid of correct label response evaluations.
 
     This cuboid has dimension N (the number of test takers) and contains
     at most (Q_label + 1)^N possible values. Its actual size is smaller
@@ -776,7 +753,7 @@ class EvaluationCuboid:
         self, observed_responses: QuestionAlignedDecisions, labels: Labels
     ):
         """
-
+        Class initializer.
 
         Parameters
         ----------
