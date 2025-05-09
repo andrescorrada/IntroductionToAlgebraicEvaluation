@@ -40,6 +40,7 @@ class AnswerKeyQSimplex:
 
         - This set exists in a (R-1) dimensional space inside
           the R space for the tuples.
+
     """
 
     def __init__(self, Q: int, labels: Labels):
