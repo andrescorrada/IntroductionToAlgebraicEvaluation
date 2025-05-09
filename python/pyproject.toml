@@ -38,7 +38,7 @@ Documentation="https://ntqr.readthedocs.org/en/latest"
 [project.optional-dependencies]
 sphinx = [
     "sphinx>=8.2.3",
-    "myst-parser",
-    "myst-nb",
-    "matplotlib",
+    "myst-parser>=4.0.0",
+    "myst-nb>=1.2.0",
+    "matplotlib>=3.10.0",
 ]
