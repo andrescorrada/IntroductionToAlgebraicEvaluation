@@ -2,6 +2,8 @@
 sphinx>=8
 myst-parser>=4.0.0
 myst-nb>=1.2.0
+nbsphinx=0.9.7
 sphinx-autoapi==3.6.0
 furo==2024.8.6
 ntqr==0.6
+ipykernel

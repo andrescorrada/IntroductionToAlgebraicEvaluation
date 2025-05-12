@@ -39,10 +39,13 @@ release = version
 # ones.
 extensions = [
     # Using myst-nb automatically imports myst-parser,
-    "myst_nb",
+    # "myst_nb",
+    "myst_parser",
+    "nbsphinx",
+    "sphinxcontrib.rsvgconverter",
     "sphinx.ext.mathjax",
     "autoapi.extension",
-    "sphinx.ext.napoleon",
+    # "sphinx.ext.napoleon",
 ]
 
 myst_enable_extensions = [
@@ -61,27 +64,42 @@ myst_enable_extensions = [
     "tasklist",
 ]
 
-source_suffix = {
-    ".rst": "restructuredtext",
-    ".ipynb": "myst-nb",
-    ".myst": "myst-nb",
+# Don't add .txt suffix to source files:
+html_sourcelink_suffix = ""
+
+# List of arguments to be passed to the kernel that executes the notebooks:
+# nbsphinx_execute_arguments = [
+#     "--InlineBackend.figure_formats={'svg', 'pdf'}",
+# ]
+
+# nbsphinx_thumbnails = {
+#     "gallery/thumbnail-from-conf-py": "gallery/a-local-file.png",
+#     "gallery/*-rst": "images/notebook_icon.png",
+#     "orphan": "_static/favicon.svg",
+# }
+
+# nb_ipywidgets_js = {
+#     "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js": {
+#         "integrity": "sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=",
+#         "crossorigin": "anonymous",
+#     },
+#     "https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.6/dist/embed-amd.js": {
+#         "data-jupyter-widgets-cdn": "https://cdn.jsdelivr.net/npm/",
+#         "crossorigin": "anonymous",
+#     },
+# }
+
+
+nbsphinx_assume_equations = True
+nbsphinx_execute = "auto"
+# nbsphinx_custom_formats = {
+#     ".md": ["jupytext.reads", {"fmt": "mystnb"}],
+# }
+# nb_execution_mode = "auto"
+
+mathjax3_config = {
+    "tex": {"tags": "ams", "useLabelIds": True},
 }
-
-nb_ipywidgets_js = {
-    "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js": {
-        "integrity": "sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=",
-        "crossorigin": "anonymous",
-    },
-    "https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.6/dist/embed-amd.js": {
-        "data-jupyter-widgets-cdn": "https://cdn.jsdelivr.net/npm/",
-        "crossorigin": "anonymous",
-    },
-}
-
-
-# nbsphinx_assume_equations = True
-# nbsphinx_execute = "always"
-nb_execution_mode = "off"
 
 autoapi_dirs = [str(Path("..", "..", "src"))]
 autoapi_type = "python"
@@ -90,6 +108,7 @@ autoapi_keep_files = False
 autoapi_template_dir = "_templates/autoapi/python"
 
 napoleon_include_init_with_doc = False
+
 
 mathjax_path = "https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
 
