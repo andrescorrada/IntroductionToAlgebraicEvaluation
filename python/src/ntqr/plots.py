@@ -60,10 +60,7 @@ def plot_pair_logical_alarm_at_qs(
     ]
     classifier_vars = zip(
         *[
-            [
-                axioms.responses_by_label[label]["correct"][label]
-                for label in labels
-            ]
+            [axioms.responses_by_label[label]["correct"] for label in labels]
             for axioms in classifier_axioms
         ]
     )
