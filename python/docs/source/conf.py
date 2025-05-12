@@ -42,7 +42,6 @@ extensions = [
     # "myst_nb",
     "myst_parser",
     "nbsphinx",
-    "sphinxcontrib.rsvgconverter",
     "sphinx.ext.mathjax",
     "autoapi.extension",
     # "sphinx.ext.napoleon",
