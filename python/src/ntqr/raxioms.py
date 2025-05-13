@@ -130,15 +130,20 @@ class MAxiomsIdeal:
 
         axioms_by_label = {
             l_true: sympy.UnevaluatedExpr(
-                qs[l_true]
-                - responses[(l_true,)]
-                - sum(responses_by_label[l_true]["errors"].values())
+                sum(qs[label] for label in self.labels if label != l_true)
                 + sum(
-                    [
-                        label_responses["errors"][(l_true,)]
-                        for label, label_responses in responses_by_label.items()
-                        if label != l_true
-                    ]
+                    var
+                    for var in responses_by_label[l_true]["errors"].values()
+                )
+                - sum(
+                    responses[(label,)]
+                    for label in self.labels
+                    if label != l_true
+                )
+                - sum(
+                    label_responses["errors"][(l_true,)]
+                    for label, label_responses in responses_by_label.items()
+                    if label != l_true
                 )
             )
             for l_true in labels
@@ -148,7 +153,7 @@ class MAxiomsIdeal:
 
     def _m_two_ideal(self, pair):
         """
-
+        The M=2 axiom constructor.
 
         Parameters
         ----------
