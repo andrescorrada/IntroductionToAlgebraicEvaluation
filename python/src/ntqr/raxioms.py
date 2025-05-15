@@ -186,59 +186,74 @@ class MAxiomsIdeal:
 
         m2_axioms_ideal = {
             l_true: (
-                sum([qs[q_label] for q_label in qs if q_label != l_true])
-                + sum(
-                    [
+                sympy.simplify(
+                    sum([qs[q_label] for q_label in qs if q_label != l_true])
+                    + sum(
                         var
-                        for error_pair, var in m2_label_responses[l_true][
+                        for var in m2_label_responses[l_true][
                             "errors"
-                        ].items()
-                    ]
-                )
-                + sum(
-                    [
+                        ].values()
+                    )
+                    + sum(
                         var
                         for error_pair, var in m2_label_responses[l_true][
                             "errors"
                         ].items()
                         if error_pair[0] != error_pair[1]
-                    ]
-                )
-                - sum(
-                    [
+                    )
+                    # The single response terms
+                    - sum(
                         m1_responses[m1][(l_error,)]
                         for m1 in combinations(pair, 1)
                         for l_error in labels
                         if l_error != l_true
-                    ]
-                )
-                - sum(
-                    [
+                    )
+                    + sum(
                         var
                         for m1 in combinations(pair, 1)
                         for l_error in labels
-                        for var in m1_label_responses[m1][l_error][
-                            "errors"
-                        ].values()
-                        if l_error != l_true
-                    ]
-                )
-                + sum(
-                    [
+                        for le2, le2_responses in m1_label_responses[
+                            m1
+                        ].items()
+                        for decisions, var in le2_responses["errors"].items()
+                        if (l_error != l_true)
+                        and (le2 != l_true)
+                        and (decisions == (l_error,))
+                    )
+                    - sum(
+                        var
+                        for m1 in combinations(pair, 1)
+                        for l_error in labels
+                        for le2, le2_responses in m1_label_responses[
+                            m1
+                        ].items()
+                        for decisions, var in le2_responses["errors"].items()
+                        if ((l_error != l_true) and (le2 != l_true))
+                    )
+                    # The m2 terms
+                    + sum(
                         m2_responses[(l_error, l_error)]
                         for l_error in labels
                         if l_error != l_true
-                    ]
-                )
-                + sum(
-                    [
+                    )
+                    #
+                    - sum(
+                        var
+                        for l_error in self.labels
+                        for l_error2 in self.labels
+                        for decisions, var in m2_label_responses[l_error2][
+                            "errors"
+                        ].items()
+                        if (l_error != l_true) and (l_error2 != l_true)
+                    )
+                    + sum(
                         var
                         for l_error in labels
                         for var in m2_label_responses[l_error][
                             "errors"
                         ].values()
                         if l_error != l_true
-                    ]
+                    )
                 )
             )
             for l_true in labels
