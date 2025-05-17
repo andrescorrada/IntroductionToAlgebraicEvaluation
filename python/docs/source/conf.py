@@ -90,7 +90,7 @@ html_sourcelink_suffix = ""
 
 
 nbsphinx_assume_equations = True
-nbsphinx_execute = "auto"
+nbsphinx_execute = "never"
 # nbsphinx_custom_formats = {
 #     ".md": ["jupytext.reads", {"fmt": "mystnb"}],
 # }
