@@ -16,9 +16,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - v0.6 Added ntqr.evaluations classes to handle generic number of classifiers
        and labels. Varieties up to m=2 are now computable.
 
-- v0.6.1 Fixed bugs for the M=1,2 axioms expressed in terms of 'errors'
-         variables. Updated the Jupyter notebook documentation accordingly.
-
 ### Changed
 
 ### Removed
@@ -26,12 +23,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.5.1] - 2025-04-25
 ## [0.6]   - 2025-05-09
 ## [0.6.1] - 2025-05-15
+## [0.6.2] - 2025-05-19
 
 ### Added
 
 ### Fixed
 
 - Incorrect processing of labels in ntqr.raxioms.MAxiomsIdeal._m_two_ideal.
+
+- v0.6.1 Fixed bugs for the M=1,2 axioms expressed in terms of 'errors'
+         variables. Updated the Jupyter notebook documentation accordingly.
+- v0.6.2 Fixed bug in the M=2 axioms as implemented in
+         ntqr.raxioms.MAxiomsIdeal.
 
 ### Changed
 
