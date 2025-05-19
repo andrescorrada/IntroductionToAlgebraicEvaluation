@@ -1,6 +1,7 @@
 """@author: Andrés Corrada-Emmanuel."""
 
 from itertools import combinations, product
+from typing import Any
 from types import MappingProxyType
 from typing_extensions import Iterable, Literal, Mapping, Sequence, Union
 
@@ -151,20 +152,25 @@ class MAxiomsIdeal:
 
         return axioms_by_label
 
-    def _m_two_ideal(self, pair):
+    def _m_two_ideal(
+        self, pair: tuple[Any, Any]
+    ) -> dict[str, sympy.UnevaluatedExpr]:
         """
         The M=2 axiom constructor.
 
+        This is the 'errors' variables version. The one used for internal
+        computation of the varieties. It has the drawback that it is hard
+        to check and code.
+
         Parameters
         ----------
-        labels : TYPE
-            DESCRIPTION.
-        vars : TYPE
-            DESCRIPTION.
+        pair : Sequence[Any, Any]
+            Pair of classifiers.
 
         Returns
         -------
-        None.
+        m2_axioms_ideal : Mapping[label, sympy.UnevaluatedExpr]
+            A mapping from label to its corresponding r-axiom.
 
         """
         labels = self.labels
@@ -264,12 +270,95 @@ class MAxiomsIdeal:
 
         return m2_axioms_ideal
 
+    def m_two_ideal_agreement_representation(
+        self, pair: tuple[Any, Any]
+    ) -> Mapping[str, sympy.UnevaluatedExpr]:
+        """
+        The M=2 axioms ideal with agreement label response variables.
 
-class NAxiomsComplex:
-    """
-    Class that recursively builds all the M-axiom ideals for all non-empty
-    subsets of N test-takers answering Q questions with R choices.
-    """
+        The axioms in label response space are easiest to understand
+        and prove when we use 'agreement' variables. Those are variables
+        where all the classifiers are agreeing in their responses on the
+        true label.
 
-    def __init__(self):
-        pass
+        Starting with M=2 this will be the only way the axioms will be
+        encoded from now on. The representation with 'errors' variables
+        only, the one needed for generalizable code, will be created with
+        the straightforward transformation that gives the all agree on the
+        true label as the number of questions of that label minus all the
+        other possible responses.
+
+        Parameters
+        ----------
+        pair : tuple[Any, Any]
+            DESCRIPTION.
+
+        Returns
+        -------
+        m2_axioms_ideal : TYPE
+            DESCRIPTION.
+
+        """
+        labels = self.labels
+        pair_vars = self._m_complex[pair]["vars"][pair]
+        qs = pair_vars.qs
+        m2_responses = pair_vars.responses
+        m2_label_responses = pair_vars.label_responses
+
+        # Now we have to build the variables for m1 decision
+        # tuples.
+        m1_responses = {
+            m1: self._m_complex[pair]["vars"][m1].responses
+            for m1 in combinations(pair, 1)
+        }
+        m1_label_responses = {
+            m1: self._m_complex[pair]["vars"][m1].label_responses
+            for m1 in combinations(pair, 1)
+        }
+
+        m2_axioms_ideal = {
+            l_true: sympy.simplify(
+                -m2_label_responses[l_true][(l_true, l_true)]
+                + qs[l_true]
+                # The single response terms
+                - sum(
+                    m1_responses[m1][(l_error,)]
+                    for m1 in combinations(pair, 1)
+                    for l_error in labels
+                    if l_error != l_true
+                )
+                + sum(
+                    var
+                    for m1 in combinations(pair, 1)
+                    for l_error in labels
+                    for decisions, var in m1_label_responses[m1][l_error][
+                        "errors"
+                    ].items()
+                    if (l_error != l_true) and (decisions != (l_true,))
+                )
+                # The m2 terms
+                + sum(
+                    m2_responses[(l_error, l_error)]
+                    for l_error in labels
+                    if l_error != l_true
+                )
+                - sum(
+                    m2_label_responses[l_e2][(l_e1, l_e1)]
+                    for l_e1 in self.labels
+                    for l_e2 in self.labels
+                    if (l_e1 != l_true) and (l_e2 != l_true)
+                )
+                + sum(
+                    var
+                    for l_e1 in self.labels
+                    for l_e2 in self.labels
+                    for decisions, var in m2_label_responses[l_true][
+                        "errors"
+                    ].items()
+                    if (l_e1 != l_e2) and (l_e1 != l_true) and (l_e2 != l_true)
+                )
+            )
+            for l_true in labels
+        }
+
+        return m2_axioms_ideal
