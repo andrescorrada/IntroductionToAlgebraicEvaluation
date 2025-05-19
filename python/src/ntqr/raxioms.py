@@ -199,7 +199,11 @@ class MAxiomsIdeal:
                         for error_pair, var in m2_label_responses[l_true][
                             "errors"
                         ].items()
-                        if error_pair[0] != error_pair[1]
+                        if (
+                            (error_pair[0] != error_pair[1])
+                            and (error_pair[0] != l_true)
+                            and (error_pair[1] != l_true)
+                        )
                     )
                     # The single response terms
                     - sum(
@@ -212,23 +216,21 @@ class MAxiomsIdeal:
                         var
                         for m1 in combinations(pair, 1)
                         for l_error in labels
-                        for le2, le2_responses in m1_label_responses[
-                            m1
+                        for decisions, var in m1_label_responses[m1][l_error][
+                            "errors"
                         ].items()
-                        for decisions, var in le2_responses["errors"].items()
                         if (l_error != l_true)
-                        and (le2 != l_true)
-                        and (decisions == (l_error,))
+                        and (decisions != (l_true,))
+                        and (decisions != (l_error,))
                     )
                     - sum(
                         var
                         for m1 in combinations(pair, 1)
                         for l_error in labels
-                        for le2, le2_responses in m1_label_responses[
-                            m1
+                        for decisions, var in m1_label_responses[m1][l_error][
+                            "errors"
                         ].items()
-                        for decisions, var in le2_responses["errors"].items()
-                        if ((l_error != l_true) and (le2 != l_true))
+                        if ((l_error != l_true) and (decisions != (l_error,)))
                     )
                     # The m2 terms
                     + sum(
@@ -237,16 +239,17 @@ class MAxiomsIdeal:
                         if l_error != l_true
                     )
                     #
-                    - sum(
+                    + sum(
                         var
                         for l_error in self.labels
                         for l_error2 in self.labels
-                        for decisions, var in m2_label_responses[l_error2][
+                        for decisions, var in m2_label_responses[l_error][
                             "errors"
                         ].items()
-                        if (l_error != l_true) and (l_error2 != l_true)
+                        if (l_error != l_true)
+                        and (decisions != (l_error, l_error))
                     )
-                    + sum(
+                    - sum(
                         var
                         for l_error in labels
                         for var in m2_label_responses[l_error][

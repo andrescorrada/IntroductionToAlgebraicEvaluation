@@ -44,24 +44,33 @@ extensions = [
     "nbsphinx",
     "sphinx.ext.mathjax",
     "autoapi.extension",
-    # "sphinx.ext.napoleon",
+    "sphinx.ext.napoleon",
 ]
 
 myst_enable_extensions = [
     "amsmath",
-    "attrs_inline",
     "colon_fence",
     "deflist",
     "dollarmath",
-    "fieldlist",
-    "html_admonition",
     "html_image",
-    "replacements",
-    "smartquotes",
-    "strikethrough",
-    "substitution",
-    "tasklist",
 ]
+myst_url_schemes = ("http", "https", "mailto")
+
+# myst_enable_extensions = [
+#     "amsmath",
+#     "attrs_inline",
+#     "colon_fence",
+#     "deflist",
+#     "dollarmath",
+#     "fieldlist",
+#     "html_admonition",
+#     "html_image",
+#     "replacements",
+#     "smartquotes",
+#     "strikethrough",
+#     "substitution",
+#     "tasklist",
+# ]
 
 # Don't add .txt suffix to source files:
 html_sourcelink_suffix = ""
@@ -90,15 +99,13 @@ html_sourcelink_suffix = ""
 
 
 nbsphinx_assume_equations = True
-nbsphinx_execute = "never"
-# nbsphinx_custom_formats = {
-#     ".md": ["jupytext.reads", {"fmt": "mystnb"}],
-# }
-# nb_execution_mode = "auto"
+nbsphinx_execute = "always"
+nbsphinx_output_prompt = "Out[ blah %s foo]:"
 
 mathjax3_config = {
-    "tex": {"tags": "ams", "useLabelIds": True},
+    "tex": {"tags": "ams", "useLabelIds": False},
 }
+
 
 autoapi_dirs = [str(Path("..", "..", "src"))]
 autoapi_type = "python"
