@@ -63,6 +63,8 @@ class MAxiomsIdeal:
 
         """
         self.labels = labels
+        self.classifiers = classifiers
+        self.m = m
 
         # There is a an axiomatic ideal for every subset of the
         # classifiers of size m.
@@ -106,6 +108,7 @@ class MAxiomsIdeal:
             subset_m_ideal["axioms"] = axiomatic_ideal
 
         self.m_complex = MappingProxyType(self._m_complex)
+        self.initialize_all_agree_subs_dict()
 
     def _m_one_ideal(self, labels, m_subset):
         """
@@ -219,24 +222,20 @@ class MAxiomsIdeal:
                         if l_error != l_true
                     )
                     + sum(
-                        var
+                        m1_label_responses[m1][l_e1][(l_e2,)]
                         for m1 in combinations(pair, 1)
-                        for l_error in labels
-                        for decisions, var in m1_label_responses[m1][l_error][
-                            "errors"
-                        ].items()
-                        if (l_error != l_true)
-                        and (decisions != (l_true,))
-                        and (decisions != (l_error,))
+                        for l_e1 in labels
+                        for l_e2 in labels
+                        if (l_e1 != l_true)
+                        and (l_e2 != l_true)
+                        and (l_e1 != l_e2)
                     )
                     - sum(
-                        var
+                        m1_label_responses[m1][l_e1][(l_e2,)]
                         for m1 in combinations(pair, 1)
-                        for l_error in labels
-                        for decisions, var in m1_label_responses[m1][l_error][
-                            "errors"
-                        ].items()
-                        if ((l_error != l_true) and (decisions != (l_error,)))
+                        for l_e1 in labels
+                        for l_e2 in labels
+                        if ((l_e1 != l_true) and (l_e2 != l_e1))
                     )
                     # The m2 terms
                     + sum(
@@ -245,23 +244,19 @@ class MAxiomsIdeal:
                         if l_error != l_true
                     )
                     #
+                    - sum(
+                        m2_label_responses[l_e2][(l_e1, l_e1)]
+                        for l_e1 in labels
+                        for l_e2 in labels
+                        if (l_e1 != l_true)
+                        and (l_e1 != l_e2)
+                        and (l_e2 != l_true)
+                    )
                     + sum(
                         var
-                        for l_error in self.labels
-                        for l_error2 in self.labels
-                        for decisions, var in m2_label_responses[l_error][
-                            "errors"
-                        ].items()
-                        if (l_error != l_true)
-                        and (decisions != (l_error, l_error))
-                    )
-                    - sum(
-                        var
-                        for l_error in labels
-                        for var in m2_label_responses[l_error][
-                            "errors"
-                        ].values()
-                        if l_error != l_true
+                        for l_e1 in self.labels
+                        for var in m2_label_responses[l_e1]["errors"].values()
+                        if (l_e1 != l_true)
                     )
                 )
             )
@@ -328,13 +323,11 @@ class MAxiomsIdeal:
                     if l_error != l_true
                 )
                 + sum(
-                    var
+                    m1_label_responses[m1][l_e2][(l_e1,)]
                     for m1 in combinations(pair, 1)
-                    for l_error in labels
-                    for decisions, var in m1_label_responses[m1][l_error][
-                        "errors"
-                    ].items()
-                    if (l_error != l_true) and (decisions != (l_true,))
+                    for l_e1 in labels
+                    for l_e2 in labels
+                    if (l_e1 != l_true) and (l_e2 != l_true)
                 )
                 # The m2 terms
                 + sum(
@@ -349,12 +342,9 @@ class MAxiomsIdeal:
                     if (l_e1 != l_true) and (l_e2 != l_true)
                 )
                 + sum(
-                    var
+                    m2_label_responses[l_true]["errors"][(l_e1, l_e2)]
                     for l_e1 in self.labels
                     for l_e2 in self.labels
-                    for decisions, var in m2_label_responses[l_true][
-                        "errors"
-                    ].items()
                     if (l_e1 != l_e2) and (l_e1 != l_true) and (l_e2 != l_true)
                 )
             )
@@ -362,3 +352,33 @@ class MAxiomsIdeal:
         }
 
         return m2_axioms_ideal
+
+    def initialize_all_agree_subs_dict(self) -> None:
+        """
+        Initialize the substitution dictionary for all correct responses.
+
+        Computations of the label response simplex variables is easiest
+        when we represent all agree on the correct label in terms of
+        the disagreeing label responses variables. This function
+        initializes the substitution dictionary that can be used to
+        turn any expression in terms of label response variables into
+        one that only uses disagreement ones.
+
+        Returns
+        -------
+        None
+            The self.all_correct_subs_dict is initialized.
+
+        """
+        subs_dict = self.all_correct_subs_dict = {}
+        for vars_dict in self.m_complex.values():
+            for m_subset, m_subset_vars in vars_dict["vars"].items():
+                for l_true in self.labels:
+                    var = m_subset_vars.label_responses[l_true][
+                        tuple([l_true for i in range(len(m_subset))])
+                    ]
+                    subs_dict[var] = m_subset_vars.qs[l_true] - sum(
+                        m_subset_vars.label_responses[l_true][
+                            "errors"
+                        ].values()
+                    )
