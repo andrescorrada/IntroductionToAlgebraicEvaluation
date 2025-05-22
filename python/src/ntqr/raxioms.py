@@ -95,20 +95,34 @@ class MAxiomsIdeal:
                     }
                 )
 
+        self.all_agree_subs_dict = self.initialize_all_agree_subs_dict()
+
+        for m_subset in combinations(classifiers, m):
+
             match m:
                 case 1:
                     axiomatic_ideal = self._m_one_ideal(labels, m_subset)
                 case 2:
                     axiomatic_ideal = self._m_two_ideal(m_subset)
+                case 3:
+                    ideal_cr = self.m_three_ideal_agreement_representation(
+                        m_subset
+                    )
+
+                    axiomatic_ideal = {
+                        label: sympy.simplify(
+                            axiom.subs(self.all_agree_subs_dict)
+                        )
+                        for label, axiom in ideal_cr.items()
+                    }
                 case _:
                     raise ValueError(
                         "Only up to M=2 axiom ideals are currently supported."
                     )
 
-            subset_m_ideal["axioms"] = axiomatic_ideal
+            self._m_complex[m_subset]["axioms"] = axiomatic_ideal
 
         self.m_complex = MappingProxyType(self._m_complex)
-        self.initialize_all_agree_subs_dict()
 
     def _m_one_ideal(self, labels, m_subset):
         """
@@ -353,6 +367,118 @@ class MAxiomsIdeal:
 
         return m2_axioms_ideal
 
+    def m_three_ideal_agreement_representation(
+        self, trio: tuple[str | int, str | int, str | int]
+    ) -> Mapping[str, sympy.UnevaluatedExpr]:
+        """
+        The M=3 axioms ideal with agreement label response variables.
+
+
+        Parameters
+        ----------
+        trio : tuple[str | int, str | int]
+            Any three classifiers.
+
+        Returns
+        -------
+        m2_axioms_ideal : Mapping[str, sympy.UnevaluatedExpr]
+            Dictionary from label to its corresponding axiom.
+
+        """
+        labels = self.labels
+        trio_vars = self._m_complex[trio]["vars"][trio]
+        qs = trio_vars.qs
+        m3_responses = trio_vars.responses
+        m3_label_responses = trio_vars.label_responses
+
+        # Now we have to build the variables for m1 decision
+        # tuples.
+        m1_responses = {
+            m1: self._m_complex[trio]["vars"][m1].responses
+            for m1 in combinations(trio, 1)
+        }
+        m1_label_responses = {
+            m1: self._m_complex[trio]["vars"][m1].label_responses
+            for m1 in combinations(trio, 1)
+        }
+        # Now we have to build the variables for m2 decision
+        # tuples.
+        m2_responses = {
+            m2: self._m_complex[trio]["vars"][m2].responses
+            for m2 in combinations(trio, 2)
+        }
+        m2_label_responses = {
+            m2: self._m_complex[trio]["vars"][m2].label_responses
+            for m2 in combinations(trio, 2)
+        }
+
+        m3_axioms_ideal = {
+            l_true: sympy.simplify(
+                -m3_label_responses[l_true][(l_true, l_true, l_true)]
+                + qs[l_true]
+                # The single response terms
+                - sum(
+                    m1_responses[m1][(l_error,)]
+                    for m1 in combinations(trio, 1)
+                    for l_error in labels
+                    if l_error != l_true
+                )
+                + sum(
+                    m1_label_responses[m1][l_e2][(l_e1,)]
+                    for m1 in combinations(trio, 1)
+                    for l_e1 in labels
+                    for l_e2 in labels
+                    if (l_e1 != l_true) and (l_e2 != l_true)
+                )
+                # The m2 terms
+                + sum(
+                    m2_responses[pair][(l_error, l_error)]
+                    for pair in combinations(trio, 2)
+                    for l_error in labels
+                    if l_error != l_true
+                )
+                - sum(
+                    m2_label_responses[pair][l_e2][(l_e1, l_e1)]
+                    for pair in combinations(trio, 2)
+                    for l_e1 in self.labels
+                    for l_e2 in self.labels
+                    if (l_e1 != l_true) and (l_e2 != l_true)
+                )
+                # The m3 terms
+                - sum(
+                    m3_responses[(l_error, l_error, l_error)]
+                    for l_error in labels
+                    if l_error != l_true
+                )
+                + sum(
+                    m3_label_responses[l_e2][(l_e1, l_e1, l_e1)]
+                    for l_e1 in self.labels
+                    for l_e2 in self.labels
+                    if (l_e1 != l_true) and (l_e2 != l_true)
+                )
+                # Two do not agree
+                + sum(
+                    m3_label_responses[l_true]["errors"][(l_e1, l_e2, l_e3)]
+                    for l_e1 in self.labels
+                    for l_e2 in self.labels
+                    for l_e3 in self.labels
+                    if len(set((l_e1, l_e2, l_e3, l_true))) == 3
+                )
+                # Three do not agree
+                + 2
+                * sum(
+                    m3_label_responses[l_true]["errors"][(l_e1, l_e2, l_e3)]
+                    for l_e1 in self.labels
+                    for l_e2 in self.labels
+                    for l_e3 in self.labels
+                    if len(set((l_e1, l_e2, l_e3, l_true))) == 4
+                )
+            )
+            for l_true in labels
+        }
+
+        return m3_axioms_ideal
+
     def initialize_all_agree_subs_dict(self) -> None:
         """
         Initialize the substitution dictionary for all correct responses.
@@ -370,8 +496,8 @@ class MAxiomsIdeal:
             The self.all_correct_subs_dict is initialized.
 
         """
-        subs_dict = self.all_correct_subs_dict = {}
-        for vars_dict in self.m_complex.values():
+        subs_dict = {}
+        for vars_dict in self._m_complex.values():
             for m_subset, m_subset_vars in vars_dict["vars"].items():
                 for l_true in self.labels:
                     var = m_subset_vars.label_responses[l_true][
@@ -382,3 +508,5 @@ class MAxiomsIdeal:
                             "errors"
                         ].values()
                     )
+
+        return subs_dict
