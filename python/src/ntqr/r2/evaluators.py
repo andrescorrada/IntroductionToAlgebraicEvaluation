@@ -26,6 +26,23 @@ from ntqr.r2.datasketches import TrioLabelVoteCounts, TrioVoteCounts
 from ntqr.r2.examples import uciadult_label_counts
 
 
+def turn_numerical(val):
+    """
+    Turns exact values into numerical ones.
+
+    Parameters
+    ----------
+    val : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    None.
+
+    """
+    return val.evalf()
+
+
 class SupervisedEvaluation:
     """Evaluation for experiments where the true labels are known."""
 
@@ -64,15 +81,17 @@ class SupervisedEvaluation:
 
         self.evaluation_float = {
             "prevalence": {
-                label: float(val)
+                label: turn_numerical(val)
                 for label, val in self.evaluation_exact["prevalence"].items()
             },
             "accuracy": [
-                {label: float(val) for label, val in cdict.items()}
+                {label: turn_numerical(val) for label, val in cdict.items()}
                 for cdict in self.evaluation_exact["accuracy"]
             ],
             "pair_correlation": {
-                pair: {label: float(val) for label, val in corrs.items()}
+                pair: {
+                    label: turn_numerical(val) for label, val in corrs.items()
+                }
                 for pair, corrs in self.evaluation_exact[
                     "pair_correlation"
                 ].items()
@@ -380,12 +399,12 @@ class ErrorIndependentEvaluation:
         self.evaluation_float = [
             {
                 "prevalence": {
-                    label: float(val)
+                    label: turn_numerical(val)
                     for label, val in sol_dict["prevalence"].items()
                 },
                 "accuracy": [
                     {
-                        label: float(val)
+                        label: turn_numerical(val)
                         for label, val in classifier_dict.items()
                     }
                     for classifier_dict in sol_dict["accuracy"]
