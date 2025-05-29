@@ -66,37 +66,21 @@ class MAxiomsIdeal:
         self.classifiers = classifiers
         self.m = m
 
-        # There is a an axiomatic ideal for every subset of the
-        # classifiers of size m.
+        # We get all the variables associated with these classifiers
+        # and reorganize them to map m_subset -> "vars" -> vars
+        self.mvars = MClassifiersVariables(labels, classifiers)
         self._m_complex = {}
-        for m_subset in combinations(classifiers, m):
-            # An 'ideal' in this software needs to keep track
-            # of equations and ways to refer to var symbols in it.
-            # Narrowly speaking, this ideal is not the logical ideal.
-            # The logical ideal includes all the equations in this one
-            # but also all the equations in all of its subsets.
-            # This is an algebraic ideal that tells us the new equations
-            # that have to be obeyed by m-decision vars - no more.
-            subset_m_ideal = self._m_complex.setdefault(m_subset, {})
-
-            # Managing the vars is the hardest part.
-            vars = subset_m_ideal.setdefault("vars", {})
-            # We need the new variables associated with m-sized decision
-            # tuples.
-            vars.update({m_subset: MClassifiersVariables(labels, m_subset)})
-            #
-            for m_smaller in range(1, m):
-                vars.update(
-                    {
-                        m_small_subset: MClassifiersVariables(
-                            labels, m_small_subset
-                        )
-                        for m_small_subset in combinations(m_subset, m_smaller)
-                    }
-                )
+        for m_size in range(1, m + 1):
+            for m_subset in combinations(classifiers, m_size):
+                self._m_complex[m_subset] = {
+                    "label_rvars": self.mvars.label_responses[m_subset],
+                    "rvars": self.mvars.responses[m_subset],
+                }
 
         self.all_agree_subs_dict = self.initialize_all_agree_subs_dict()
 
+        # Now we compute the variety for all subsets of the classifiers of
+        # size m.
         for m_subset in combinations(classifiers, m):
 
             match m:
@@ -141,10 +125,9 @@ class MAxiomsIdeal:
             DESCRIPTION.
 
         """
-        vars = self._m_complex[m_subset]["vars"][m_subset]
-        qs = vars.qs
-        responses = vars.responses
-        responses_by_label = vars.label_responses
+        qs = self.mvars.qs
+        responses = self._m_complex[m_subset]["rvars"]
+        responses_by_label = self._m_complex[m_subset]["label_rvars"]
 
         axioms_by_label = {
             l_true: sympy.UnevaluatedExpr(
@@ -191,19 +174,17 @@ class MAxiomsIdeal:
 
         """
         labels = self.labels
-        pair_vars = self._m_complex[pair]["vars"][pair]
-        qs = pair_vars.qs
-        m2_responses = pair_vars.responses
-        m2_label_responses = pair_vars.label_responses
+        qs = self.mvars.qs
+        m2_responses = self._m_complex[pair]["rvars"]
+        m2_label_responses = self._m_complex[pair]["label_rvars"]
 
         # Now we have to build the variables for m1 decision
         # tuples.
         m1_responses = {
-            m1: self._m_complex[pair]["vars"][m1].responses
-            for m1 in combinations(pair, 1)
+            m1: self._m_complex[m1]["rvars"] for m1 in combinations(pair, 1)
         }
         m1_label_responses = {
-            m1: self._m_complex[pair]["vars"][m1].label_responses
+            m1: self._m_complex[m1]["label_rvars"]
             for m1 in combinations(pair, 1)
         }
 
@@ -497,16 +478,13 @@ class MAxiomsIdeal:
 
         """
         subs_dict = {}
-        for vars_dict in self._m_complex.values():
-            for m_subset, m_subset_vars in vars_dict["vars"].items():
-                for l_true in self.labels:
-                    var = m_subset_vars.label_responses[l_true][
-                        tuple([l_true for i in range(len(m_subset))])
-                    ]
-                    subs_dict[var] = m_subset_vars.qs[l_true] - sum(
-                        m_subset_vars.label_responses[l_true][
-                            "errors"
-                        ].values()
-                    )
+        for m_subset, m_subset_dict in self._m_complex.items():
+            for l_true in self.labels:
+                var = m_subset_dict["label_rvars"][l_true][
+                    tuple([l_true for i in range(len(m_subset))])
+                ]
+                subs_dict[var] = self.mvars.qs[l_true] - sum(
+                    m_subset_dict["label_rvars"][l_true]["errors"].values()
+                )
 
         return subs_dict

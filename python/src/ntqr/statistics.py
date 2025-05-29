@@ -3,7 +3,7 @@ Module with classes that encapsulate the production of statistical variables
 for evaluation models.
 """
 
-from itertools import product
+from itertools import combinations, product
 from types import MappingProxyType
 from typing_extensions import Iterable, Literal, Mapping, Sequence, Union
 
@@ -17,18 +17,18 @@ class MClassifiersVariables:
     Statistical responses variables for M classifiers.
 
 
+
+
     Attributes
     ----------
 
     qs : List[simpy.Symbol..]
         The Q_l_i variables. There are R of them.
 
-    responses : Mapping[Sequence[Label], simpy.Symbol]
-        The variables associated with the R^M possible decision
-        tuples for question aligned responses.
+    responses : Mapping[m_subset, Mapping[Sequence[Label], simpy.Symbol]]
 
-    responses_by_label : Mapping[Label, Mapping[...]]
-        The response variables for M-aligned responses given true label.
+
+    responses_by_label : Mapping[m_subset, Mapping[Label, Mapping[...]]]
 
     """
 
@@ -48,16 +48,33 @@ class MClassifiersVariables:
         None.
 
         """
-        self.responses = MappingProxyType(
-            self._response_variables(labels, classifiers)
-        )
-        self.label_responses = MappingProxyType(
-            self._label_response_variables(labels, classifiers)
-        )
+        self.labels = labels
+        self.classifiers = classifiers
+
+        # The variables for the answer-key Q-simplex.
         self.qs = MappingProxyType(
             {label: sympy.Symbol(r"Q_" + label) for label in labels}
         )
-        self.classifiers = classifiers
+
+        self._responses = {}
+        # The observable responses by the classifiers
+        for m in range(1, len(classifiers) + 1):
+            for m_subset in combinations(classifiers, m):
+                self._responses[m_subset] = self._response_variables(
+                    labels, m_subset
+                )
+        self.responses = MappingProxyType(self._responses)
+        del self._responses
+
+        self._label_responses = {}
+        # The observable responses by the classifiers
+        for m in range(1, m + 1):
+            for m_subset in combinations(classifiers, m):
+                self._label_responses[m_subset] = (
+                    self._label_response_variables(labels, m_subset)
+                )
+        self.label_responses = MappingProxyType(self._label_responses)
+        del self._label_responses
 
     def _response_variables(self, labels, classifiers):
         """
@@ -177,6 +194,29 @@ class MClassifiersVariables:
         return sympy.Symbol(
             r"R_{" + self.seq_str(decisions, classifiers) + r"}"
         )
+
+    def pair_correlations(
+        self, pair: tuple[str, str], decisions: tuple[str, str]
+    ) -> Mapping[str, sympy.UnevaluatedExpr]:
+        """
+
+
+        Parameters
+        ----------
+        pair : tuple[str,str]
+            Pair of classifiers.
+        decisions : tuple[str,str]
+            The decisions by the pair.
+
+        Returns
+        -------
+        Mapping from label to an expression for the pair correlation
+        for the decisions given true label.
+
+        """
+        correlations = {
+            l_true: 1 / self.qs[l_true] * 1 for l_true in self.labels
+        }
 
 
 class SingleClassifierVariables:

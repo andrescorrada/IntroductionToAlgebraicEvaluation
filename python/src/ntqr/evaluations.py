@@ -166,13 +166,15 @@ class MLabelResponseSimplexes:
         #    m-subset -> label -> m-decision tuples
         # We need all the 1-decision vars, the 2-decision vars,
         # up to m
+        allMVars = MClassifiersVariables(labels, classifiers)
         for m_current in range(1, m + 1):
             m_response_vals = self.m_responses(m_current)
             for m_subset in combinations(classifiers, m_current):
-                m_subset_vars = MClassifiersVariables(labels, m_subset)
-                self.response_vars.update({m_subset: m_subset_vars.responses})
+                self.response_vars.update(
+                    {m_subset: allMVars.responses[m_subset]}
+                )
                 self.label_response_vars.update(
-                    {m_subset: m_subset_vars.label_responses}
+                    {m_subset: allMVars.label_responses[m_subset]}
                 )
                 self.response_vals[m_subset] = m_response_vals[m_subset]
 
