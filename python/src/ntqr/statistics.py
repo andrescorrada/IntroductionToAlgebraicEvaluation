@@ -196,8 +196,8 @@ class MClassifiersVariables:
         )
 
     def pair_correlations(
-        self, pair: tuple[str, str], decisions: tuple[str, str]
-    ) -> Mapping[str, sympy.UnevaluatedExpr]:
+        self, pair: tuple[str, str], decisions: tuple[str, str], l_true: str
+    ) -> sympy.UnevaluatedExpr:
         """
 
 
@@ -214,9 +214,35 @@ class MClassifiersVariables:
         for the decisions given true label.
 
         """
-        correlations = {
-            l_true: 1 / self.qs[l_true] * 1 for l_true in self.labels
-        }
+        q_l = self.qs[l_true]
+        expr = (
+            1
+            / q_l
+            * (
+                self.label_responses[pair][l_true][decisions]
+                - 1
+                / q_l
+                * self.label_responses[(pair[0],)][l_true][(decisions[0],)]
+                * self.label_responses[(pair[1],)][l_true][(decisions[1],)]
+            )
+        )
+        return expr
+
+    def all_agree_subs_dict(
+        self,
+    ) -> Mapping[sympy.Symbol, sympy.UnevaluatedExpr]:
+        """ """
+        subs_dict = {}
+        for m_subset, m_subset_dict in self.label_responses.items():
+            for l_true in self.labels:
+                var = m_subset_dict[l_true][
+                    tuple([l_true for i in range(len(m_subset))])
+                ]
+                subs_dict[var] = self.qs[l_true] - sum(
+                    m_subset_dict[l_true]["errors"].values()
+                )
+
+        return subs_dict
 
 
 class SingleClassifierVariables:
