@@ -100,7 +100,7 @@ html_sourcelink_suffix = ""
 
 nbsphinx_assume_equations = True
 nbsphinx_execute = "always"
-nbsphinx_output_prompt = "Out[ blah %s foo]:"
+nbsphinx_output_prompt = "Out[%s]:"
 
 mathjax3_config = {
     "tex": {"tags": "ams", "useLabelIds": False},
