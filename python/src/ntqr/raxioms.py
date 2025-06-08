@@ -85,9 +85,9 @@ class MAxiomsIdeal:
 
             match m:
                 case 1:
-                    axiomatic_ideal = self._m_one_ideal(labels, m_subset)
+                    axiomatic_ideal = self.m_one_ideal_agreement(m_subset)
                 case 2:
-                    axiomatic_ideal = self._m_two_ideal(m_subset)
+                    axiomatic_ideal = self.m_two_ideal_agreement(m_subset)
                 case 3:
                     ideal_cr = self.m_three_ideal_agreement_representation(
                         m_subset
@@ -107,6 +107,54 @@ class MAxiomsIdeal:
             self._m_complex[m_subset]["axioms"] = axiomatic_ideal
 
         self.m_complex = MappingProxyType(self._m_complex)
+
+    def m_one_ideal_agreement(
+        self, classifier: tuple[str]
+    ) -> Mapping[str, sympy.UnevaluatedExpr]:
+        """
+        The M=1 axioms ideal with agreement label response variables.
+
+        The axioms in label response space are easiest to understand
+        and prove when we use 'agreement' variables. Those are variables
+        where all the classifiers are agreeing in their responses on the
+        true label.
+
+        Parameters
+        ----------
+        classifier : tuple[str]
+            DESCRIPTION.
+
+        Returns
+        -------
+        m1_axioms_ideal : TYPE
+            DESCRIPTION.
+
+        """
+        m1_responses = self.mvars.responses[classifier]
+        m1_label_responses = self.mvars.label_responses[classifier]
+        qs = self.mvars.qs
+
+        m1_axioms_ideal = {
+            l_true: sympy.simplify(
+                -m1_label_responses[l_true][(l_true,)]
+                + qs[l_true]
+                # The single response terms
+                - sum(
+                    m1_responses[(l_error,)]
+                    for l_error in self.labels
+                    if l_error != l_true
+                )
+                + sum(
+                    m1_label_responses[l_e2][(l_e1,)]
+                    for l_e1 in self.labels
+                    for l_e2 in self.labels
+                    if (l_e1 != l_true) and (l_e2 != l_true)
+                )
+            )
+            for l_true in self.labels
+        }
+
+        return m1_axioms_ideal
 
     def _m_one_ideal(self, labels, m_subset):
         """
@@ -260,7 +308,7 @@ class MAxiomsIdeal:
 
         return m2_axioms_ideal
 
-    def m_two_ideal_agreement_representation(
+    def m_two_ideal_agreement(
         self, pair: tuple[Any, Any]
     ) -> Mapping[str, sympy.UnevaluatedExpr]:
         """
@@ -290,20 +338,17 @@ class MAxiomsIdeal:
 
         """
         labels = self.labels
-        pair_vars = self._m_complex[pair]["vars"][pair]
-        qs = pair_vars.qs
-        m2_responses = pair_vars.responses
-        m2_label_responses = pair_vars.label_responses
+        qs = self.mvars.qs
+        m2_responses = self.mvars.responses[pair]
+        m2_label_responses = self.mvars.label_responses[pair]
 
         # Now we have to build the variables for m1 decision
         # tuples.
         m1_responses = {
-            m1: self._m_complex[pair]["vars"][m1].responses
-            for m1 in combinations(pair, 1)
+            m1: self.mvars.responses[m1] for m1 in combinations(pair, 1)
         }
         m1_label_responses = {
-            m1: self._m_complex[pair]["vars"][m1].label_responses
-            for m1 in combinations(pair, 1)
+            m1: self.mvars.label_responses[m1] for m1 in combinations(pair, 1)
         }
 
         m2_axioms_ideal = {
