@@ -28,6 +28,26 @@ def extract_coefficents(
     """
     coeff_dict = expr.as_coefficients_dict()
     zero = sympy.core.numbers.Zero()
-    var_coeffs = [sympy.N(coeff_dict.get(var, zero)) for var in vars]
+    var_coeffs = [int(sympy.N(coeff_dict.get(var, zero))) for var in vars]
 
     return var_coeffs
+
+
+def extract_constant(expr: sympy.UnevaluatedExpr) -> int:
+    """
+
+
+    Parameters
+    ----------
+    expr : sympy.UnevaluatedExpr
+        DESCRIPTION.
+
+    Returns
+    -------
+    int
+        DESCRIPTION.
+
+    """
+    one = sympy.core.numbers.One()
+    const = int(expr.as_coefficients_dict().get(one, 0))
+    return const

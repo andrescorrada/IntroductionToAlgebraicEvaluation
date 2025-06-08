@@ -12,9 +12,11 @@ from types import MappingProxyType
 from typing import Iterable
 from typing_extensions import Mapping
 
+import numpy as np
 import sympy
 
 from ntqr import Labels
+from ntqr.algebra import extract_coefficents, extract_constant
 from ntqr.testsketches import QuestionAlignedDecisions
 from ntqr.statistics import MClassifiersVariables
 from ntqr.raxioms import MAxiomsIdeal
@@ -289,6 +291,47 @@ class MAxiomsVarieties:
         for curr_m in range(1, m + 1):
             pass
 
+    def instantiate_axioms(self, m: int):
+        """
+        Fill in all response variables in the test axioms.
+
+        Any m-axiom contains three sets of variables:
+            1. The answer-key simplex variables. This function
+               fills them in with the values given during
+               class instantiation.
+            2. The observed response counts. This function fills
+               them in.
+            3. All label m or less response variables. These need
+               to be filled in as we move up the ladder of logical
+               consistency.
+
+        Parameters
+        ----------
+        m : int
+            DESCRIPTION.
+
+        Returns
+        -------
+        Mapping[m_subset:instantiated_m_axioms]
+
+        """
+        response_eval_dict = self.r_simplexes.response_eval_dict
+
+        axioms = {
+            m_subset: {
+                label: sympy.simplify(
+                    MAxiomsIdeal(self.labels, m_subset, m_current)
+                    .m_complex[m_subset]["axioms"][label]
+                    .subs(response_eval_dict)
+                )
+                for label in self.labels
+            }
+            for m_current in range(1, m + 1)
+            for m_subset in combinations(self.classifiers, m_current)
+        }
+
+        return axioms
+
     def _relevant_vars(self):
         label_responses = self.r_simplexes.label_response_vars
         relevant_vars = {}
@@ -299,13 +342,9 @@ class MAxiomsVarieties:
                     decision_vars = m_vars.setdefault(decisions, {})
                     for l_true in self.labels:
                         label_vars = decision_vars.setdefault(l_true, [])
-                        unique_labels = set(decisions)
-                        unique_labels.add(l_true)
-                        if len(unique_labels) > 1:
-
-                            label_vars.append(
-                                label_responses[m_subset][l_true][decisions]
-                            )
+                        label_vars.append(
+                            label_responses[m_subset][l_true][decisions]
+                        )
 
         mm1_relevant_vars = {}
         for m_curr in range(2, self.m + 1):
@@ -331,40 +370,313 @@ class MAxiomsVarieties:
 
         return mm1_relevant_vars
 
-    def label_mm1_vars(
-        self, classifiers: Sequence[str], decisions: Sequence[str], label: str
-    ) -> Iterable[sympy.Symbol]:
+    def simplex_points(self, total, maxs, N):
+        if N == 1:
+
+            for x in range(0, min(total, maxs[0]) + 1):
+                yield [x]
+        else:
+            for x in range(maxs[0] + 1):
+                for part in self.simplex_points(total - x, maxs[1:], N - 1):
+                    yield [x] + part
+
+    def simplex_points_equal(self, total, maxs, N):
+        if sum(maxs) < total:
+            return
+        if N == 1:
+            if maxs[0] > total:
+                yield [total]
+            else:
+                yield [maxs[0]]
+        else:
+            for x in range(min(maxs[0], total) + 1):
+                for part in self.simplex_points_equal(
+                    total - x, maxs[1:], N - 1
+                ):
+                    yield [x] + part
+
+    def find_combinations(self, target_sum, num_vars):
+
+        if num_vars == 1:
+            yield [target_sum]
+        else:
+            for i in range(0, target_sum + 1):
+
+                for part in self.find_combinations(
+                    target_sum - i, num_vars - 1
+                ):
+                    yield [i] + part
+
+    def variety(self, classifiers: Sequence[str]) -> Iterable[dict]:
         """
-        Generate label vars for these classifiers and their decisions.
-
-         To properly calculate the max integer value of m-decisions given
-         true label, we need to know the variables associated with
-         (m-1)-sized subsets of those decisions. This function generates
-         them.
+        Generate the points in the variety for the classifiers.
 
 
-         Parameters
-         ----------
-         classifiers : Sequence[str]
-             The classifiers, there are m of them.
-         decisions : Sequence[str]
-             The m-decision tuple.
-         label : str
-             The true label.
 
-         Returns
-         -------
-         Iteratable[sympy.Symbol]
+        Parameters
+        ----------
+        classifiers : Sequence[str]
+            The classifiers.
+        qs: Sequence[int]
+            The assumed count of labels in the answer key.
+
+        Returns
+        -------
+        Iterable[dict]
+            A generator of the points in the variety for these classifiers.
 
         """
         m = len(classifiers)
-        mm1_subsets = combinations(classifiers, m - 1)
-        mm1_decisions = combinations(decisions, m - 1)
-
-        for mm1_subset, mm1_decision in zip(mm1_subsets, mm1_decisions):
-            yield self.label_response_vars[mm1_subset][label]["errors"][
-                mm1_decision
+        print("Doing m variety: ", m)
+        labels_vars = [
+            [
+                self.r_simplexes.label_response_vars[classifiers][l_true][
+                    "all_correct"
+                ]
             ]
+            + list(
+                self.r_simplexes.label_response_vars[classifiers][l_true][
+                    "errors"
+                ].values()
+            )
+            for l_true in self.labels
+        ]
+        labels_decisions_order = [
+            [tuple(l_true for classifier in classifiers)]
+            + list(
+                self.r_simplexes.label_response_vars[classifiers][l_true][
+                    "errors"
+                ].keys()
+            )
+            for l_true in self.labels
+        ]
+
+        # Root case
+        if m > 1:
+            mm1_varieties = list(
+                [
+                    self.variety(mm1_subset)
+                    for mm1_subset in combinations(classifiers, m - 1)
+                ]
+            )
+            # We now consider the m-simplex points. This logic is
+            # currently not for general m, it assumes m <= 2
+            # at m=2 the mm1 varieties are disjoint between the
+            # classifiers - sets of distinct size 1 are disjoint.
+            # But distinct pairs may have a classifier in common
+            # and so on.
+            for mm1_point_candidate in product(*mm1_varieties):
+                # For m >= 3 there must be logic here to determine
+                # if this is a feasible point - not contradictory
+                # in assigned values. This can happen for m = 3
+                # where points from two different pairs have a
+                # classifier in common. That common classifier must
+                # have the same values in the mm1_point that the
+                # product operation above produced.
+                mm1_point = self.make_consistent_if_possible(
+                    mm1_point_candidate
+                )
+                if not mm1_point:
+                    continue
+
+                # We now use a valid mm1_point to express the
+                # axioms as linear operations.
+                axioms_coeffs = self.turn_axiom_exprs_to_linear_components(
+                    classifiers, labels_vars, mm1_point
+                )
+
+                # We have r of these label simplexes
+                labels_m_simplexes = (
+                    self.label_msimplex(
+                        label,
+                        label_decisions_order,
+                        classifiers,
+                        ql,
+                        mm1_point,
+                    )
+                    for label, label_decisions_order, ql in zip(
+                        self.labels, labels_decisions_order, self.qs
+                    )
+                )
+                # A point in this space is a tuple of r label simplexes,
+                # one for each true label.
+                variety_points = filter(
+                    lambda x: self.satisfies_axioms(x, axioms_coeffs),
+                    product(*labels_m_simplexes),
+                )
+                for point in variety_points:
+                    yield self.make_variety_point(
+                        classifiers, labels_vars, point, mm1_point
+                    )
+        else:
+            # We must be doing one
+            mm1_point = {}
+            axioms_coeffs = self.turn_axiom_exprs_to_linear_components(
+                classifiers, labels_vars, mm1_point
+            )
+            # We have r of these label simplexes
+            labels_m_simplexes = (
+                self.label_msimplex(
+                    label, label_decisions_order, classifiers, ql, mm1_point
+                )
+                for label, label_decisions_order, ql in zip(
+                    self.labels, labels_decisions_order, self.qs
+                )
+            )
+            # A point in this space is a tuple of r label simplexes,
+            # one for each true label.
+            variety_points = filter(
+                lambda x: self.satisfies_axioms(x, axioms_coeffs),
+                product(*labels_m_simplexes),
+            )
+            for point in variety_points:
+                yield self.make_variety_point(
+                    classifiers, labels_vars, point, mm1_point
+                )
+
+    def turn_axiom_exprs_to_linear_components(
+        self,
+        classifiers: Sequence[str],
+        labels_vars: Sequence[Sequence[sympy.Symbol]],
+        mm1_point: Mapping[sympy.Symbol, int],
+    ) -> tuple:
+        """
+        Turn label axioms to its linear vector components.
+
+        Parameters
+        ----------
+        classifiers : Sequence[str]
+            DESCRIPTION.
+        mm1_point : Mapping[sympy.Symbol, int]
+            DESCRIPTION.
+
+        Returns
+        -------
+        tuple
+            DESCRIPTION.
+
+        """
+        mvars_axioms = self.mvars_only_axioms(classifiers, mm1_point)
+        label_components = []
+        for axiom in mvars_axioms:
+            curr_vec = np.insert(
+                self.label_coefficients(classifiers, labels_vars, axiom),
+                0,
+                extract_constant(axiom),
+            )
+            label_components.append(curr_vec)
+
+        return label_components
+
+    def label_coefficients(
+        self,
+        classifiers: Sequence[str],
+        labels_vars: Sequence[Sequence[sympy.Symbol]],
+        axiom: sympy.UnevaluatedExpr,
+    ) -> tuple[tuple[int]]:
+        """
+
+
+        Parameters
+        ----------
+        classifiers : Sequence[str]
+            DESCRIPTION.
+        axiom : sympy.UnevaluatedExpr
+            DESCRIPTION.
+
+        Returns
+        -------
+        tuple(tuple(int
+            DESCRIPTION.
+
+        """
+        coeffs = []
+        for vars in labels_vars:
+            coeffs += extract_coefficents(axiom, vars)
+
+        return np.array(coeffs, dtype=np.int8)
+
+    def mvars_only_axioms(
+        self, classifiers: Sequence[str], mm1_point: dict
+    ) -> Sequence[sympy.UnevaluatedExpr]:
+        """
+        Reduce the test axioms to only m-decision vars.
+
+        The logic works from the bottom up. To know what
+        possible values the labels m-response vars can have,
+        we must know what at which point we are in the
+        (m-1)-dimensional varieties associated with all
+        (m-1)-sized subsets of m classifiers.
+
+        This function takes the dicts associated with each
+        of the (m-1) varieties and reduces the test axioms
+        using their var:val items. The result are linear
+        equations that only contain unresolved label m-response
+        variables. These are the expressions that will
+        then define the variety for label m-response variables.
+
+        The present implementation most certainly has a bug
+        for m > 2 responses. The issue comes down to two varieties
+        not agreeing on what values at m - 2 are allowed. This
+        expression only becomes positive for m >= 3.
+
+        The bug is a software one, not a logical one.
+
+        Parameters
+        ----------
+        mm1_point : dict
+            DESCRIPTION.
+
+        Returns
+        -------
+        The test axioms with only unresolved label m-response vars.
+
+        """
+        mvars_only_axioms = [
+            sympy.simplify(test_axiom.subs(mm1_point))
+            for test_axiom in self.test_axioms[classifiers].values()
+        ]
+        return mvars_only_axioms
+
+    def label_msimplex(
+        self,
+        label: str,
+        label_decisions_order: Sequence[tuple[str]],
+        classifiers: Sequence[str],
+        ql: int,
+        mm1_point: dict,
+    ) -> Sequence[tuple[int]]:
+        """
+        Generate all label m-response vars points.
+
+        Each label has an m-response simplex that must
+        be logically consistent with lower m response varieties.
+
+        Parameters
+        ----------
+        classifiers : Sequence[str]
+            The classifiers for this m-response simplex.
+        label : str
+            The true label.
+        ql : int
+            Assumed count of the true label in the answer key.
+        mm1_point : Iteratable[dict]
+            The m (m-1)-varieties that define the starting point
+            for creating the m-variety of these classifiers.
+
+        Returns
+        -------
+        Generator of all points on the label m-response simplex.
+
+        """
+        maxs = list(
+            self.label_mdecision_max(
+                classifiers, mdecision, label, ql, mm1_point
+            )
+            for mdecision in label_decisions_order
+        )
+        for point in self.simplex_points_equal(ql, maxs, len(maxs)):
+            yield point
 
     def label_mdecision_max(
         self,
@@ -430,130 +742,6 @@ class MAxiomsVarieties:
         else:
             return min(ql, response_val)
 
-    def label_response_simplex_points(self, ql, vars, maxs):
-        """
-        Generator of the allowed label response simplex points.
-
-        Parameters
-        ----------
-        ql : int
-            Assumed count of true label in the answer key.
-        vars : Sequence[Sympy.Symbol]
-            The label response variables for this simplex.
-        maxs : Sequence[int]
-            The maximum integer value for the label response vars.
-
-        Returns
-        -------
-        Generator of dictionaries specifying each simplex point.
-
-        """
-        for point in self.simplex_points(ql, maxs, len(maxs)):
-            yield {var: val for var, val in zip(vars, point)}
-
-    def simplex_points(self, total, maxs, N):
-        if N == 1:
-            for x in range(0, maxs[0] + 1):
-                yield [x]
-        else:
-            for x in range(maxs[0] + 1):
-                for part in self.simplex_points(
-                    max(total - x, 0), maxs[1:], N - 1
-                ):
-                    yield [x] + part
-
-    def variety(self, classifiers: Sequence[str]) -> Iterable[dict]:
-        """
-        Generate the points in the variety for the classifiers.
-
-
-
-        Parameters
-        ----------
-        classifiers : Sequence[str]
-            The classifiers.
-        qs: Sequence[int]
-            The assumed count of labels in the answer key.
-
-        Returns
-        -------
-        Iterable[dict]
-            A generator of the points in the variety for these classifiers.
-
-        """
-        m = len(classifiers)
-        been_here_before = False
-
-        # Root case
-        if m > 1:
-            mm1_varieties = list(
-                [
-                    self.variety(mm1_subset)
-                    for mm1_subset in combinations(classifiers, m - 1)
-                ]
-            )
-            # We now consider the m-simplex points. This logic is
-            # currently not for general m, it assumes m <= 2
-            # at m=2 the mm1 varieties are disjoint between the
-            # classifiers - sets of distinct size 1 are disjoint.
-            # But distinct pairs may have a classifier in common
-            # and so on.
-            for mm1_point_candidate in product(*mm1_varieties):
-                # For m >= 3 there must be logic here to determine
-                # if this is a feasible point - not contradictory
-                # in assigned values. This can happen for m = 3
-                # where points from two different pairs have a
-                # classifier in common. That common classifier must
-                # have the same values in the mm1_point that the
-                # product operation above produced.
-                mm1_point = self.make_consistent_if_possible(
-                    mm1_point_candidate
-                )
-                if not mm1_point:
-                    continue
-
-                mvars_only_axiom_exprs = self.mvars_only_axioms(
-                    classifiers, mm1_point
-                )
-                # We have r of these label simplexes
-                labels_m_simplexes = (
-                    self.label_msimplex(classifiers, label, ql, mm1_point)
-                    for label, ql in zip(self.labels, self.qs)
-                )
-                # A point in this space is a tuple of r label simplexes,
-                # one for each true label.
-                variety_points = filter(
-                    lambda x: self.satisfies_axioms(
-                        classifiers, x, mvars_only_axiom_exprs
-                    ),
-                    product(*labels_m_simplexes),
-                )
-                for point in variety_points:
-                    yield self.make_variety_point(
-                        classifiers, point, mm1_point
-                    )
-        else:
-            # We must be doing one
-            mm1_point = {}
-            mvars_only_axiom_exprs = self.mvars_only_axioms(
-                classifiers, mm1_point
-            )
-            # We have r of these label simplexes
-            labels_m_simplexes = (
-                self.label_msimplex(classifiers, label, ql, mm1_point)
-                for label, ql in zip(self.labels, self.qs)
-            )
-            # A point in this space is a tuple of r label simplexes,
-            # one for each true label.
-            variety_points = filter(
-                lambda x: self.satisfies_axioms(
-                    classifiers, x, mvars_only_axiom_exprs
-                ),
-                product(*labels_m_simplexes),
-            )
-            for point in variety_points:
-                yield self.make_variety_point(classifiers, point, mm1_point)
-
     def make_consistent_if_possible(self, seq_dicts: Sequence[dict]) -> dict:
         """
         Make a consistent m point or return an empty dictionary.
@@ -607,7 +795,8 @@ class MAxiomsVarieties:
     def make_variety_point(
         self,
         classifiers: Sequence[str],
-        mpoint: Iterable[dict],
+        label_vars: Sequence[Sequence[sympy.Symbol]],
+        mpoint: tuple[tuple[int]],
         mm1_point: dict,
     ) -> dict:
         """
@@ -632,10 +821,11 @@ class MAxiomsVarieties:
             for the m-varity of these classifiers.
 
         """
-        point = {}
-
-        for label_vars_dict in mpoint:
-            point.update(label_vars_dict)
+        point = {
+            var: sympy.sympify(val)
+            for vars, vals in zip(label_vars, mpoint)
+            for var, val in zip(vars, vals)
+        }
 
         point.update(mm1_point)
 
@@ -643,9 +833,8 @@ class MAxiomsVarieties:
 
     def satisfies_axioms(
         self,
-        classifiers: Sequence[str],
-        mpoint: Iterable[dict],
-        maxioms: Sequence[sympy.UnevaluatedExpr],
+        mpoint: tuple[tuple[int]],
+        maxioms: Mapping[str, tuple],
     ) -> bool:
         """
         Test if mpoint satisfies maxioms.
@@ -659,8 +848,8 @@ class MAxiomsVarieties:
             The classifiers being considered.
         mpoint : Iterable[dict]
             Iteratable of label response point dicts.
-        maxioms : Sequence[sympy.UnevaluatedExpr]
-            The m-axioms reduced to only contain label m-response vars.
+        maxioms :  Mapping[str, tuple]
+            The m-axioms reduced the the components for a linear operation.
 
         Returns
         -------
@@ -668,162 +857,20 @@ class MAxiomsVarieties:
             DESCRIPTION.
 
         """
-        merged_dict = {}
-        for label_dict in mpoint:
-            merged_dict.update(label_dict)
-        return all(
-            (sympy.simplify(axiom.subs(merged_dict)) == 0) for axiom in maxioms
-        )
 
-    def mvars_only_axioms(
-        self, classifiers: Sequence[str], mm1_point: dict
-    ) -> Sequence[sympy.UnevaluatedExpr]:
-        """
-        Reduce the test axioms to only m-decision vars.
+        satisfies = True
+        concatenated_point = [1]
+        for label_mvals in mpoint:
+            concatenated_point += label_mvals
+        c_point = np.array(concatenated_point)
 
-        The logic works from the bottom up. To know what
-        possible values the labels m-response vars can have,
-        we must know what at which point we are in the
-        (m-1)-dimensional varieties associated with all
-        (m-1)-sized subsets of m classifiers.
+        for coeffs in maxioms:
+            res = np.dot(coeffs, c_point)
+            if res != 0:
+                satisfies = False
+                break
 
-        This function takes the dicts associated with each
-        of the (m-1) varieties and reduces the test axioms
-        using their var:val items. The result are linear
-        equations that only contain unresolved label m-response
-        variables. These are the expressions that will
-        then define the variety for label m-response variables.
-
-        The present implementation most certainly has a bug
-        for m > 2 responses. The issue comes down to two varieties
-        not agreeing on what values at m - 2 are allowed. This
-        expression only becomes positive for m >= 3.
-
-        The bug is a software one, not a logical one.
-
-        Parameters
-        ----------
-        mm1_point : dict
-            DESCRIPTION.
-
-        Returns
-        -------
-        The test axioms with only unresolved label m-response vars.
-
-        """
-        n_axioms = len(self.test_axioms[classifiers])
-        point_generators = tee(mm1_point, n_axioms)
-
-        mvars_only_axioms = [
-            sympy.simplify(test_axiom.subs(mm1_point))
-            for test_axiom in self.test_axioms[classifiers].values()
-        ]
-        return mvars_only_axioms
-
-    def join_point_dicts(self, point_dicts: Iterable[dict]) -> dict:
-        """
-        Merge the dictionaries for the point subspaces.
-
-        Helper function to merge the dictionaries for the m-1 points.
-        This is probably where the logic to create a merge should
-        reside for m > 2.
-
-        Parameters
-        ----------
-        point_dicts : Iterable[dict]
-            The point dictionaries that will be merged.
-
-        Returns
-        -------
-        Merged dictionary.
-
-        """
-        merged_dict = {}
-        for mm1_point in point_dicts:
-            merged_dict.update(mm1_point)
-        return merged_dict
-
-    def label_msimplex(
-        self,
-        classifiers: Sequence[str],
-        label: str,
-        ql: int,
-        mm1_point: dict,
-    ) -> Iterable[dict]:
-        """
-        Generate all label m-response vars points.
-
-        Each label has an m-response simplex that must
-        be logically consistent with lower m response varieties.
-
-        Parameters
-        ----------
-        classifiers : Sequence[str]
-            The classifiers for this m-response simplex.
-        label : str
-            The true label.
-        ql : int
-            Assumed count of the true label in the answer key.
-        mm1_point : Iteratable[dict]
-            The m (m-1)-varieties that define the starting point
-            for creating the m-variety of these classifiers.
-
-        Returns
-        -------
-        Generator of all points on the label m-response simplex.
-
-        """
-        label_response_vars = self.r_simplexes.label_response_vars[classifiers]
-        all_mdecisions, vars = zip(
-            *label_response_vars[label]["errors"].items()
-        )
-        maxs = list(
-            self.label_mdecision_max(
-                classifiers, mdecision, label, ql, mm1_point
-            )
-            for mdecision in all_mdecisions
-        )
-        for point in self.simplex_points(ql, maxs, len(maxs)):
-            yield {var: val for var, val in zip(vars, point)}
-
-    def instantiate_axioms(self, m: int):
-        """
-        Fill in all response variables in the test axioms.
-
-        Any m-axiom contains three sets of variables:
-            1. The answer-key simplex variables. This function
-               fills them in with the values given during
-               class instantiation.
-            2. The observed response counts. This function fills
-               them in.
-            3. All label m or less response variables. These need
-               to be filled in as we move up the ladder of logical
-               consistency.
-
-        Parameters
-        ----------
-        m : int
-            DESCRIPTION.
-
-        Returns
-        -------
-        Mapping[m_subset:instantiated_m_axioms]
-
-        """
-        response_eval_dict = self.r_simplexes.response_eval_dict
-
-        axioms = {
-            m_subset: {
-                label: MAxiomsIdeal(self.labels, m_subset, m_current)
-                .m_complex[m_subset]["axioms"][label]
-                .subs(response_eval_dict)
-                for label in self.labels
-            }
-            for m_current in range(1, m + 1)
-            for m_subset in combinations(self.classifiers, m_current)
-        }
-
-        return axioms
+        return satisfies
 
 
 class SingleClassifierEvaluations:
