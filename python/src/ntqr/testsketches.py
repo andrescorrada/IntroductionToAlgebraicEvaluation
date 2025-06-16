@@ -1,17 +1,23 @@
-# -*- coding: utf-8 -*-
+"""
+Module for classes and datastructures related to test sketches.
+
+The logic of unsupervised evaluation can be viewed as similar to
+data streaming algorithms. We use summary statistics of a test
+(observable agreements and disagreements between classifiers)
+to deduce other statistics of the test (the set of possible group
+evaluations for them).
+"""
+
 from typing import Self
-from typing_extensions import Collection, Mapping, Sequence
+from typing_extensions import Mapping, Sequence
 from itertools import combinations, product
 
-from ntqr import Label, Labels, AlignedDecisions
+from ntqr import Label, Labels
 
 
 class QuestionAlignedDecisions:
     """
-    In unsupervised settings there is no answer key by which to
-    evaluate test takers. All that we have available is their
-    agreements and disagreements on correct responses to questions
-    in the test.
+    The question aligned test sketch.
 
     It can be shown algebraically that the count of question aligned
     responses by the test takers are "generated" by statistics of
@@ -32,8 +38,7 @@ class QuestionAlignedDecisions:
         self, observed_responses: Mapping[Sequence[Label], int], labels: Labels
     ):
         """
-        The observed_responses keys must be sequences of labels all of
-        the same length since they come from aligning N test takers.
+        Validate test responses and transform into question aligned counts.
 
         Parameters
         ----------
@@ -64,14 +69,12 @@ class QuestionAlignedDecisions:
 
         if not all(
             [
-                self.decision_in_possible_set(
-                    product(labels, repeat=self.N), decision
-                )
+                (decision in product(labels, repeat=self.N))
                 for decision in observed_responses.keys()
             ]
         ):
             raise ValueError(
-                """One or more decisions in 'observed_responses' 
+                """One or more decisions in 'observed_responses'
                 contain label(s) not in 'labels' arg."""
             )
 
@@ -85,18 +88,18 @@ class QuestionAlignedDecisions:
 
     def marginalize(self, indices: Sequence[int]) -> Self:
         """
-        Marginalizes the observed responses to the specifed
-        indices.
+        Marginalize counts to 'indices' only counts.
 
         Parameters
         ----------
         indices : Sequence[int]
-            DESCRIPTION.
+            Subset of classifiers.
 
         Returns
         -------
         Self
-            DESCRIPTION.
+            Question aligned counts for subset of classifiers specified
+            by 'indices'.
 
         """
         new_counts = {}
@@ -108,7 +111,7 @@ class QuestionAlignedDecisions:
 
     def m_subset_indices_to_val(self, m: int) -> Mapping[tuple, int]:
         """
-
+        Response counts for all possible classifier subsets of size 'm'.
 
         Parameters
         ----------
@@ -117,7 +120,7 @@ class QuestionAlignedDecisions:
 
         Returns
         -------
-        Mapping from m-sized subsets indices to observed response count.
+        Mapping from m-sized subsets indices to observed response counts.
 
         """
         if m > self.N:
@@ -132,27 +135,3 @@ class QuestionAlignedDecisions:
         }
 
         return indices_to_val
-
-    def decision_in_possible_set(
-        self,
-        possible_set: Collection[Sequence[Label]],
-        decision: Sequence[Label],
-    ) -> bool:
-        """
-        Why is this function here?
-
-
-        Parameters
-        ----------
-        possible_set : Collection[Sequence[Label]]
-            All possible decision tuples.
-        decision : Sequence[Label]
-            Decision tuple
-
-        Returns
-        -------
-        bool
-            The decision is in the possible set.
-
-        """
-        return decision in possible_set
