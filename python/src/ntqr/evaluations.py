@@ -376,37 +376,7 @@ class MVariety:
         if self == other_variety:
             return self
 
-        # We first construct the var order in the final variety
-        var_order = self.var_order(other_variety)
-
-        # Figure out where to find the data needed for the final variety
-        from_indices = self.compute_from_indices(other_variety, var_order)
-
-        # We want to create the key so we need the length of the m=1
-        # vars
-        joined_label_vars = self.join_label_vars(var_order, other_variety)
-        len_key = len(joined_label_vars[0])
-        points_dict = {}
-
-        var_indices = [from_indices[var] for var in var_order]
-
-        for self_point, other_point in self.generate_consistent_point_pairs(
-            var_order, other_variety
-        ):
-            cat_point = self_point + other_point
-            new_key = tuple(cat_point[i] for i in var_indices[:len_key])
-            new_tail = tuple(cat_point[i] for i in var_indices[len_key:])
-            key_list = points_dict.setdefault(new_key, [])
-            key_list.append(new_tail)
-
-        return MVarietyTupleDict(
-            labels=self.labels,
-            classifiers=self.union_classifiers(other_variety),
-            qs=self.qs,
-            m=self.m,
-            label_vars=joined_label_vars,
-            points=points_dict,
-        )
+        return self.construct_intersection_variety(other_variety)
 
     def compute_from_indices(
         self, other_variety: Self, var_order: Sequence[sympy.Symbol]
@@ -924,6 +894,53 @@ class MVarietyTupleDict(MVariety):
             ]
             if test_value:
                 yield (self_tail, other_tail)
+
+    def construct_intersection_variety(self, other_variety: MVariety) -> Self:
+        """
+
+
+        Parameters
+        ----------
+        other_variety : MVariety
+            DESCRIPTION.
+
+        Returns
+        -------
+        Self
+            DESCRIPTION.
+
+        """
+        # We first construct the var order in the final variety
+        var_order = self.var_order(other_variety)
+
+        # Figure out where to find the data needed for the final variety
+        from_indices = self.compute_from_indices(other_variety, var_order)
+
+        # We want to create the key so we need the length of the m=1
+        # vars
+        joined_label_vars = self.join_label_vars(var_order, other_variety)
+        len_key = len(joined_label_vars[0])
+        points_dict = {}
+
+        var_indices = [from_indices[var] for var in var_order]
+
+        for self_point, other_point in self.generate_consistent_point_pairs(
+            var_order, other_variety
+        ):
+            cat_point = self_point + other_point
+            new_key = tuple(cat_point[i] for i in var_indices[:len_key])
+            new_tail = tuple(cat_point[i] for i in var_indices[len_key:])
+            key_list = points_dict.setdefault(new_key, [])
+            key_list.append(new_tail)
+
+        return MVarietyTupleDict(
+            labels=self.labels,
+            classifiers=self.union_classifiers(other_variety),
+            qs=self.qs,
+            m=self.m,
+            label_vars=joined_label_vars,
+            points=points_dict,
+        )
 
 
 class MAxiomsVarieties:
