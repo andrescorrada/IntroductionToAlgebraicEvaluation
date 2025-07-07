@@ -7,9 +7,9 @@ and its associated axioms.
 
 from collections.abc import Sequence
 from dataclasses import dataclass, field
-from itertools import chain, combinations, product
+from itertools import chain, combinations, groupby, product
 from types import MappingProxyType
-from typing import Iterable, Mapping, Self, Set
+from typing import Iterable, Mapping, Optional, Self, Set, Tuple
 
 import numpy as np
 import numpy.typing as npt
@@ -226,6 +226,16 @@ class MLabelResponseSimplexes:
         """
         Observed responses by all m-sized subsets of the classifiers.
 
+        Observed responses set the ceilings for any possible value for
+        the label responses - responses given true label. For example,
+        if we observe that two classifiers agreed on the same label some
+        number of times, no possible evaluation of that agreement given
+        true label can exceed this number.
+
+        Observed responses create the 'ratchet' of evaluation. No label
+        response variable can have a value larger than that of any subset
+        of the classifiers responding similarly.
+
         Parameters
         ----------
         m : int
@@ -274,14 +284,63 @@ class MVariety:
     for a single classifier. The M=2 variety contains points
     that obey the M=2 axioms for a pair of classifiers, but
     also the M=1 axioms for each of them.
+
+    This class follows the 'code smell' test, it appears because
+    we need operations that can create logically consistent
+    intersections of varieties of fixed order.
+
+    These varieties, by construction, do not use any information
+    about responses at higher order. So the union of m=1 varieties
+    never uses, or can contain, information about pair responses
+    or higher.
+
+    Thus the intersection of m-varities is a containing variety
+    for the variety that corresponds to all axioms up to m=N
+    being obeyed.
     """
 
     labels: tuple[str]
     classifiers: tuple[str]
     qs: Mapping[str, sympy.Symbol]
     m: int
-    label_vars: tuple[sympy.Symbol]
-    points: npt.NDArray[np.uint16] = field(repr=False)
+    label_vars: tuple[tuple[sympy.Symbol]]
+    points: Mapping[tuple, Mapping[tuple, {}]] = field(repr=False)
+
+    def __eq__(self, other_variety: Self) -> bool:
+        """
+        Test equality.
+
+        The current implementation is a weaker check on equality.
+        It just verifies that self.m and self.label_vars are equal.
+        If so, it returns true.
+
+        A strict check on equality would verify that all points are
+        also equal.
+
+        Parameters
+        ----------
+        other_variety : Self
+            Other variety.
+
+        Returns
+        -------
+        bool
+            Whether the varities are equal.
+
+        """
+
+        if self.m != other_variety.m:
+            return False
+
+        union_classifiers = self.union_classifiers(other_variety)
+        other_only_vars = self.only_other_vars(other_variety)
+        if (
+            set(other_variety.classifiers).issubset(union_classifiers)
+            and other_only_vars == tuple()
+        ):
+            return (True,)
+        else:
+            return False
 
     def __and__(self, other_variety: Self) -> Self:
         """
@@ -307,19 +366,107 @@ class MVariety:
         """
         # We first must make sure that the varieties are of the
         # same order: m_self = m_other_variety
-        if not len(other_variety.classifiers) == len(self.classifiers):
+        if not self.m == other_variety.m:
             raise ValueError(
                 f"""Cannot perform logical intersection on varieties
                 of different order. This variety is of order
-                m={len(self.classifiers)}. 'other_variety' is of order
-                m={len(other_variety.classifiers)}."""
+                m={self.m}. 'other_variety' is of order m={other_variety.m}."""
             )
+
+        if self == other_variety:
+            return self
+
+        # We first construct the var order in the final variety
+        var_order = self.var_order(other_variety)
+
+        # Figure out where to find the data needed for the final variety
+        from_indices = self.compute_from_indices(other_variety, var_order)
+
+        # We want to create the key so we need the length of the m=1
+        # vars
+        joined_label_vars = self.join_label_vars(var_order, other_variety)
+        len_key = len(joined_label_vars[0])
+        points_dict = {}
+
+        var_indices = [from_indices[var] for var in var_order]
+
+        for self_point, other_point in self.generate_consistent_point_pairs(
+            var_order, other_variety
+        ):
+            cat_point = self_point + other_point
+            new_key = tuple(cat_point[i] for i in var_indices[:len_key])
+            new_tail = tuple(cat_point[i] for i in var_indices[len_key:])
+            key_list = points_dict.setdefault(new_key, [])
+            key_list.append(new_tail)
+
+        return MVarietyTupleDict(
+            labels=self.labels,
+            classifiers=self.union_classifiers(other_variety),
+            qs=self.qs,
+            m=self.m,
+            label_vars=joined_label_vars,
+            points=points_dict,
+        )
+
+    def compute_from_indices(
+        self, other_variety: Self, var_order: Sequence[sympy.Symbol]
+    ) -> Sequence[int]:
+        """
+        Compute the indices for finding the values of the final variety.
+
+        The final variety will contain values from both varieties. This
+        sequence of integers, sorted by var_order, specifies where to
+        find a label response variable in the source variety - self or
+        another variety.
+
+        Parameters
+        ----------
+        var_order : Sequence[sympy.Symbol]
+            DESCRIPTION.
+
+        Returns
+        -------
+        Sequence[int]
+            Source index in a concatenated variety point.
+
+        """
+        from_indices = {var_order[i]: 0 for i in range(len(var_order))}
+
+        self_only_vars = self.only_self_vars(other_variety)
+        all_self_vars = list(chain(*self.label_vars))
+        in_self_index = {
+            var: i for var, i in zip(all_self_vars, range(len(all_self_vars)))
+        }
+
+        other_only_vars = self.only_other_vars(other_variety)
+        all_other_vars = list(chain(*other_variety.label_vars))
+        in_other_index = {
+            var: i
+            for var, i in zip(all_other_vars, range(len(all_other_vars)))
+        }
+
+        common_vars = self.common_vars(other_variety)
+
+        # Update where to find the data we need for each new point
+        for var in self_only_vars:
+            from_indices[var] = in_self_index[var]
+        for var in common_vars:
+            from_indices[var] = in_self_index[var]
+        for var in other_only_vars:
+            from_indices[var] = in_other_index[var] + len(all_self_vars)
+
+        return from_indices
 
     def intersection_label_vars(
         self, other_variety: Self
     ) -> Set[sympy.Symbol]:
         """
         Find variables shared by both varieties.
+
+        Beginning at m=2, varieties may share lower m variables. In addition,
+        we want the __and__ operation to be idempotent when a previously
+        joined variety is joined again - joining self with another variety
+        gives the same result if we join it again.
 
         Parameters
         ----------
@@ -332,6 +479,451 @@ class MVariety:
 
         """
         return frozenset(set(self.label_vars) & set(other_variety.label_vars))
+
+    def union_classifiers(self, other_variety: Self) -> Set[str]:
+        """
+        Find union of the classifiers in self and 'other_variety'.
+
+        Parameters
+        ----------
+        other_variety : Self
+            Variety to compare with.
+
+        Returns
+        -------
+        Set[str]
+            The union of the classifiers in self and 'other_variety'.
+
+        """
+        return tuple(
+            sorted(set(self.classifiers) | set(other_variety.classifiers))
+        )
+
+    def var_order(self, other_variety: Self) -> tuple[sympy.Symbol]:
+        """
+        Construct var order of the intersection of self with 'other_variety'.
+
+        Parameters
+        ----------
+        other_variety : Self
+            A variety of the same order as self.
+
+        Returns
+        -------
+        The var order for the points in the intersection of the varieties.
+
+        """
+        # We have to be careful, we will be missing variables
+        vars_present = set(chain(*self.label_vars)).union(
+            set(chain(*other_variety.label_vars))
+        )
+        union_classifiers = tuple(
+            sorted(self.union_classifiers(other_variety))
+        )
+        mvars = MClassifiersVariables(self.labels, union_classifiers)
+        vars = []
+        for m_curr in range(1, self.m + 1):
+            for m_subset in combinations(
+                self.union_classifiers(other_variety), m_curr
+            ):
+                for label in self.labels:
+                    for decisions in product(self.labels, repeat=m_curr):
+                        var = mvars.label_responses[m_subset][label][decisions]
+                        if var in vars_present:
+                            vars.append(var)
+
+        return tuple(vars)
+
+    def common_m1_vars(
+        self, other_variety: Self, var_order: tuple[sympy.Symbol]
+    ) -> tuple[str]:
+        """
+        Find common m=1 vars following var order.
+
+        Parameters
+        ----------
+        other_variety : Self
+            Variety to check.
+        var_order : tuple[sympy.Symbol]
+            Canonical var order.
+
+        Returns
+        -------
+        tuple[str]
+            DESCRIPTION.
+
+        """
+        other_m1_vars = set(other_variety.label_vars[0])
+        self_m1_vars = set(self.label_vars[0])
+        intersection_set = self_m1_vars.intersection(other_m1_vars)
+        common_m1_vars = [var for var in var_order if var in intersection_set]
+        return common_m1_vars
+
+    def m1_var_indices(
+        self, m1_vars: Sequence[sympy.Symbol], variety: Self
+    ) -> tuple[int]:
+        """
+        Find the position of m=1 vars in variety.label_vars.
+
+        Parameters
+        ----------
+        m1_vars : Sequence[sympy.Symbol]
+            DESCRIPTION.
+        other_variety : Self
+            DESCRIPTION.
+
+        Returns
+        -------
+        tuple[int]
+            DESCRIPTION.
+
+        """
+        variety_m1_vars = variety.label_vars[0]
+        indices = [
+            i
+            for i in range(len(variety_m1_vars))
+            if variety_m1_vars[i] in m1_vars
+        ]
+        return indices
+
+    def common_m2p_vars(
+        self, other_variety: Self, var_order: tuple[sympy.Symbol]
+    ) -> tuple[str]:
+        """
+        Find common m=2 or higher vars following var order.
+
+        Parameters
+        ----------
+        other_variety : Self
+            Variety to check.
+        var_order : tuple[sympy.Symbol]
+            Canonical var order.
+
+        Returns
+        -------
+        tuple[str]
+            DESCRIPTION.
+
+        """
+        other_m2p_vars = set(chain(*other_variety.label_vars[1:]))
+        self_m2p_vars = set(chain(*self.label_vars[1:]))
+        intersection_set = self_m2p_vars.intersection(other_m2p_vars)
+        common_m2p_vars = [var for var in var_order if var in intersection_set]
+        return common_m2p_vars
+
+    def m2p_var_indices(
+        self, m2p_vars: Sequence[sympy.Symbol], variety: Self
+    ) -> tuple[int]:
+        """
+
+
+        Parameters
+        ----------
+        m1_vars : Sequence[sympy.Symbol]
+            DESCRIPTION.
+        other_variety : Self
+            DESCRIPTION.
+
+        Returns
+        -------
+        tuple[int]
+            DESCRIPTION.
+
+        """
+        these_m2p_vars = list(chain(*variety.label_vars[1:]))
+        indices = [
+            i
+            for i in range(len(these_m2p_vars))
+            if these_m2p_vars[i] in m2p_vars
+        ]
+        return indices
+
+    def only_self_vars(self, other_variety: Self) -> tuple[sympy.Symbol]:
+        """
+        Find label response variables only self has.
+
+        Parameters
+        ----------
+        other_variety : Self
+            DESCRIPTION.
+
+        Returns
+        -------
+        tuple[sympy.Symbol]
+        Label response variables only found in self.
+
+        """
+        only_in_self = tuple(
+            var
+            for var in list(chain(*self.label_vars))
+            if var
+            in set(chain(*self.label_vars)).difference(
+                set(chain(*other_variety.label_vars))
+            )
+        )
+        return only_in_self
+
+    def only_other_vars(self, other_variety: Self) -> tuple[sympy.Symbol]:
+        """
+        Find label response variables only self has.
+
+        Parameters
+        ----------
+        other_variety : Self
+            DESCRIPTION.
+
+        Returns
+        -------
+        tuple[sympy.Symbol]
+        Label response variables only found in 'other_variety'.
+
+        """
+        only_in_other = tuple(
+            var
+            for var in list(chain(*other_variety.label_vars))
+            if var
+            in set(chain(*other_variety.label_vars)).difference(
+                set(chain(*self.label_vars))
+            )
+        )
+        return only_in_other
+
+    def common_vars(self, other_variety: Self) -> tuple[sympy.Symbol]:
+        """
+        Find label response variables only self has.
+
+        Parameters
+        ----------
+        other_variety : Self
+            DESCRIPTION.
+
+        Returns
+        -------
+        tuple[sympy.Symbol]
+        Label response variables found in self and other_variety.
+
+        """
+        return tuple(
+            var
+            for var in list(chain(*self.label_vars))
+            if var
+            in set(chain(*self.label_vars)).intersection(
+                set(chain(*other_variety.label_vars))
+            )
+        )
+
+    def var_indices(
+        self, vars: Sequence[sympy.Symbol], variety: Self
+    ) -> Iterable:
+        """
+        Get indices for vars in self.label_vars.
+
+        Parameters
+        ----------
+        vars : Sequence[sympy.Symbol]
+            DESCRIPTION.
+        variety : Self
+            DESCRIPTION.
+
+        Returns
+        -------
+        Iterable
+            DESCRIPTION.
+
+        """
+        var_indices = tuple(
+            i
+            for i in range(len(variety.label_vars))
+            if variety.label_vars[i] in vars
+        )
+
+        return var_indices
+
+    def group_by_var_vals(
+        self, vars: Sequence[sympy.Symbol], variety: Self
+    ) -> Iterable:
+        """
+        Variety points grouped by var values.
+
+        Parameters
+        ----------
+        vars : Sequence[sympy.Symbol]
+            DESCRIPTION.
+        variety : Self
+            DESCRIPTION.
+
+        Returns
+        -------
+        Iterable
+            DESCRIPTION.
+
+        """
+        variety_vars = list(chain(*variety.label_vars))
+        var_indices = list(
+            i for i in range(len(variety_vars)) if variety_vars[i] in vars
+        )
+
+        def var_values(point):
+            return tuple(point[i] for i in var_indices)
+
+        data = sorted(variety.generate_points(), key=var_values)
+        return groupby(data, key=var_values)
+
+    def join_label_vars(
+        self, var_order: Sequence[sympy.Symbol], other_variety: Self
+    ) -> tuple[tuple[sympy.Symbol]]:
+        """
+        Join label_vars by m-order.
+
+        Parameters
+        ----------
+        other_variety : Self
+            DESCRIPTION.
+
+        Returns
+        -------
+        The joined vars by m-order.
+
+        """
+        joined_vars = tuple(
+            tuple(
+                var
+                for var in var_order
+                if var in set(self_vars).union(set(other_vars))
+            )
+            for self_vars, other_vars in zip(
+                self.label_vars, other_variety.label_vars
+            )
+        )
+
+        return joined_vars
+
+
+class MVarietyTupleDict(MVariety):
+    """Concrete class for MVariety storing points as dict of tuples.
+
+    Warning: this class is memory intensive.
+    """
+
+    def generate_points(self, dict_so_far: Optional[dict] = None) -> Iterable:
+        """
+        Generate the variety points.
+
+        Parameters
+        ----------
+        dict_so_far : dict
+            DESCRIPTION.
+
+        Returns
+        -------
+        Iterable
+            DESCRIPTION.
+
+        """
+        for key in self.points.keys():
+            list_val = self.points[key]
+            for val in list_val:
+                yield key + val
+
+    def generate_consistent_point_pairs(
+        self, var_order: Sequence[sympy.Symbol], other_variety: Self
+    ) -> Iterable[tuple[tuple[int], tuple[int]]]:
+        """
+        Generate consistent point pairs.
+
+        Consistent point pairs are points from each variety that agree
+        on common variables.
+
+        Parameters
+        ----------
+        other_variety : Self
+            DESCRIPTION.
+
+        Returns
+        -------
+        Iterable(tuple[tuple[int], tuple[int]]
+            DESCRIPTION.
+
+        """
+        common_m2p_vars = self.common_m2p_vars(other_variety, var_order)
+        scm2pi = self.m2p_var_indices(common_m2p_vars, self)
+        ocm2pi = self.m2p_var_indices(common_m2p_vars, other_variety)
+
+        common_m1_vars = self.common_m1_vars(other_variety, var_order)
+
+        for self_key, other_key in self.generate_consistent_key_pairs(
+            common_m1_vars, other_variety
+        ):
+
+            for self_tail, other_tail in self.generate_consistent_tail_pairs(
+                other_variety, self_key, other_key, scm2pi, ocm2pi
+            ):
+
+                yield (self_key + self_tail, other_key + other_tail)
+
+    def generate_consistent_key_pairs(
+        self,
+        common_m1_vars: Sequence[sympy.Symbol],
+        other_variety: Self,
+    ) -> Iterable[Tuple[Tuple[int], Tuple[int]]]:
+        """
+        Generate key pairs for self and other_variety that are consistent.
+
+        Parameters
+        ----------
+        other_variety : Self
+            DESCRIPTION.
+
+        Returns
+        -------
+        Tuples of m1 keys for the points dict of each variety.
+
+        """
+        # Self common m1 var indices
+        scm1i = self.m1_var_indices(common_m1_vars, self)
+        ocm1i = self.m1_var_indices(common_m1_vars, other_variety)
+        for self_key, other_key in product(
+            self.points.keys(), other_variety.points.keys()
+        ):
+            test_value = [self_key[i] for i in scm1i] == [
+                other_key[i] for i in ocm1i
+            ]
+
+            if test_value:
+                yield (self_key, other_key)
+
+    def generate_consistent_tail_pairs(
+        self,
+        other_variety: Self,
+        self_key: Tuple[int],
+        other_key: Tuple[int],
+        scm2pi: Tuple[int],
+        ocm2pi: Tuple[int],
+    ) -> Iterable[Tuple[Tuple[int], Tuple[int]]]:
+        """
+        Generate key pairs for self and other_variety that are consistent.
+
+        Parameters
+        ----------
+        other_variety : Self
+            DESCRIPTION.
+
+        Returns
+        -------
+        Tuples of m1 keys for the points dict of each variety.
+
+        """
+        if self.m == 1:
+            yield (tuple(), tuple())
+        for self_tail, other_tail in product(
+            self.points[self_key],
+            other_variety.points[other_key],
+        ):
+            test_value = [self_tail[i] for i in scm2pi] == [
+                other_tail[i] for i in ocm2pi
+            ]
+            if test_value:
+                yield (self_tail, other_tail)
 
 
 class MAxiomsVarieties:
@@ -481,6 +1073,27 @@ class MAxiomsVarieties:
         return mm1_relevant_vars
 
     def simplex_points_equal(self, total, maxs, N):
+        """
+        Generate all simplex points with values less than or equal to maxs.
+
+        This is a recursive generator to handle arbitrary number of variables
+        in a simplex.
+
+        Parameters
+        ----------
+        total : TYPE
+            DESCRIPTION.
+        maxs : TYPE
+            DESCRIPTION.
+        N : TYPE
+            DESCRIPTION.
+
+        Yields
+        ------
+        TYPE
+            DESCRIPTION.
+
+        """
         if sum(maxs) < total:
             return
         if N == 1:
@@ -511,7 +1124,7 @@ class MAxiomsVarieties:
 
         """
         m = len(classifiers)
-        print("Doing m variety: ", m)
+        # print("Doing m variety: ", m)
 
         # We concatenate all the label response vars sorted by
         # self.labels
@@ -524,10 +1137,8 @@ class MAxiomsVarieties:
             ]
             for l_true in self.labels
         ]
-        print("label_mvars: ", labels_mvars)
 
         labels_vars = list(chain(*labels_mvars))
-        print("labels_vars: ", labels_vars)
 
         mvars_axioms_coeffs = self.turn_axiom_exprs_to_vectors(
             classifiers, labels_vars
@@ -551,18 +1162,13 @@ class MAxiomsVarieties:
                 if self.satisfies_axioms(mpoint, mvars_axioms_coeffs)
             ]
 
-            return MVariety(
+            return MVarietyTupleDict(
                 labels=self.labels,
                 classifiers=classifiers,
                 qs=self.qs,
                 m=m,
-                label_vars=labels_vars,
-                points=np.array(
-                    [
-                        np.array(sum(point, []), dtype=np.uint16)
-                        for point in variety_points
-                    ]
-                ),
+                label_vars=(tuple(labels_vars),),
+                points={tuple(sum(point, [])): [] for point in variety_points},
             )
 
         elif m > 1:
@@ -579,44 +1185,34 @@ class MAxiomsVarieties:
 
             # We need the order of the vars in the points of each variety
             # And we need to sort them for reconciliation
-            mm1_label_vars = [variety.label_vars for variety in mm1_varieties]
-            reconciled_mm1_vars = self.reconcile_variety_vars(mm1_label_vars)
+            mm1_joined_variety = mm1_varieties[0]
+            for mm1_variety in mm1_varieties:
+                mm1_joined_variety &= mm1_variety
+            mm1_vars = tuple(chain(*mm1_joined_variety.label_vars))
             mm1_indices = {
-                reconciled_mm1_vars[i]: i
-                for i in range(len(reconciled_mm1_vars))
+                var: i for var, i in zip(mm1_vars, range(len(mm1_vars)))
             }
-            mm1_variety_points = [variety.points for variety in mm1_varieties]
 
             # We drop the constant term for the mm1 coeffs vector
             mm1_coeffs = [
                 coeffs[1]
                 for coeffs in self.turn_axiom_exprs_to_vectors(
-                    classifiers, reconciled_mm1_vars
+                    classifiers, mm1_vars
                 )
             ]
 
-            variety = []
-
-            for mm1_point_candidate in product(*mm1_variety_points):
-                # For m >= 3 there must be logic here to determine
-                # if this is a feasible point - not contradictory
-                # in assigned values. This can happen for m = 3
-                # where points from two different pairs have a
-                # classifier in common. That common classifier must
-                # have the same values in the mm1_point that the
-                # product operation above produced.
-                mm1_point = self.make_consistent_if_possible(
-                    mm1_point_candidate
-                )
-                if len(mm1_point) == 0:
-                    continue
+            points_dict = {}
+            for mm1_point in mm1_joined_variety.generate_points():
 
                 # Calculate the contribution of the mm1 vars to the axioms
                 new_coeffs = []
-                for mcoeffs, mm1coeffs in zip(mvars_axioms_coeffs, mm1_coeffs):
+                for label_mcoeffs, label_mm1coeffs in zip(
+                    mvars_axioms_coeffs, mm1_coeffs
+                ):
                     curr_coeff = (
-                        mcoeffs[0] + np.dot(mm1_point, mm1coeffs),
-                        mcoeffs[1],
+                        label_mcoeffs[0]
+                        + np.dot(np.array(mm1_point), label_mm1coeffs),
+                        label_mcoeffs[1],
                     )
                     new_coeffs.append(curr_coeff)
 
@@ -646,44 +1242,29 @@ class MAxiomsVarieties:
                     )
                 ]
 
+                # The indices of the key are all the values
+                # at the front that point to a point in single
+                # classifier responses
+                len_key = len(classifiers) * (len(self.labels)) ** 2
+
                 for point in variety_points:
-                    new_point = sum(point, [])
-                    new_point += mm1_point
-                    variety.append(np.array(new_point, dtype=np.uint16))
+                    new_point = mm1_point + tuple(chain(*point))
+                    point_list = points_dict.setdefault(
+                        new_point[:len_key], []
+                    )
+                    point_list.append(new_point[len_key:])
 
-                header_vars = labels_vars + reconciled_mm1_vars
+            header_vars = list(mm1_joined_variety.label_vars)
+            header_vars.append(tuple(labels_vars))
 
-            return MVariety(
+            return MVarietyTupleDict(
                 labels=self.labels,
                 classifiers=classifiers,
                 qs=self.qs,
                 m=m,
                 label_vars=header_vars,
-                points=np.stack(variety),
+                points=points_dict,
             )
-
-    def reconcile_variety_vars(
-        self, label_vars: Sequence[Sequence[sympy.Symbol]]
-    ) -> Sequence[sympy.Symbol]:
-        """
-        Reconcile label response variables from the varieties.
-
-        Parameters
-        ----------
-        label_vars : Sequence[Sequence[sympy.Symbol]]
-            DESCRIPTION.
-
-        Returns
-        -------
-        Sequence[sympy.Symbol].
-            The ordering with removed common duplicates.
-
-        """
-        # This function is currently not functional for m = 2 varieties or
-        # higher. We are getting away that for m = 1 there are no common
-        # variables between the variety points.
-        reconciled_vars = sum(label_vars, [])
-        return reconciled_vars
 
     def turn_axiom_exprs_to_vectors(
         self,
@@ -691,7 +1272,7 @@ class MAxiomsVarieties:
         labels_vars: Sequence[sympy.Symbol],
     ) -> tuple[npt.NDArray[np.int16]]:
         """
-        Turn label axioms a vector of coefficients
+        Turn label axioms a vector of coefficients.
 
         Parameters
         ----------
