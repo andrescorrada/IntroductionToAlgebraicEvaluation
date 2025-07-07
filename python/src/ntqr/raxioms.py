@@ -412,30 +412,26 @@ class MAxiomsIdeal:
 
         """
         labels = self.labels
-        trio_vars = self._m_complex[trio]["vars"][trio]
-        qs = trio_vars.qs
-        m3_responses = trio_vars.responses
-        m3_label_responses = trio_vars.label_responses
+        qs = self.mvars.qs
+        m3_responses = self.mvars.responses[trio]
+        m3_label_responses = self.mvars.label_responses[trio]
 
         # Now we have to build the variables for m1 decision
         # tuples.
         m1_responses = {
-            m1: self._m_complex[trio]["vars"][m1].responses
-            for m1 in combinations(trio, 1)
+            m1: self.mvars.responses[m1] for m1 in combinations(trio, 1)
         }
         m1_label_responses = {
-            m1: self._m_complex[trio]["vars"][m1].label_responses
-            for m1 in combinations(trio, 1)
+            m1: self.mvars.label_responses[m1] for m1 in combinations(trio, 1)
         }
+
         # Now we have to build the variables for m2 decision
         # tuples.
         m2_responses = {
-            m2: self._m_complex[trio]["vars"][m2].responses
-            for m2 in combinations(trio, 2)
+            m1: self.mvars.responses[m1] for m1 in combinations(trio, 2)
         }
         m2_label_responses = {
-            m2: self._m_complex[trio]["vars"][m2].label_responses
-            for m2 in combinations(trio, 2)
+            m1: self.mvars.label_responses[m1] for m1 in combinations(trio, 2)
         }
 
         m3_axioms_ideal = {
