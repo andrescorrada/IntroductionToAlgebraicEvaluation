@@ -441,7 +441,7 @@ class MVariety:
         Parameters
         ----------
         other_variety : Self
-            DESCRIPTION.
+            The other variety.
 
         Returns
         -------
@@ -520,7 +520,7 @@ class MVariety:
         Returns
         -------
         tuple[str]
-            DESCRIPTION.
+            m=1 label responses variables shared by self with other_variety.
 
         """
         other_m1_vars = set(other_variety.label_vars[0])
@@ -538,14 +538,14 @@ class MVariety:
         Parameters
         ----------
         m1_vars : Sequence[sympy.Symbol]
-            DESCRIPTION.
-        other_variety : Self
-            DESCRIPTION.
+            m=1 label response variables for which we want the index.
+        variety : Self
+            The variety whose m1 variables will be indexed.
 
         Returns
         -------
         tuple[int]
-            DESCRIPTION.
+            Indices of the m=1 label response variables in a variety point.
 
         """
         variety_m1_vars = variety.label_vars[0]
@@ -565,14 +565,14 @@ class MVariety:
         Parameters
         ----------
         other_variety : Self
-            Variety to check.
+            Other variety.
         var_order : tuple[sympy.Symbol]
             Canonical var order.
 
         Returns
         -------
         tuple[str]
-            DESCRIPTION.
+            m>=2 label response variables shared by self and 'other_variety'.
 
         """
         other_m2p_vars = set(chain(*other_variety.label_vars[1:]))
@@ -585,19 +585,20 @@ class MVariety:
         self, m2p_vars: Sequence[sympy.Symbol], variety: Self
     ) -> tuple[int]:
         """
-
+        Find the indices for the m>=2 label responses variables.
 
         Parameters
         ----------
-        m1_vars : Sequence[sympy.Symbol]
-            DESCRIPTION.
+        m2p_vars : Sequence[sympy.Symbol]
+            m>=2 label responses variables.
         other_variety : Self
-            DESCRIPTION.
+            The other variety.
 
         Returns
         -------
         tuple[int]
-            DESCRIPTION.
+            Indices of the m>=2 label response variables in a point from
+            'variety'.
 
         """
         these_m2p_vars = list(chain(*variety.label_vars[1:]))
@@ -615,12 +616,12 @@ class MVariety:
         Parameters
         ----------
         other_variety : Self
-            DESCRIPTION.
+            The other variety.
 
         Returns
         -------
         tuple[sympy.Symbol]
-        Label response variables only found in self.
+        Label response variables only found in self and not in 'other_variety'.
 
         """
         only_in_self = tuple(
@@ -635,7 +636,7 @@ class MVariety:
 
     def only_other_vars(self, other_variety: Self) -> tuple[sympy.Symbol]:
         """
-        Find label response variables only self has.
+        Find label response variables only 'other_variety' has.
 
         Parameters
         ----------
@@ -660,12 +661,12 @@ class MVariety:
 
     def common_vars(self, other_variety: Self) -> tuple[sympy.Symbol]:
         """
-        Find label response variables only self has.
+        Find label response variables in self and other_variety.
 
         Parameters
         ----------
         other_variety : Self
-            DESCRIPTION.
+            The other variety.
 
         Returns
         -------
@@ -691,14 +692,14 @@ class MVariety:
         Parameters
         ----------
         vars : Sequence[sympy.Symbol]
-            DESCRIPTION.
+            Variables for which we want indices in points from 'variety'.
         variety : Self
-            DESCRIPTION.
+            The variety where the indices are to be found.
 
         Returns
         -------
         Iterable
-            DESCRIPTION.
+            The indices for 'vars' in a point from 'variety'.
 
         """
         var_indices = tuple(
@@ -708,36 +709,6 @@ class MVariety:
         )
 
         return var_indices
-
-    def group_by_var_vals(
-        self, vars: Sequence[sympy.Symbol], variety: Self
-    ) -> Iterable:
-        """
-        Variety points grouped by var values.
-
-        Parameters
-        ----------
-        vars : Sequence[sympy.Symbol]
-            DESCRIPTION.
-        variety : Self
-            DESCRIPTION.
-
-        Returns
-        -------
-        Iterable
-            DESCRIPTION.
-
-        """
-        variety_vars = list(chain(*variety.label_vars))
-        var_indices = list(
-            i for i in range(len(variety_vars)) if variety_vars[i] in vars
-        )
-
-        def var_values(point):
-            return tuple(point[i] for i in var_indices)
-
-        data = sorted(variety.generate_points(), key=var_values)
-        return groupby(data, key=var_values)
 
     def join_label_vars(
         self, var_order: Sequence[sympy.Symbol], other_variety: Self
@@ -897,7 +868,7 @@ class MVarietyTupleDict(MVariety):
 
     def construct_intersection_variety(self, other_variety: MVariety) -> Self:
         """
-
+        Construct the intersection.
 
         Parameters
         ----------
@@ -907,7 +878,7 @@ class MVarietyTupleDict(MVariety):
         Returns
         -------
         Self
-            DESCRIPTION.
+            The intersection of the two varieties..
 
         """
         # We first construct the var order in the final variety
