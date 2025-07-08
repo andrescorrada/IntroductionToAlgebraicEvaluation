@@ -7,7 +7,7 @@ and its associated axioms.
 
 from collections.abc import Sequence
 from dataclasses import dataclass, field
-from itertools import chain, combinations, groupby, product
+from itertools import chain, combinations, product
 from types import MappingProxyType
 from typing import Iterable, Mapping, Optional, Self, Set, Tuple
 

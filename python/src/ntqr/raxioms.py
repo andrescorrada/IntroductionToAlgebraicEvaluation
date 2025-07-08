@@ -126,8 +126,8 @@ class MAxiomsIdeal:
 
         Returns
         -------
-        m1_axioms_ideal : TYPE
-            DESCRIPTION.
+        m1_axioms_ideal :  Mapping[str, sympy.UnevaluatedExpr]
+            A mapping from label to its corresponding m=1 axiom.
 
         """
         m1_responses = self.mvars.responses[classifier]
@@ -158,7 +158,7 @@ class MAxiomsIdeal:
 
     def _m_one_ideal(self, labels, m_subset):
         """
-
+        This may need to be deprecated.
 
         Parameters
         ----------
@@ -204,11 +204,11 @@ class MAxiomsIdeal:
         self, pair: tuple[Any, Any]
     ) -> dict[str, sympy.UnevaluatedExpr]:
         """
-        The M=2 axiom constructor.
+        Construct the m=2 ideal.
 
         This is the 'errors' variables version. The one used for internal
         computation of the varieties. It has the drawback that it is hard
-        to check and code.
+        to check or to write code for it.
 
         Parameters
         ----------
@@ -312,7 +312,7 @@ class MAxiomsIdeal:
         self, pair: tuple[Any, Any]
     ) -> Mapping[str, sympy.UnevaluatedExpr]:
         """
-        The M=2 axioms ideal with agreement label response variables.
+        Construct the M=2 algebraic ideal.
 
         The axioms in label response space are easiest to understand
         and prove when we use 'agreement' variables. Those are variables
@@ -329,12 +329,12 @@ class MAxiomsIdeal:
         Parameters
         ----------
         pair : tuple[Any, Any]
-            DESCRIPTION.
+            The classifier pair.
 
         Returns
         -------
-        m2_axioms_ideal : TYPE
-            DESCRIPTION.
+        m2_axioms_ideal : Mapping[str, sympy.UnevaluatedExpr]
+            Mapping from labels to its corresponding M=2 axiom.
 
         """
         labels = self.labels
@@ -397,8 +397,7 @@ class MAxiomsIdeal:
         self, trio: tuple[str | int, str | int, str | int]
     ) -> Mapping[str, sympy.UnevaluatedExpr]:
         """
-        The M=3 axioms ideal with agreement label response variables.
-
+        Construct the M=3 algebraic ideal with agreement variables.
 
         Parameters
         ----------
