@@ -42,23 +42,25 @@ But logic seems out of place with how we engineer AI agents nowadays,
 mostly as statistical algorithms that depend and rely on a well developed set
 of ideas from probability theory. In addition, for some readers it may remind
 them of the symbolic AI systems that were developed before probability theory
-became the basic tool for building algorithms. These used knowledge bases and
+became the basic tool for building algorithms. They used knowledge bases and
 tried to reason about the world and their actions. The logic of unsupervised
 evaluation we are talking about is none of those.
 
 It is not a logic about how to make decisions. That is what the symbolic
-systems try to do. They do withs using a **world model**. These are hard
+systems try to do. They do this using a **world model**. These are hard
 define except in simulated worlds. Evaluations are not like that. A binary
 test is a binary test in any domain. The logic of unsupervised evaluation
-requires **evaluation models**. And these are trivial to specify and construct.
+requires **evaluation models**, not world models.
+And these are trivial to specify and construct.
 
-The current version is building out the axioms and logic for the case of binary
-classifiers and responders (R=2) and 3-class classifiers (R=3).
-The current version (v0.4) has
-taken a big step by using the case of 3-class classification to go back and
-rewrite the 2-class (binary) classification case. In the process, it has now
-become obvious how to create an alarm for any number of classes using just
-the algorithms used here that depend on just the single classifier axioms.
+The upcoming version (0.5) can now handle an arbitrary number of classifiers
+and labels. When evaluations are carried out in the integer space of correct
+and incorrect label responses, the axioms of unsupervised evaluation become
+linear. These axioms, in addition to other logical constraints on the counts,
+define a linear optimization problem for the set of possible group evaluations.
+The current version of NTQR is not taking advantage of this fact. Future
+versions will incorporate optimized solvers such as
+[PuLP](https://coin-or.github.io/pulp/).
 
 Brief guide:
 1. Formal verification of unsupervised evaluations: The NTQR package is
