@@ -53,7 +53,7 @@ test is a binary test in any domain. The logic of unsupervised evaluation
 requires **evaluation models**, not world models.
 And these are trivial to specify and construct.
 
-The upcoming version (0.5) can now handle an arbitrary number of classifiers
+The upcoming version (0.7) can now handle an arbitrary number of classifiers
 and labels. When evaluations are carried out in the integer space of correct
 and incorrect label responses, the axioms of unsupervised evaluation become
 linear. These axioms, in addition to other logical constraints on the counts,
