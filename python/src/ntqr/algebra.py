@@ -13,17 +13,19 @@ def extract_coefficents(
     """
     Extract vars coefficients from expr.
 
+    Assumes that 'expr' is a linear equation.
+
     Parameters
     ----------
     expr : sympy.UnevaluatedExpr
-        DESCRIPTION.
+        Linear expression.
     vars : Sequence[sympy.Symbol]
-        DESCRIPTION.
+        Variables for which we have their coefficient in expr.
 
     Returns
     -------
     Sequence[int]
-        DESCRIPTION.
+        The integer coefficients, following the same order as 'vars'.
 
     """
     coeff_dict = expr.as_coefficients_dict()
@@ -35,17 +37,19 @@ def extract_coefficents(
 
 def extract_constant(expr: sympy.UnevaluatedExpr) -> int:
     """
+    Extracts the constant term in 'expr.'
 
+    Returns the value of the constant term in expr.
 
     Parameters
     ----------
     expr : sympy.UnevaluatedExpr
-        DESCRIPTION.
+        An algebraic expression.
 
     Returns
     -------
     int
-        DESCRIPTION.
+        The integer value of the constant term.
 
     """
     one = sympy.core.numbers.One()

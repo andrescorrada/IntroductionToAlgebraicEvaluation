@@ -384,15 +384,15 @@ class MVariety:
         """
         Compute the indices for finding the values of the final variety.
 
-        The final variety will contain values from both varieties. This
-        sequence of integers, sorted by var_order, specifies where to
-        find a label response variable in the source variety - self or
-        another variety.
+        Whenever we do logical AND of varities, the final variety will contain
+        values from both varieties. This function returns the indices in
+        their concatenated variety point where we can find the variables
+        specified in 'var_order.'
 
         Parameters
         ----------
         var_order : Sequence[sympy.Symbol]
-            DESCRIPTION.
+            Sequence that defines the order of the variables.
 
         Returns
         -------
@@ -641,7 +641,7 @@ class MVariety:
         Parameters
         ----------
         other_variety : Self
-            DESCRIPTION.
+            The variety we are comparing with.
 
         Returns
         -------
@@ -719,7 +719,7 @@ class MVariety:
         Parameters
         ----------
         other_variety : Self
-            DESCRIPTION.
+            The variety whose variables will be joined with self.
 
         Returns
         -------
@@ -746,21 +746,17 @@ class MVarietyTupleDict(MVariety):
     Warning: this class is memory intensive.
     """
 
-    def generate_points(self, dict_so_far: Optional[dict] = None) -> Iterable:
+    def generate_points(self) -> Iterable:
         """
-        Generate the variety points.
+        Generate the points in this variety.
 
-        Parameters
-        ----------
-        dict_so_far : dict
-            DESCRIPTION.
-
-        Returns
-        -------
+        Yields
+        ------
         Iterable
-            DESCRIPTION.
+            Points in the variety.
 
         """
+
         for key in self.points.keys():
             list_val = self.points[key]
             for val in list_val:
@@ -770,20 +766,28 @@ class MVarietyTupleDict(MVariety):
         self, var_order: Sequence[sympy.Symbol], other_variety: Self
     ) -> Iterable[tuple[tuple[int], tuple[int]]]:
         """
-        Generate consistent point pairs.
+        Generate pairs of points from each variety consisten with each other.
 
-        Consistent point pairs are points from each variety that agree
-        on common variables.
+        Whenever we are joining varieties of order $m \geq 2$, care must
+        be taken to only combine points that agree on their common variables.
+        For example, if we have the variety for classifiers 'i' and 'j' and
+        want to join it with the variety for classifiers 'j' and 'k', we
+        must make sure that we return point pairs, one from each variety,
+        that agree in their values of 'j' responses.
 
         Parameters
         ----------
+        var_order : Sequence[sympy.Symbol]
+            Sequence of vars that defines order of variables in the
+            joined variety.
         other_variety : Self
-            DESCRIPTION.
+            The variety to check consistency on common variables.
 
-        Returns
-        -------
-        Iterable(tuple[tuple[int], tuple[int]]
-            DESCRIPTION.
+        Yields
+        ------
+        (Iterable[tuple[tuple[int], tuple[int]]])
+            Pairs of points, one from each variety, that are logically
+            consistent with each other (agree on common variables).
 
         """
         common_m2p_vars = self.common_m2p_vars(other_variety, var_order)
@@ -813,7 +817,7 @@ class MVarietyTupleDict(MVariety):
         Parameters
         ----------
         other_variety : Self
-            DESCRIPTION.
+            The variety we are joining self with.
 
         Returns
         -------
@@ -847,7 +851,7 @@ class MVarietyTupleDict(MVariety):
         Parameters
         ----------
         other_variety : Self
-            DESCRIPTION.
+            The variety we are joining self with.
 
         Returns
         -------
@@ -873,7 +877,7 @@ class MVarietyTupleDict(MVariety):
         Parameters
         ----------
         other_variety : MVariety
-            DESCRIPTION.
+            The variety we are intersecting self with.
 
         Returns
         -------
@@ -970,7 +974,7 @@ class MAxiomsVarieties:
         Parameters
         ----------
         m : int
-            DESCRIPTION.
+            The order of the axioms, an integer of value 1 or greather.
 
         Returns
         -------
@@ -1060,7 +1064,7 @@ class MAxiomsVarieties:
 
         return mm1_relevant_vars
 
-    def simplex_points_equal(self, total, maxs, N):
+    def simplex_points_equal(self, total: int, maxs: Sequence[int], N: int):
         """
         Generate all simplex points with values less than or equal to maxs.
 
@@ -1069,17 +1073,18 @@ class MAxiomsVarieties:
 
         Parameters
         ----------
-        total : TYPE
-            DESCRIPTION.
-        maxs : TYPE
-            DESCRIPTION.
-        N : TYPE
-            DESCRIPTION.
+        total : int
+            Total value required for the sum of the vars on the simplex.
+        maxs : Sequence[int]
+            The max integer value that a var can have on that simplex.
+        N : int
+            The number of vars defining the simplex.
 
         Yields
         ------
-        TYPE
-            DESCRIPTION.
+        tuple[int]
+            Simplex points, of dimension 'N', that sum to 'total' and whose
+            var values do not exceed maxs values.
 
         """
         if sum(maxs) < total:
@@ -1255,25 +1260,24 @@ class MAxiomsVarieties:
             )
 
     def turn_axiom_exprs_to_vectors(
-        self,
-        classifiers: Sequence[str],
-        labels_vars: Sequence[sympy.Symbol],
+        self, classifiers: Sequence[str], labels_vars: Sequence[sympy.Symbol]
     ) -> tuple[npt.NDArray[np.int16]]:
         """
-        Turn label axioms a vector of coefficients.
+        Turn label axioms into an array of coefficient vectors.
 
         Parameters
         ----------
         classifiers : Sequence[str]
-            DESCRIPTION.
-        mm1_point : Mapping[sympy.Symbol, int]
-            DESCRIPTION.
+            Sequence of the classifiers to consider.
+        labels_vars : Sequence[sympy.Symbol]
+            The order of the label vars in the returned tuple of ints.
+
 
         Returns
         -------
-        tuple
-            DESCRIPTION.
-
+        var_coefficients : tuple[npt.NDArray[np.int16]]
+            Sequence of integer coefficients for the axioms, one for each
+            label.
         """
         test_axioms = self.test_axioms[classifiers]
         var_coefficients = []
@@ -1281,32 +1285,29 @@ class MAxiomsVarieties:
         for axiom in test_axioms.values():
             curr_vec = (
                 extract_constant(axiom),
-                self.label_coefficients(classifiers, labels_vars, axiom),
+                self.label_coefficients(labels_vars, axiom),
             )
             var_coefficients.append(curr_vec)
 
         return var_coefficients
 
     def label_coefficients(
-        self,
-        classifiers: Sequence[str],
-        labels_vars: Sequence[sympy.Symbol],
-        axiom: sympy.UnevaluatedExpr,
-    ) -> tuple[tuple[int]]:
+        self, labels_vars: Sequence[sympy.Symbol], axiom: sympy.UnevaluatedExpr
+    ) -> tuple[int]:
         """
-
+        Compute the coefficients for labels_vars than appear in axiom.
 
         Parameters
         ----------
-        classifiers : Sequence[str]
-            DESCRIPTION.
+        labels_vars : Sequence[sympy.Symbol]
+            Variables for which we want coefficients in axiom.
         axiom : sympy.UnevaluatedExpr
-            DESCRIPTION.
+            The algebraic expression of the axiom.
 
         Returns
         -------
-        tuple(tuple(int
-            DESCRIPTION.
+        tuple[int]
+            The integer coefficients for label_vars in axiom.
 
         """
         coeffs = extract_coefficents(axiom, labels_vars)
@@ -1429,12 +1430,12 @@ class MAxiomsVarieties:
         Parameters
         ----------
         mm1_points : Sequence[npt.NDArray[np.uint16]]
-            DESCRIPTION.
+            Order m minus 1 points to be joined logically.
 
         Returns
         -------
-        TYPE
-            DESCRIPTION.
+        npt.NDArray[np.uint16]
+            An array of the joined points if possible, empty otherwise.
 
         """
         # Again, this function will not work correctly for m = 2 varieties
@@ -1466,18 +1467,9 @@ class MAxiomsVarieties:
         Returns
         -------
         bool
-            DESCRIPTION.
+            Does this order m point obey the m-order axioms?
 
         """
-        # satisfies = True
-        # c_point = np.array(np.concatenate(mpoint))
-
-        # for coeffs in maxioms:
-        #     res = coeffs[0] + np.dot(coeffs[1], c_point)
-        #     if res != 0:
-        #         satisfies = False
-        #         break
-
         return all(
             (
                 (
