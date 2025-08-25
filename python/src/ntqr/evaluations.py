@@ -768,7 +768,7 @@ class MVarietyTupleDict(MVariety):
         """
         Generate pairs of points from each variety consisten with each other.
 
-        Whenever we are joining varieties of order $m \geq 2$, care must
+        Whenever we are joining varieties of order m >= 2, care must
         be taken to only combine points that agree on their common variables.
         For example, if we have the variety for classifiers 'i' and 'j' and
         want to join it with the variety for classifiers 'j' and 'k', we
