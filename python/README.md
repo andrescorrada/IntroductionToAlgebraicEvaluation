@@ -65,8 +65,8 @@ versions will incorporate optimized solvers such as
 Brief guide:
 1. Formal verification of unsupervised evaluations: The NTQR package is
   working out the logic for verifying unsupervised evaluations - what are
-  the group evaluations that are consistent with how the test takers agree
-  and disagree on multiple-choice exams? The page "Formal verification of
+  the group evaluations that are logically consistent with how the test takers
+  agree and disagree on multiple-choice exams? The page "Formal verification of
   evaluations" explains this further.
 2. A way to stop infinite monitoring chains: Who grades the graders? Montioring
   unsupervised test takers raises the specter of endless graders or monitors.
@@ -74,9 +74,9 @@ Brief guide:
   chains. We can verify that pairs of classifiers are misaligned, for example.
   Take a look at the "Logical Alarms" Jupyter notebook.
 3. Jury evaluation theorems: Jury decision theorems - when does the crowd
-  decide wisely? - go as far back as Condorcet's 1785 theorem proving that majority
-  voting makes the crowd wiser for better than average jury members. The NTQR
-  package contains jury evaluation theorems - when does the crowd
+  decide wisely? - go as far back as Condorcet's 1785 theorem proving that
+  majority voting makes the crowd wiser for better than average jury members.
+  The NTQR package contains jury evaluation theorems - when does the crowd
   evaluate itself wisely? It turns out it does this better than majority voting
   can decide. This has important consequences for how we shoud design
   safer Ai systems. Check out the "Evaluation is easier than decision"

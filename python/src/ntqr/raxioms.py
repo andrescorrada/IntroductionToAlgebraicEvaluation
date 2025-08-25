@@ -122,12 +122,13 @@ class MAxiomsIdeal:
         Parameters
         ----------
         classifier : tuple[str]
-            DESCRIPTION.
+            Classifier to use for variable subscripts.
 
         Returns
         -------
         m1_axioms_ideal :  Mapping[str, sympy.UnevaluatedExpr]
-            A mapping from label to its corresponding m=1 axiom.
+            A mapping from label to its corresponding m=1 axiom
+            for the given classifier.
 
         """
         m1_responses = self.mvars.responses[classifier]
@@ -156,21 +157,40 @@ class MAxiomsIdeal:
 
         return m1_axioms_ideal
 
-    def _m_one_ideal(self, labels, m_subset):
+    def _m_one_ideal(
+        self, labels: tuple[str], m_subset: tuple[str]
+    ) -> Mapping[str, sympy.UnevaluatedExpr]:
         """
-        This may need to be deprecated.
+        Compute M=1 ideal expressed solely in terms of disagreement variables.
+
+        This may need to be deprecated. The original rationale for this
+        function is that all variables belong to some simplex and therefore
+        we can always get rid of the variable corresponding to all of
+        the test takers agreeing on the correct answer so as to save
+        some computational load.
+
+        The problem is that this form is more complex than the expression
+        returned by self.m_one_ideal_agreement. This also made it more bug
+        prone. Future development of NTQR will be based on the "natural"
+        representation of the axioms indexed by the all-correct response
+        variable. These are easier to write down from the top of one's head
+        and easier to write mechanical proofs for them using more
+        expressive algebraic systems like the Wolfram language.
+
+        This function will be deprecated as it does the same computation
+        as self.m_one_ideal_agreement.
 
         Parameters
         ----------
-        labels : TYPE
-            DESCRIPTION.
-        vars : TYPE
-            DESCRIPTION.
+        labels : Sequence[str]
+            Labels.
+        m_subset : tuple[str]
+            M=m sequence of classifiers.
 
         Returns
         -------
-        axioms_by_label : TYPE
-            DESCRIPTION.
+        axioms_by_label : Mapping[str->sympy.UnevaluatedExpr]
+            M=m axioms indexed by label.
 
         """
         qs = self.mvars.qs
