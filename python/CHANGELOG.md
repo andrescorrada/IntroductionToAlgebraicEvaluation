@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - v0.6 Added ntqr.evaluations classes to handle generic number of classifiers
        and labels. Varieties up to m=2 are now computable.
 
+
 ### Changed
 
 ### Removed
@@ -35,6 +36,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
          variables. Updated the Jupyter notebook documentation accordingly.
 - v0.6.2 Fixed bug in the M=2 axioms as implemented in
          ntqr.raxioms.MAxiomsIdeal.
+
+### Changed
+
+### Removed
+
+## [0.7] - 2025-08-25
+
+### Added
+
+- new dataclass MVariety to contain the set of group evaluations given up
+  to M=m statistics. Mostly important, it allows the __and__ operation of
+  equal or lesser order.
+- new dataclass MVarietyTupleDict to save space while carrying out exact
+  computations.
+
+### Fixed
 
 ### Changed
 
