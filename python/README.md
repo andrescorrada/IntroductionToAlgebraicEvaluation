@@ -13,7 +13,8 @@
 graded a fourth one (PaLM2) doing the multistep-arithmetic test in the
 BIG-Bench-Mistake dataset. Using the axiom for the single binary classifier, we
 can reduce each LLMs possible evaluations as grader of the PaLM2 to the
-circumscribed planes inside the space of all possible evaluations.** :::
+circumscribed planes inside the space of all possible evaluations.**
+:::
 
 Evaluation of noisy decision makers in unsupervised settings is a fundamental
 safety engineering problem. This library contains algorithms that treat this
@@ -39,9 +40,9 @@ considering three sets of equations.
 
 1. Simplex equations that express the integer partition of discrete event
    counts for any subset of the classifiers.
-1. Marginalization equations for how counts of ensembles marginalize to
+2. Marginalization equations for how counts of ensembles marginalize to
    subsets.
-1. Observation equations that relate ensemble decision event counts to
+3. Observation equations that relate ensemble decision event counts to
    marginalization sums over unknown true labels.
 
 The first two sets define the set of all possible evaluations for any finite
@@ -63,7 +64,7 @@ The upcoming version (0.8) has two major changes.
    possible and consistent sets will become central. These are both linear
    Diophantine systems of equations for which there are many good open-source
    and commercial solvers.
-1. Calculating the solutions to the Diophantine system is tractable but
+2. Calculating the solutions to the Diophantine system is tractable but
    impractical. The no-knowledge alarms, however, can be formulated as a Linear
    Programming (LP) problem that can carry out computations in less than a
    second. [PuLP](https://coin-or.github.io/pulp/) is going to be used to do
@@ -76,12 +77,12 @@ Brief guide:
    evaluations that are logically consistent with how the test takers agree and
    disagree on multiple-choice exams? The page "Formal verification of
    evaluations" explains this further.
-1. A way to stop infinite monitoring chains: Who grades the graders? Montioring
+2. A way to stop infinite monitoring chains: Who grades the graders? Montioring
    unsupervised test takers raises the specter of endless graders or monitors.
    By having a logic of unsupervised evaluation, we can stop those infinite
    chains. We can verify that pairs of classifiers are misaligned, for example.
    Take a look at the "Logical Alarms" Jupyter notebook.
-1. Jury evaluation theorems: Jury decision theorems - when does the crowd
+3. Jury evaluation theorems: Jury decision theorems - when does the crowd
    decide wisely? - go as far back as Condorcet's 1785 theorem proving that
    majority voting makes the crowd wiser for better than average jury members.
    The NTQR package contains jury evaluation theorems - when does the crowd
