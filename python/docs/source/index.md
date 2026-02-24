@@ -12,15 +12,16 @@
 :maxdepth: 2
 
 conceptual
-notebooks/Tutorial
-notebooks/LogicOfUnsupervisedEvaluationTutorial
-notebooks/ExactAlgebraicSolutionErrorIndependent
-notebooks/LogicalAlarmsMisalignedClassifiers
-notebooks/AlgebraAndGeometryOfNTQR
 evaluation_is_easier
 formal_verification
+notebooks/LogicalAlarmsMisalignedClassifiers
+notebooks/AlgebraAndGeometryOfNTQR
+notebooks/ExactAlgebraicSolutionErrorIndependent
 research/GradingLLMs
 research/EvaluatingLLMsThatGradeOtherLLMs
 autoapi/index
 ```
+
+% notebooks/Tutorial
+% notebooks/LogicOfUnsupervisedEvaluationTutorial
 

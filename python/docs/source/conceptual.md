@@ -1,57 +1,47 @@
 # A high-level, conceptual explanation of NTQR logic
 
-All the complicated algebraic geometry computations here are meant to
-accomplish only one thing - give you a logically consistent framework for
-validating **any** algorithm that evaluates classifiers on a test that used
-unlabeled data. This logical framework has three properties that make it
-useful in AI safety applications:
+No one knows the ground truth in unsupervised settings. Evaluation of
+experts seems impossible when the answer keys to the tests they take
+are unknown. All is not lost. We can still ask -- what group grades
+are logically consistent with the counts of how experts agreed and
+disagreed on a test?
 
-1. It is **universal**. The algorithms here apply to any domain. There is no
-   Out of Distribution (OOD) problem when you use algebraic evaluation because
-   it does not use any probability theory. By only using summary statistics of
-   how a group of classifiers labeled a test set, we can treat all classifiers,
-   whether human or robotic, as black boxes. There are no hyperparameters
-   to tune or set in NTQR algorithms. If they were, these algorithms could
-   not claim to be universal.
+There are $R^N$ ways that N classifiers can agree/disagree between R
+labels. A classification test can thus be summarized by the observed
+counts of these events. In a test of size $Q$ these counts would sum
+to $Q$.
 
-2. It is **complete**. The finite nature of any test given to a group of
-   binary classifiers means we can guarantee the existence of a complete
-   set of postulates that must be obeyed during any evaluation. Completeness
-   is a logical safety shield. It allows us to create theorem provers that
-   can unequivocably detect violations of the logical consistency of **any**
-   grading algorithm. This is demonstrated here by the error-independent
-   evaluator outputting an irrational number for test ratios that can only
-   be rationals.
+If we knew how these event counts were partitioned across the true
+labels, we would have enough information to calculate average correct
+and incorrect decisions. For example, we could calculate average label
+accuracy for any classifier by marginalizing out the other ones.
 
-3. It allows you to create **self-alarming** evaluation algorithms.
-   Algebraic evaluation algorithms warn when their assumptions are wrong. This
-   is the single most important safety feature of algebraic evaluation.
-   No method that uses representation of the domain or probability theory
-   can do this. Charles Perrow, the author of "Normal Accidents", said
+These event counts do restrict the possible evaluations for the group.
+And when classifiers disagree "enough", this can alert you that one of
+them is violating your specified label accuracy.
 
-     > Unfortunately, most warning systems do not warn us that
-     > they can no longer warn us.
+By talking about counts of events that we label arbitrarily, we have
+stripped the test of any semantic information. All we are left with is
+the count of their agreement/disagreements on a finite set of
+responses. This makes this counting logic universal - it applies to any
+classification test.
 
-   This package aleviates that problem. Algebraic evaluation can detect many
-   cases where its evaluation assumptions are wrong.
+The answer key is represented by the count of labels in it. This can be
+represented as an integer point in an R-dimensional simplex. One nice
+property of this representation of the key is that it is complete -- it
+is guaranteed to trap any possible answer key for the test.
 
-Another advantage of the axiomatic formalism is that it naturally incorporates
-measures of error correlation between the classifiers. These error correlation
-statistics are also sample statistics specific to a given test just like the
-individual label accuracies of the classifiers. By observing how pairs of
-classifiers agree and disagree we can limit not just their individual
-performances but also the possible error correlations between them.
+Because of this completeness, we can trade uncertainty about world models
+that experts may have into uncertainty about how to evaluate their decisions.
+The answer key simplex is the same for all tests of size Q and R labels.
 
-In the case of error independent classifiers, we can solve these axioms for
-ensembles of three or more of them to obtain point estimates of their
-performance that allow us to improve upon majority voting. Instead of
-deciding on each question by going with the majority vote of a mixture
-of experts, we can collect their answers, evaluate them using these
-**jury evaluation theorems**, and then decide if we want to go with majority
-voting or not depending the results of the evaluation.
+This is useful but we are trading domain verification for test
+verification.  Lgic alone cannot do this validation. Even something so
+simple as the size of the test needs to be validated as appropriate in
+any given monitoring application.
 
-NTQR operates outside the box of conventional AI practice. This
-mathematical and logical formalism is new and will become the foundation of
-all future work on evaluation when you use unlabeled data. NTQR logic can
-help you make your AI safer. It is the only logical choice when it comes to
-AI safety.
+The NTQR package contains the linear algebra algorithms that allow you
+to calculate the logically consistent set. This is a subset of all
+possible grades.  These sets can be represented by the equations that
+define them. All possible grades obey the simplex and marginalization
+equations. The logical set are those that obey the observable equations.
