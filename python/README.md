@@ -52,9 +52,9 @@ exponential in the number of labels, $R$, and the size of the subset, $m$ :
 consistent with how we observed the classifiers disagreeing on the test.
 
 This is not a logic about how to make decisions. That is what the symbolic
-systems try to do. They do this using a **world model**. These are hard define
-except in simulated worlds. Evaluations are not like that. A binary test is a
-binary test in any domain. The logic of unsupervised evaluation requires
+systems try to do. They do this using a **world model**. These are hard to
+define except in simulated worlds. Evaluations are not like that. A binary test
+is a binary test in any domain. The logic of unsupervised evaluation requires
 **evaluation models**, not world models. And these are trivial to specify and
 construct.
 
