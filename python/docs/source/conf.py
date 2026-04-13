@@ -101,10 +101,13 @@ html_sourcelink_suffix = ""
 nbsphinx_assume_equations = True
 nbsphinx_allow_errors = True
 nbsphinx_execute = "never"
-nbsphinx_output_prompt = "Out[%s]:"
+#nbsphinx_output_prompt = "Out[%s):"
 
 mathjax3_config = {
-    "tex": {"tags": "ams", "useLabelIds": False},
+    'tex': {
+        'inlineMath': [['$', '$'], ['\\(', '\\)']],
+        'displayMath': [['$$', '$$'], ['\\[', '\\]']],
+    }
 }
 
 
