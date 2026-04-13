@@ -12,10 +12,11 @@
 :maxdepth: 2
 
 conceptual
+notebooks/AlgebraAndGeometryOfNTQR
+notebooks/LogicalAlarmsMisalignedClassifiers
+notebooks/HowManyIndependentAxioms
 evaluation_is_easier
 formal_verification
-notebooks/LogicalAlarmsMisalignedClassifiers
-notebooks/AlgebraAndGeometryOfNTQR
 notebooks/ExactAlgebraicSolutionErrorIndependent
 research/GradingLLMs
 research/EvaluatingLLMsThatGradeOtherLLMs
