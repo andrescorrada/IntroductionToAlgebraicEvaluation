@@ -7,10 +7,10 @@ the group evaluations that are logically consistent with how we
 observe experts disagreeing in their decisions?
 
 For example, if two classifiers disagree in their decisions, they
-cannot **both** be 100% correct. This is a purely logical argument of
-excluding a possible group evaluation (both are 100% correct) based on
+cannot **both** be one hundred per cent correct. This is a purely logical argument of
+excluding a possible group evaluation (both are completely correct) based on
 the fact that they disagreed. Their disagreement is not logically
-consistent with assigning them a 100% correct evaluation.
+consistent with assigning them a perfect evaluation.
 
 This simple example exhibits all the traits of how we can create a
 logic of unsupervised evaluation that is universal and useful. It is
@@ -23,8 +23,8 @@ The only input used for the algorithms in NTQR are the observed counts
 of how classifiers agreed and disagreed when labeling items.  There
 are $R^N$ ways that N classifiers can agree/disagree between R
 labels. A classification test can thus be summarized by the observed
-counts of these events. In a test of size $Q$ these counts would sum
-to $Q$.
+counts of these events. The total of the event counts is, by construction,
+equal to the size of the test, $Q$.
 
 By talking about counts of events that we label arbitrarily, we have
 stripped the test of any semantic information. All we are left with is

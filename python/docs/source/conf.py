@@ -75,38 +75,18 @@ myst_url_schemes = ("http", "https", "mailto")
 # Don't add .txt suffix to source files:
 html_sourcelink_suffix = ""
 
-# List of arguments to be passed to the kernel that executes the notebooks:
-# nbsphinx_execute_arguments = [
-#     "--InlineBackend.figure_formats={'svg', 'pdf'}",
-# ]
-
-# nbsphinx_thumbnails = {
-#     "gallery/thumbnail-from-conf-py": "gallery/a-local-file.png",
-#     "gallery/*-rst": "images/notebook_icon.png",
-#     "orphan": "_static/favicon.svg",
-# }
-
-# nb_ipywidgets_js = {
-#     "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js": {
-#         "integrity": "sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=",
-#         "crossorigin": "anonymous",
-#     },
-#     "https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.6/dist/embed-amd.js": {
-#         "data-jupyter-widgets-cdn": "https://cdn.jsdelivr.net/npm/",
-#         "crossorigin": "anonymous",
-#     },
-# }
-
-
-nbsphinx_assume_equations = True
-nbsphinx_allow_errors = True
+nbsphinx_assume_equations = False
+nbsphinx_allow_errors = False
 nbsphinx_execute = "never"
-#nbsphinx_output_prompt = "Out[%s):"
+# nbsphinx_output_prompt = "Out[%s):"
 
 mathjax3_config = {
-    'tex': {
-        'inlineMath': [['$', '$'], ['\\(', '\\)']],
-        'displayMath': [['$$', '$$'], ['\\[', '\\]']],
+    "tex": {
+        "inlineMath": [["$", "$"], [r"\\(", r"\\)"]],
+        "displayMath": [["$$", "$$"], ["\\[", "\\]"]],
+        "processEscapes": True,
+        "tags": "ams",
+        "useLabelIds": True,
     }
 }
 
