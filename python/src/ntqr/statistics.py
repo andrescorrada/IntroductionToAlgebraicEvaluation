@@ -5,11 +5,101 @@ for evaluation models.
 
 from itertools import combinations, product
 from types import MappingProxyType
-from typing_extensions import Iterable, Literal, Mapping, Sequence, Union
+from typing_extensions import Mapping, Sequence
 
 import sympy
 
 import ntqr
+
+
+class AnswerKeyVariables:
+    """
+    Variables associated with the count of labels in the answer key.
+
+    Attributes
+    ----------
+
+    qs : Mapping[Label,simpy.Symbol
+        The Q_{l_i} variables. There are R of them, one for each
+        label.
+    """
+
+    def __init__(self, labels: ntqr.Labels):
+        """
+
+        Parameters
+        ----------
+        labels : Labels
+            Labels for the question responses.
+
+        Returns
+        -------
+        None.
+
+        """
+        self._labels = labels
+
+        self._qs = MappingProxyType(
+            {label: sympy.Symbol(r"Q_" + label) for label in labels}
+        )
+
+    def __eq__(self, other):
+
+        if not isinstance(other, AnswerKeyVariables):
+            return NotImplemented
+
+        return True if self.labels == other.labels else False
+
+    @property
+    def labels(self):
+        return self._labels
+
+    @property
+    def qs(self):
+        return self._qs
+
+    def __repr__(self):
+        return f"AnswerKeyVariables({self._labels})"
+
+    def __str__(self):
+        return f"{tuple(self._qs[label] for label in self._labels)}"
+
+
+class ClassifiersVariables:
+    """
+    Variables associated with the decision events of the classifiers.
+
+    Attributes
+    ----------
+
+
+    responses : Mapping[m_subset, Mapping[Sequence[Label], simpy.Symbol]]
+
+
+    responses_by_label : Mapping[m_subset, Mapping[Label, Mapping[...]]]
+    """
+
+    def __init__(self, labels: ntqr.Labels, classifiers: Sequence[str]):
+        """
+
+
+        Parameters
+        ----------
+        labels : Labels
+            DESCRIPTION.
+        classifiers : Sequence[str]
+            DESCRIPTION.
+
+        Returns
+        -------
+        None.
+
+        """
+        self._labels = labels
+        self._classifiers = classifiers
+
+        self._reponses = {}
+        self._responses_by_label = {}
 
 
 class MClassifiersVariables:

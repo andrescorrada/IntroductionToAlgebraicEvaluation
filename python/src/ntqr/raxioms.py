@@ -11,9 +11,28 @@ from ntqr import Labels
 from ntqr.statistics import MClassifiersVariables
 
 
+class ClassifiersSimplexAxioms:
+    """
+    Class for generating the simplex axioms for a set of classifiers.
+
+    The count of question-aligned decision events given true label
+    must sum to the count of a true label in the answer key. Therefore,
+    there are R of these axioms, one for each true label. This class
+    constructs them.
+    """
+
+    def __init__(
+        self,
+        labels: Labels,
+        classifiers: Sequence[str],
+        qPoint: Sequence[int],
+    ):
+        pass
+
+
 class MAxiomsIdeal:
     """
-    Class for generating the axioms related an (M=m)-sized subsets
+    Class for generating the axioms related to M-sized subsets
     of the classifiers.
 
     Each subset of the classifiers has a set of axioms, of size R,
