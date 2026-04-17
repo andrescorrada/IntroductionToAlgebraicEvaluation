@@ -95,13 +95,15 @@ class ClassifiersResponseVariables:
         None.
 
         """
-        self._labels = labels
-        self._classifiers = classifiers
+        self.labels = labels
+        self.classifiers = classifiers
 
         self._responses = self._response_variables(labels, classifiers)
-        self._responses_by_label = self._label_response_variables(
+        self._label_responses = self._label_response_variables(
             labels, classifiers
         )
+        self._correct = self._label_correct()
+        self._errors = self._label_errors()
 
     def __eq__(self, other):
 
@@ -118,6 +120,18 @@ class ClassifiersResponseVariables:
     @property
     def responses(self):
         return self._responses
+
+    @property
+    def label_responses(self):
+        return self._label_responses
+
+    @property
+    def correct(self):
+        return self._correct
+
+    @property
+    def errors(self):
+        return self._errors
 
     def _response_variables(self, labels, classifiers):
         """
@@ -151,10 +165,6 @@ class ClassifiersResponseVariables:
         }
         return vars
 
-    @property
-    def responses_by_label(self):
-        return self._responses_by_label
-
     def _label_response_variables(self, labels, classifiers):
         """
         Constructs variables associated with correct and wrong
@@ -186,25 +196,36 @@ class ClassifiersResponseVariables:
             for true_label in labels
         }
 
+        return vars
+
+    def _label_correct(self):
+        vars = {}
         # Now we define the all correct variable and the
         # not-all-correct variables
-        for true_label in labels:
-            all_correct = tuple([true_label for classifier in classifiers])
+        for true_label in self.labels:
+            all_correct = tuple(
+                [true_label for classifier in self.classifiers]
+            )
 
             # The single variable corresponding to all of the classifiers
             # being correct on the true label.
-            vars[true_label]["all_correct"] = self.label_r_var_symbol(
+            vars[true_label] = self.label_r_var_symbol(
                 all_correct,
-                classifiers,
+                self.classifiers,
                 true_label,
             )
 
+    def _label_errors(self):
+        classifiers = self.classifiers
+        vars = {}
+        for true_label in self.labels:
+            all_correct = tuple([true_label for classifier in classifiers])
             # The variables where at least one classifier is wrong
-            vars[true_label]["errors"] = {
+            vars[true_label] = {
                 decisions: self.label_r_var_symbol(
                     decisions, classifiers, true_label
                 )
-                for decisions in product(labels, repeat=len(classifiers))
+                for decisions in product(self.labels, repeat=len(classifiers))
                 if decisions != all_correct
             }
 
@@ -299,14 +320,25 @@ class MClassifiersVariables:
         del self._responses
 
         self._label_responses = {}
+        self._label_correct = {}
+        self._label_errors = {}
         # The observable responses by the classifiers
         for m in range(1, m + 1):
             for m_subset in combinations(classifiers, m):
                 self._label_responses[m_subset] = (
                     self._label_response_variables(labels, m_subset)
                 )
+                self._label_correct[m_subset] = self._label_correct_variables(
+                    labels, classifiers
+                )
+                self._label_errors[m_subset] = self._label_error_variables(
+                    labels, classifiers
+                )
         self.label_responses = MappingProxyType(self._label_responses)
-        del self._label_responses
+        self.label_correct = MappingProxyType(self._label_correct)
+        self.label_errors = MappingProxyType(self._label_errors)
+
+        del self._label_responses, self._label_correct, self._label_errors
 
     def _response_variables(self, labels, classifiers):
         """
@@ -370,21 +402,32 @@ class MClassifiersVariables:
             for true_label in labels
         }
 
+        return vars
+
+    def _label_correct_variables(self, labels, classifiers):
         # Now we define the all correct variable and the
         # not-all-correct variables
+        vars = {}
         for true_label in labels:
             all_correct = tuple([true_label for classifier in classifiers])
 
             # The single variable corresponding to all of the classifiers
             # being correct on the true label.
-            vars[true_label]["all_correct"] = self.label_r_var_symbol(
+            vars[true_label] = self.label_r_var_symbol(
                 all_correct,
                 classifiers,
                 true_label,
             )
 
+        return vars
+
+    def _label_error_variables(self, labels, classifiers):
+
+        vars = {}
+        for true_label in labels:
+            all_correct = tuple([true_label for classifier in classifiers])
             # The variables where at least one classifier is wrong
-            vars[true_label]["errors"] = {
+            vars[true_label] = {
                 decisions: self.label_r_var_symbol(
                     decisions, classifiers, true_label
                 )
@@ -475,6 +518,9 @@ class MClassifiersVariables:
                 )
 
         return subs_dict
+
+    def __repr__(self):
+        return f"MClassifiersVariables({self.labels},{self.classifiers})"
 
 
 class SingleClassifierVariables:

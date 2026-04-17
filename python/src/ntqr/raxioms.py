@@ -8,7 +8,7 @@ from typing_extensions import Iterable, Literal, Mapping, Sequence, Union
 import sympy
 
 from ntqr import Labels
-from ntqr.statistics import MClassifiersVariables
+from ntqr.statistics import AnswerKeyVariables, ClassifiersResponseVariables
 
 
 class ClassifiersSimplexAxioms:
@@ -25,9 +25,28 @@ class ClassifiersSimplexAxioms:
         self,
         labels: Labels,
         classifiers: Sequence[str],
-        qPoint: Sequence[int],
     ):
-        pass
+        self.labels = labels
+        self.classifiers = classifiers
+
+        qVars = AnswerKeyVariables(labels).qs
+        rVars = ClassifiersResponseVariables(
+            labels, classifiers
+        ).label_responses
+
+        self.axioms = MappingProxyType(
+            {
+                label: self.label_simplex_equation(qVars, rVars, label)
+                for label in labels
+            }
+        )
+
+    def label_simplex_equation(self, qVars, rVars, label):
+        axiom = -qVars[label]
+        for decision, rVar in rVars[label].items():
+            axiom += rVar
+
+        return axiom
 
 
 class MAxiomsIdeal:
@@ -85,21 +104,22 @@ class MAxiomsIdeal:
         self.classifiers = classifiers
         self.m = m
 
+        self.qvars = AnswerKeyVariables(labels)
+
         # We get all the variables associated with these classifiers
         # and reorganize them to map m_subset -> "vars" -> vars
-        self.mvars = MClassifiersVariables(labels, classifiers)
-        self._m_complex = {}
+        self.mvars = {}
         for m_size in range(1, m + 1):
             for m_subset in combinations(classifiers, m_size):
-                self._m_complex[m_subset] = {
-                    "label_rvars": self.mvars.label_responses[m_subset],
-                    "rvars": self.mvars.responses[m_subset],
-                }
+                self.mvars[m_subset] = ClassifiersResponseVariables(
+                    labels, m_subset
+                )
 
         self.all_agree_subs_dict = self.initialize_all_agree_subs_dict()
 
         # Now we compute the variety for all subsets of the classifiers of
         # size m.
+        ideals = {}
         for m_subset in combinations(classifiers, m):
 
             match m:
@@ -123,9 +143,9 @@ class MAxiomsIdeal:
                         "Only up to M=2 axiom ideals are currently supported."
                     )
 
-            self._m_complex[m_subset]["axioms"] = axiomatic_ideal
+            ideals[m_subset] = axiomatic_ideal
 
-        self.m_complex = MappingProxyType(self._m_complex)
+        self.axiomatic_ideals = MappingProxyType(ideals)
 
     def m_one_ideal_agreement(
         self, classifier: tuple[str]
@@ -150,9 +170,9 @@ class MAxiomsIdeal:
             for the given classifier.
 
         """
-        m1_responses = self.mvars.responses[classifier]
-        m1_label_responses = self.mvars.label_responses[classifier]
-        qs = self.mvars.qs
+        m1_responses = self.mvars[classifier].responses
+        m1_label_responses = self.mvars[classifier].label_responses
+        qs = self.qvars.qs
 
         m1_axioms_ideal = {
             l_true: sympy.simplify(
@@ -212,7 +232,7 @@ class MAxiomsIdeal:
             M=m axioms indexed by label.
 
         """
-        qs = self.mvars.qs
+        qs = self.qvars.qs
         responses = self._m_complex[m_subset]["rvars"]
         responses_by_label = self._m_complex[m_subset]["label_rvars"]
 
@@ -261,7 +281,7 @@ class MAxiomsIdeal:
 
         """
         labels = self.labels
-        qs = self.mvars.qs
+        qs = self.qvars.qs
         m2_responses = self._m_complex[pair]["rvars"]
         m2_label_responses = self._m_complex[pair]["label_rvars"]
 
@@ -377,17 +397,18 @@ class MAxiomsIdeal:
 
         """
         labels = self.labels
-        qs = self.mvars.qs
-        m2_responses = self.mvars.responses[pair]
-        m2_label_responses = self.mvars.label_responses[pair]
+        qs = self.qvars.qs
+        m2_responses = self.mvars[pair].responses
+        m2_label_responses = self.mvars[pair].label_responses
+        m2_errors = self.mvars[pair].errors
 
         # Now we have to build the variables for m1 decision
         # tuples.
         m1_responses = {
-            m1: self.mvars.responses[m1] for m1 in combinations(pair, 1)
+            m1: self.mvars[m1].responses for m1 in combinations(pair, 1)
         }
         m1_label_responses = {
-            m1: self.mvars.label_responses[m1] for m1 in combinations(pair, 1)
+            m1: self.mvars[m1].label_responses for m1 in combinations(pair, 1)
         }
 
         m2_axioms_ideal = {
@@ -421,7 +442,7 @@ class MAxiomsIdeal:
                     if (l_e1 != l_true) and (l_e2 != l_true)
                 )
                 + sum(
-                    m2_label_responses[l_true]["errors"][(l_e1, l_e2)]
+                    m2_errors[l_true][(l_e1, l_e2)]
                     for l_e1 in self.labels
                     for l_e2 in self.labels
                     if (l_e1 != l_e2) and (l_e1 != l_true) and (l_e2 != l_true)
@@ -450,7 +471,7 @@ class MAxiomsIdeal:
 
         """
         labels = self.labels
-        qs = self.mvars.qs
+        qs = self.qvars.qs
         m3_responses = self.mvars.responses[trio]
         m3_label_responses = self.mvars.label_responses[trio]
 
@@ -550,6 +571,19 @@ class MAxiomsIdeal:
         turn any expression in terms of label response variables into
         one that only uses disagreement ones.
 
+        The initial justification for this operation was to eliminate
+        the simplex axioms from the algebra by rewriting all correct
+        variables in a simplex in terms of the other variables, where
+        at least one classifier has made a classification error.
+
+        This is currently not being used since there was no significant
+        speed ups observed in calculating the consistent evaluation set.
+        But it does make it harder to code and debug when you eliminate
+        the all-correct label response variables. Being correct and
+        understandable is necessary before v1.0 can be released so the
+        current practice is to not use this substitution dict moving
+        forward.
+
         Returns
         -------
         None
@@ -557,13 +591,13 @@ class MAxiomsIdeal:
 
         """
         subs_dict = {}
-        for m_subset, m_subset_dict in self._m_complex.items():
+        for m_subset, m_rvars in self.mvars.items():
             for l_true in self.labels:
-                var = m_subset_dict["label_rvars"][l_true][
+                var = m_rvars.label_responses[l_true][
                     tuple([l_true for i in range(len(m_subset))])
                 ]
-                subs_dict[var] = self.mvars.qs[l_true] - sum(
-                    m_subset_dict["label_rvars"][l_true]["errors"].values()
+                subs_dict[var] = self.qvars.qs[l_true] - sum(
+                    m_rvars.errors[l_true].values()
                 )
 
         return subs_dict

@@ -987,7 +987,7 @@ class MAxiomsVarieties:
             m_subset: {
                 label: sympy.simplify(
                     MAxiomsIdeal(self.labels, m_subset, m_current)
-                    .m_complex[m_subset]["axioms"][label]
+                    .axiomatic_ideals[m_subset][label]
                     .subs(response_eval_dict)
                 )
                 for label in self.labels
