@@ -65,7 +65,7 @@ class AnswerKeyVariables:
         return f"{tuple(self._qs[label] for label in self._labels)}"
 
 
-class ClassifiersResponseVariables:
+class ResponseVariables:
     """
     Variables associated with the decision events of the classifiers.
 

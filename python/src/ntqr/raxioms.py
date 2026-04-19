@@ -8,10 +8,10 @@ from typing_extensions import Iterable, Literal, Mapping, Sequence, Union
 import sympy
 
 from ntqr import Labels
-from ntqr.statistics import AnswerKeyVariables, ClassifiersResponseVariables
+from ntqr.statistics import AnswerKeyVariables, ResponseVariables
 
 
-class ClassifiersSimplexAxioms:
+class SimplexAxioms:
     """
     Class for generating the simplex axioms for a set of classifiers.
 
@@ -30,9 +30,7 @@ class ClassifiersSimplexAxioms:
         self.classifiers = classifiers
 
         qVars = AnswerKeyVariables(labels).qs
-        rVars = ClassifiersResponseVariables(
-            labels, classifiers
-        ).label_responses
+        rVars = ResponseVariables(labels, classifiers).label_responses
 
         self.axioms = MappingProxyType(
             {
@@ -49,7 +47,7 @@ class ClassifiersSimplexAxioms:
         return axiom
 
 
-class ClassifiersMarginalizationAxioms:
+class MarginalizationAxioms:
     """
     Class for generating the marginalization axioms for a set of classifiers.
 
@@ -78,13 +76,9 @@ class ClassifiersMarginalizationAxioms:
 
         # Initialize all the vars you will need from minus-one subsets
         # of the classifiers
-        self.vars = {
-            self.classifiers: ClassifiersResponseVariables(labels, classifiers)
-        }
+        self.vars = {self.classifiers: ResponseVariables(labels, classifiers)}
         for m_subset in combinations(classifiers, len(classifiers) - 1):
-            self.vars[m_subset] = ClassifiersResponseVariables(
-                labels, m_subset
-            )
+            self.vars[m_subset] = ResponseVariables(labels, m_subset)
 
         # Axioms are indexed by true label
         self.axioms = {}
@@ -124,7 +118,7 @@ class ClassifiersMarginalizationAxioms:
         return
 
 
-class ClassifiersObservableAxioms:
+class ObservableAxioms:
     """
     Class for generating the observable axioms for a set of classifiers.
 
@@ -141,7 +135,7 @@ class ClassifiersObservableAxioms:
         self.labels = labels
         self.classifiers = classifiers
 
-        vars = ClassifiersResponseVariables(labels, classifiers)
+        vars = ResponseVariables(labels, classifiers)
 
         # Axioms are indexed by true label
         self.axioms = []
@@ -215,9 +209,7 @@ class MAxiomsIdeal:
         self.mvars = {}
         for m_size in range(1, m + 1):
             for m_subset in combinations(classifiers, m_size):
-                self.mvars[m_subset] = ClassifiersResponseVariables(
-                    labels, m_subset
-                )
+                self.mvars[m_subset] = ResponseVariables(labels, m_subset)
 
         self.all_agree_subs_dict = self.initialize_all_agree_subs_dict()
 
