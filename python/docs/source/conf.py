@@ -75,8 +75,8 @@ myst_url_schemes = ("http", "https", "mailto")
 # Don't add .txt suffix to source files:
 html_sourcelink_suffix = ""
 
-nbsphinx_assume_equations = False
-nbsphinx_allow_errors = False
+nbsphinx_assume_equations = True
+nbsphinx_allow_errors = True
 nbsphinx_execute = "never"
 # nbsphinx_output_prompt = "Out[%s):"
 
