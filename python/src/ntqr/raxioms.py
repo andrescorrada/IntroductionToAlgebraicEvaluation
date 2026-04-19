@@ -49,6 +49,110 @@ class ClassifiersSimplexAxioms:
         return axiom
 
 
+class ClassifiersMarginalizationAxioms:
+    """
+    Class for generating the marginalization axioms for a set of classifiers.
+
+    Given m classifiers, their R^m events given true label must each
+    marginalize correctly to the m events possible by marginalizing
+    one of the classifiers out -- m*R^m of them.
+    """
+
+    def __init__(
+        self,
+        labels: Labels,
+        classifiers: Sequence[str],
+    ):
+        self.labels = labels
+        self.classifiers = classifiers
+
+        if len(classifiers) == 1:
+            self._contributors = {}
+            self.axioms = {label: [] for label in labels}
+            return
+
+        # Every decision event for the classifiers contributes
+        # to the marginalization of many less-one subsets.
+        self._contributors = {}
+        self._initialize_contributors()
+
+        # Initialize all the vars you will need from minus-one subsets
+        # of the classifiers
+        self.vars = {
+            self.classifiers: ClassifiersResponseVariables(labels, classifiers)
+        }
+        for m_subset in combinations(classifiers, len(classifiers) - 1):
+            self.vars[m_subset] = ClassifiersResponseVariables(
+                labels, m_subset
+            )
+
+        # Axioms are indexed by true label
+        self.axioms = {}
+        self._initialize_axioms()
+
+    def _initialize_contributors(self):
+
+        for decisions in product(self.labels, repeat=(len(self.classifiers))):
+
+            lis = list(zip(decisions, self.classifiers))
+            for li in lis:
+                rest = tuple(lj for lj in lis if lj != li)
+                rest_list = self._contributors.setdefault(rest, [])
+                rest_list.append(lis)
+
+        return
+
+    def _initialize_axioms(self):
+
+        for label in self.labels:
+            label_axioms = []
+            for subset_lis, contributors in self._contributors.items():
+                axiom = 0
+                for lis in contributors:
+                    decisions, _ = zip(*lis)
+                    axiom += self.vars[self.classifiers].label_responses[
+                        label
+                    ][decisions]
+
+                subset_decisions, subset_classifiers = zip(*subset_lis)
+                axiom -= self.vars[subset_classifiers].label_responses[label][
+                    subset_decisions
+                ]
+                label_axioms.append(axiom)
+            self.axioms[label] = label_axioms
+
+        return
+
+
+class ClassifiersObservableAxioms:
+    """
+    Class for generating the observable axioms for a set of classifiers.
+
+    Given m classifiers, the R^m ways they can agree and disagree must have
+    a count equal to a sum of the same events conditioned by true label. There
+    are R^m of these axioms.
+    """
+
+    def __init__(
+        self,
+        labels: Labels,
+        classifiers: Sequence[str],
+    ):
+        self.labels = labels
+        self.classifiers = classifiers
+
+        vars = ClassifiersResponseVariables(labels, classifiers)
+
+        # Axioms are indexed by true label
+        self.axioms = []
+        for decisions in product(labels, repeat=len(classifiers)):
+            axiom = 0
+            for label in labels:
+                axiom += vars.label_responses[label][decisions]
+            axiom -= vars.responses[decisions]
+            self.axioms.append(axiom)
+
+
 class MAxiomsIdeal:
     """
     Class for generating the axioms related to M-sized subsets
