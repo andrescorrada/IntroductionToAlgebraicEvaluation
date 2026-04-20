@@ -3,8 +3,7 @@
 from itertools import combinations, product
 from typing import Any
 from types import MappingProxyType
-from typing_extensions import Iterable, Literal, Mapping, Sequence, Union
-
+from typing_extensions import Mapping, Sequence
 import sympy
 
 from ntqr import Labels
@@ -45,6 +44,9 @@ class SimplexAxioms:
             axiom += rVar
 
         return axiom
+
+    def __repr__(self):
+        return f"SimplexAxioms({self.labels, self.classifiers})"
 
 
 class MarginalizationAxioms:
@@ -117,6 +119,9 @@ class MarginalizationAxioms:
 
         return
 
+    def __repr__(self):
+        return f"MarginalizationAxioms({self.labels, self.classifiers})"
+
 
 class ObservableAxioms:
     """
@@ -145,6 +150,9 @@ class ObservableAxioms:
                 axiom += vars.label_responses[label][decisions]
             axiom -= vars.responses[decisions]
             self.axioms.append(axiom)
+
+    def __repr__(self):
+        return f"ObservableAxioms({self.labels, self.classifiers})"
 
 
 class MAxiomsIdeal:
