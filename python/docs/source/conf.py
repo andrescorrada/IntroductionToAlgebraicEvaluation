@@ -75,6 +75,9 @@ myst_url_schemes = ("http", "https", "mailto")
 # Don't add .txt suffix to source files:
 html_sourcelink_suffix = ""
 
+myst_update_mathjax = False
+# Tell nbsphinx/pandoc to disable 'tex_math_dollars'
+
 nbsphinx_assume_equations = True
 nbsphinx_allow_errors = True
 nbsphinx_execute = "never"
@@ -82,12 +85,16 @@ nbsphinx_execute = "never"
 
 mathjax3_config = {
     "tex": {
-        "inlineMath": [["$", "$"], [r"\\(", r"\\)"]],
+        "inlineMath": [["$", "$"], ["\\(", "\\)"]],
         "displayMath": [["$$", "$$"], ["\\[", "\\]"]],
         "processEscapes": True,
         "tags": "ams",
         "useLabelIds": True,
-    }
+    },
+    "options": {
+        # This tells MathJax to look for math in nbsphinx output containers
+        "processHtmlClass": "tex2jax_process|nboutput",
+    },
 }
 
 
