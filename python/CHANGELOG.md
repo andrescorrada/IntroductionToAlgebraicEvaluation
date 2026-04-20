@@ -45,6 +45,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Classes in ntqr.statistics and ntqr.raxioms to support a simpler formulation
+  of the software.
+    - ntqr.statistics.AnswerKeyVariables takes care of the "q vars", the
+      variables that denote the count of each label in the answer key.
+    - ntqr.statistics.ResponseVariables simplifies the creation of the
+      variables associated with the response counts associated with a
+      test count or the label response counts that define a group evaluation.
+    - ntqr.raxioms.SimplexAxioms creates the axioms associated with each
+      by-label decision event space.
+    - ntqr.raxioms.MarginalizationAxioms creates the axioms that enforce
+      the correct marginalization of decision events by true label.
+    - ntqr.raxioms.ObservableAxioms creates the axioms that tie observed
+      decision event counts by the classifers to the same events by true
+      label.
+
+### Fixed
+
+- Finally fixed longstanding bug for documentation Jupyter notebooks! The
+difficulty in finding it is that the Jupyter notebook has no formatting
+problems. The problem arose when using nbsphinx to produce documentation
+HTML pages for readthedocs.org. This implied that the problem was in how
+nbsphinx was configured. This has lead to many fruitless attempts to fix
+it. The problem was in how sympy.init_print was being called in each notebook.
+Online documentation now looks much better.
+
+### Changed
+
+- The overworked class ntqr.statistics.MClassifiersVariables was moved
+  to use the new, simpler classes ntqr.statistics.AnswerKeyVariables and
+  ntqr.statistics.ResponseVariables to simplify its own code.
+- Jupyter notebooks are now using ntqr.statistics.{AnswerkKeyVariables,
+  ResponseVariables}
+
+### Removed
+
+## [0.7.5] - 2026-05-20
+
+### Added
+
 - new dataclass MVariety to contain the set of group evaluations given up
   to M=m statistics. Mostly important, it allows the __and__ operation of
   equal or lesser order.
