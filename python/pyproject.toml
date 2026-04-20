@@ -13,9 +13,9 @@ dynamic = ["version"]
 description = "Tools for the logic of evaluation using unlabeled data"
 readme = "README.md"
 
-dependencies = ["sympy>=1.13.2",
+dependencies = ["sympy>=1.14.0",
                 "typing_extensions>=4.12.2",
-                "matplotlib>=3.10.0"]
+                "matplotlib>=3.10.8"]
 
 license = {file = "LICENSE.txt"}
 keywords = ["evaluation", "algebra", "machine learning", "logic", "ai safety"]
@@ -38,7 +38,8 @@ Documentation="https://ntqr.readthedocs.org/en/latest"
 [project.optional-dependencies]
 sphinx = [
     "sphinx>=8.2.3",
-    "myst-parser>=4.0.0",
+    "myst-parser>=5.0.0",
     "myst-nb>=1.2.0",
-    "matplotlib>=3.10.0",
+    "nbsphinx>=0.9.8",
+    "matplotlib>=3.10.8",
 ]

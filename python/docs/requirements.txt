@@ -1,9 +1,9 @@
 # Requirements for readthedocs builds
-sphinx>=8
-myst-parser>=4.0.0
+sphinx>=8.2.3
+myst-parser>=5.0.0
 myst-nb>=1.2.0
-nbsphinx>=0.9.7
-sphinx-autoapi==3.6.0
+nbsphinx>=0.9.8
+sphinx-autoapi>=3.8.0
 furo==2025.7.19
-ntqr==0.7
+ntqr==0.7.5
 ipykernel
