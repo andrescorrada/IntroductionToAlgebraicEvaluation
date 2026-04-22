@@ -24,7 +24,7 @@ sys.path.insert(0, str(Path("..", "..", "src").resolve()))
 # -- Project information -----------------------------------------------------
 
 project = "NTQR"
-copyright = "2024, Andrés Corrada-Emmanuel, Walker Lee, Adam Sloat"
+copyright = "2026, Andrés Corrada-Emmanuel, Walker Lee, Adam Sloat"
 authors = ["Andrés Corrada-Emmanuel", "Walker Lee", "Adam Sloat"]
 
 # The full version, including alpha/beta/rc tags
@@ -75,6 +75,13 @@ myst_url_schemes = ("http", "https", "mailto")
 # Don't add .txt suffix to source files:
 html_sourcelink_suffix = ""
 
+# To fix Latex rendering
+html_static_path = ["_static"]
+
+html_css_files = [
+    "custom.css",
+]
+
 myst_update_mathjax = False
 # Tell nbsphinx/pandoc to disable 'tex_math_dollars'
 
@@ -91,6 +98,7 @@ mathjax3_config = {
         "tags": "ams",
         "useLabelIds": True,
     },
+    "chtml": {"displayAlign": "left"},
     "options": {
         # This tells MathJax to look for math in nbsphinx output containers
         "processHtmlClass": "tex2jax_process|nboutput",

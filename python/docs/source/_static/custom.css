@@ -1,0 +1,36 @@
+/* ================================
+   Left-align all display math
+   Works for:
+   - nbsphinx notebooks
+   - Sphinx math directives
+   - MathJax v2 and v3
+   ================================ */
+
+/* MathJax v3 (JupyterLab, modern Sphinx) */
+mjx-container[display="true"] {
+    text-align: left !important;
+    margin-left: 0 !important;
+}
+
+/* MathJax v2 fallback */
+.MathJax_Display {
+    text-align: left !important;
+    margin-left: 0 !important;
+}
+
+/* Sphinx / nbsphinx wrappers */
+div.math {
+    text-align: left !important;
+    margin-left: 0 !important;
+}
+
+/* Some themes wrap math in paragraphs */
+div.math p {
+    text-align: left !important;
+    margin: 0 !important;
+}
+
+/* Ensure no unintended centering from containers */
+div.math mjx-container {
+    text-align: left !important;
+}
