@@ -40,7 +40,10 @@ class AnswerKeyVariables:
         self._labels = labels
 
         self._qs = MappingProxyType(
-            {label: sympy.Symbol(r"Q_" + label) for label in labels}
+            {
+                label: sympy.Symbol(r"Q_" + label, integer=True)
+                for label in labels
+            }
         )
 
     def __eq__(self, other):
@@ -107,7 +110,7 @@ class ResponseVariables:
 
     def __eq__(self, other):
 
-        if not isinstance(other, ClassifiersResponseVariables):
+        if not isinstance(other, ResponseVariables):
             return NotImplemented
 
         if (self.labels == other.labels) and (
@@ -159,7 +162,8 @@ class ResponseVariables:
         # a set of size R^N
         vars = {
             decisions: sympy.Symbol(
-                r"R_{" + self.seq_str(decisions, clsfr_strs) + r"}"
+                r"R_{" + self.seq_str(decisions, clsfr_strs) + r"}",
+                integer=True,
             )
             for decisions in product(labels, repeat=len(classifiers))
         }
@@ -256,7 +260,12 @@ class ResponseVariables:
 
     def label_r_var_symbol(self, decisions, classifiers, label):
         return sympy.Symbol(
-            r"R_{" + self.seq_str(decisions, classifiers) + r"," + label + r"}"
+            r"R_{"
+            + self.seq_str(decisions, classifiers)
+            + r","
+            + label
+            + r"}",
+            integer=True,
         )
 
     def __repr__(self):
