@@ -218,6 +218,7 @@ class ResponseVariables:
                 self.classifiers,
                 true_label,
             )
+        return vars
 
     def _label_errors(self):
         classifiers = self.classifiers
