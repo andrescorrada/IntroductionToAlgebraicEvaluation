@@ -75,12 +75,13 @@ myst_url_schemes = ("http", "https", "mailto")
 # Don't add .txt suffix to source files:
 html_sourcelink_suffix = ""
 
-# To fix Latex rendering
-html_static_path = ["_static"]
+# To fix Latex rendering with CSS
+# not currently needed
+# html_static_path = ["_static"]
 
-html_css_files = [
-    "custom.css",
-]
+# html_css_files = [
+#     "custom.css",
+# ]
 
 import json
 
