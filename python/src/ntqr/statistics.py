@@ -271,7 +271,7 @@ class ResponseVariables:
 
     def __repr__(self):
         return (
-            f"ClassifiersResponseVariables({self._labels},{self._classifiers})"
+            f"ClassifiersResponseVariables({self.labels},{self.classifiers})"
         )
 
 
