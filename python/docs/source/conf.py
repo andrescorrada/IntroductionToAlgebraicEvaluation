@@ -40,9 +40,9 @@ release = version
 extensions = [
     # Using myst-nb automatically imports myst-parser,
     # "myst_nb",
-    "myst_parser",
-    "nbsphinx",
-    "sphinx.ext.mathjax",
+    "myst_nb",
+    # "sphinx.ext.mathjax",
+    "sphinx_togglebutton",
     "autoapi.extension",
     "sphinx.ext.napoleon",
 ]
@@ -82,12 +82,60 @@ html_css_files = [
     "custom.css",
 ]
 
+import json
+
+
+def setup(app):
+    app.connect("source-read", auto_hide_init_cells)
+
+
+def auto_hide_init_cells(app, docname, source):
+    # Only process Jupyter Notebook files
+    if not app.env.doc2path(docname).endswith(".ipynb"):
+        return
+
+    try:
+        nb_data = json.loads(source[0])
+        sympy_keys = ["init_session", "init_printing"]
+        import_keys = ["import ", "from "]
+        modified = False
+
+        for cell in nb_data.get("cells", []):
+            if cell.get("cell_type") == "code":
+                content = "".join(cell.get("source", []))
+                metadata = cell.setdefault("metadata", {})
+                tags = metadata.setdefault("tags", [])
+
+                # 1. SymPy Init Cells: Hide Input + Remove Output
+                if any(key in content for key in sympy_keys):
+                    if "hide-input" not in tags:
+                        tags.append("hide-input")
+                    if "remove-output" not in tags:
+                        tags.append("remove-output")
+                    modified = True
+
+                # 2. Pure Import Cells: Show Input + Remove Output
+                elif any(key in content for key in import_keys):
+                    if "remove-output" not in tags:
+                        tags.append("remove-output")
+                    modified = True
+
+        if modified:
+            source[0] = json.dumps(nb_data)
+
+    except Exception:
+        pass
+
+
+# Myst
+nb_execution_mode = "off"
+
 myst_update_mathjax = False
 # Tell nbsphinx/pandoc to disable 'tex_math_dollars'
 
-nbsphinx_assume_equations = True
-nbsphinx_allow_errors = True
-nbsphinx_execute = "never"
+# nbsphinx_assume_equations = True
+# nbsphinx_allow_errors = True
+# nbsphinx_execute = "never"
 # nbsphinx_output_prompt = "Out[%s):"
 
 mathjax3_config = {
@@ -98,7 +146,7 @@ mathjax3_config = {
         "tags": "ams",
         "useLabelIds": True,
     },
-    "chtml": {"displayAlign": "left"},
+    "chtml": {"displayAlign": "center"},
     "options": {
         # This tells MathJax to look for math in nbsphinx output containers
         "processHtmlClass": "tex2jax_process|nboutput",

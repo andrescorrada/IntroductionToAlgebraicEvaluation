@@ -1,36 +1,16 @@
-/* ================================
-   Left-align all display math
-   Works for:
-   - nbsphinx notebooks
-   - Sphinx math directives
-   - MathJax v2 and v3
-   ================================ */
-
-/* MathJax v3 (JupyterLab, modern Sphinx) */
-mjx-container[display="true"] {
-    text-align: left !important;
-    margin-left: 0 !important;
+/* 1. Global: Set default math alignment to center (for Markdown) */
+div.math, .math.notranslate.display {
+    text-align: center !important;
 }
 
-/* MathJax v2 fallback */
-.MathJax_Display {
+/* 2. Override: Force left-alignment ONLY inside notebook output areas */
+.nb-output div.math, 
+.nb-output .math.notranslate.display,
+.nb-output .amsmath {
     text-align: left !important;
-    margin-left: 0 !important;
 }
 
-/* Sphinx / nbsphinx wrappers */
-div.math {
-    text-align: left !important;
-    margin-left: 0 !important;
-}
-
-/* Some themes wrap math in paragraphs */
-div.math p {
-    text-align: left !important;
-    margin: 0 !important;
-}
-
-/* Ensure no unintended centering from containers */
-div.math mjx-container {
-    text-align: left !important;
+/* Optional: Add a small indentation to the left-aligned output math */
+.nb-output div.math {
+    padding-left: 2em;
 }
