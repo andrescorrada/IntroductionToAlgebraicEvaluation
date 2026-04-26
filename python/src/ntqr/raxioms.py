@@ -39,9 +39,9 @@ class SimplexAxioms:
         )
 
     def label_simplex_equation(self, qVars, rVars, label):
-        axiom = -qVars[label]
+        axiom = qVars[label]
         for decision, rVar in rVars[label].items():
-            axiom += rVar
+            axiom -= rVar
 
         return axiom
 
