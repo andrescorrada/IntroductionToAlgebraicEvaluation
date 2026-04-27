@@ -1,4 +1,13 @@
-"""@author: Andrés Corrada-Emmanuel."""
+"""
+The invariant relations obeyed by all classification tests can be
+represented in different spaces. This module implements them in the
+**label response** spaces, non-negative integer spaces for the label
+response variables.
+
+Earlier version of the NTQR package implemented these in **label accuracy**
+spaces that are rational numbers (ratios of integers).
+
+@author: Andrés Corrada-Emmanuel."""
 
 from itertools import combinations, product
 from typing import Any
