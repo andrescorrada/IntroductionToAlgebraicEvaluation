@@ -96,4 +96,26 @@ Online documentation now looks much better.
 
 ### Removed
 
+## [0.7.6] - 2026-04-27
+
+### Added
+
+### Fixed
+
+- Fixed bug in ntqr.statistics.ResponseVariables.errors returning None.
+- Sundry typos in docstrings.
+
+### Changed
+
+- Changed the documentation Jupyter notebooks to reflect simpler formulation
+  of the axioms.
+
+### Deprecated
+
+- Started deprecation of classes in ntqr.statistics and ntqr.raxioms that
+  used the 'ground-up' axioms that required marginalized variables to be
+  computed before full ones.
+
+
+
 
