@@ -16,7 +16,7 @@ from pathlib import Path
 from ntqr import __version__ as ntqr_version
 
 
-sys.path.insert(0, str(Path("..", "..", "src").resolve()))
+sys.path.insert(0, str(Path("..", "..").resolve()))
 # sys.path.insert(0, str(Path("..", "src").resolve()))
 # sys.path.insert(0, str(Path("..").resolve()))
 
