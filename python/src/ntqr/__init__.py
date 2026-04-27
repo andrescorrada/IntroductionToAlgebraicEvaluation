@@ -15,7 +15,7 @@ import shutil
 import os
 from importlib import resources
 
-__version__ = "0.7.7"
+__version__ = "0.7.8"
 
 
 from ntqr.r2.examples import uciadult_label_counts

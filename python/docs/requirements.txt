@@ -5,5 +5,5 @@ myst-nb>=1.4.0
 sphinx-togglebutton
 sphinx-autoapi>=3.8.0
 furo==2025.7.19
-ntqr==0.7.6
+ntqr==0.7.8
 ipykernel
