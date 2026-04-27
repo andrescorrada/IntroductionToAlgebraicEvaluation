@@ -42,3 +42,6 @@ sphinx = [
     "myst-nb>=1.4.0",
     "matplotlib>=3.10.8",
 ]
+
+[project.scripts]
+ntqr-docs = "ntqr:copy_notebooks"
