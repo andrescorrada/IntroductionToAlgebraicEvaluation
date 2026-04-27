@@ -1,6 +1,23 @@
 """
-Module with classes that encapsulate the production of statistical variables
-for evaluation models.
+Responses to finite tests with finite choices can be described by integer
+counts of decision events. This module contains classes to construct these
+finite sample statistical variables.
+
+In unsupervised settings, we get to observe the counts of decision events.
+These are the 'response' variables. We do not know the counts of true
+labels in the answer key to the test (the 'Q' variables) nor the counts
+of decision events given true label (the 'label response' variables).
+
+NTQR uses the SymPy package to carry out its symbolic computations. The
+classes in this module build these variables of the form,
+
+1. Q_label: for the q var associated with a label.
+2. R_{label_i, label_j, ...} for the response variables of an ensemble.
+3. R_{label_1, label_j, ..., label_true} for the label response variables.
+
+The Q variables are constructed by `AnswerKeyVariables`. The R variables
+are properties of `ResponseVariables`, `.responses` and `.label_responses`
+respectively.
 """
 
 from itertools import combinations, product
@@ -19,7 +36,7 @@ class AnswerKeyVariables:
     Attributes
     ----------
 
-    qs : Mapping[Label,simpy.Symbol
+    qs : Mapping[Label,simpy.Symbol]
         The Q_{l_i} variables. There are R of them, one for each
         label.
     """
@@ -37,7 +54,7 @@ class AnswerKeyVariables:
         None.
 
         """
-        self._labels = labels
+        self.labels = labels
 
         self._qs = MappingProxyType(
             {
@@ -55,17 +72,17 @@ class AnswerKeyVariables:
 
     @property
     def labels(self):
-        return self._labels
+        return self.labels
 
     @property
     def qs(self):
         return self._qs
 
     def __repr__(self):
-        return f"AnswerKeyVariables({self._labels})"
+        return f"AnswerKeyVariables({self.labels})"
 
     def __str__(self):
-        return f"{tuple(self._qs[label] for label in self._labels)}"
+        return f"{tuple(self._qs[label] for label in self.labels)}"
 
 
 class ResponseVariables:
@@ -292,6 +309,9 @@ class MClassifiersVariables:
 
 
     responses_by_label : Mapping[m_subset, Mapping[Label, Mapping[...]]]
+
+    .. deprecated :: 0.7.6
+       Use :class:`.ResponseVariables` instead.
 
     """
 
@@ -564,6 +584,9 @@ class SingleClassifierVariables:
             responses.
             'l_1', 'l_2': dictionary, indexed by response label, given
             true_label.
+
+    .. deprecated :: 0.7.6
+       Use :class:`.ResponseVariables` instead.
     """
 
     def __init__(self, labels, classifier):
