@@ -378,6 +378,13 @@ class MAxiomsIdeal:
         computation of the varieties. It has the drawback that it is hard
         to check or to write code for it.
 
+        .. deprecated :: 0.7.6
+           Use :class:`.SimplexAxioms|.ObservableAxioms` instead. The ideal
+           is correct but is not suited to the easiest way to compute their
+           varieties. Using this representation of the axioms entangles
+           the solution of response variables with their marginalized
+           versions.
+
         Parameters
         ----------
         pair : Sequence[Any, Any]
@@ -387,15 +394,6 @@ class MAxiomsIdeal:
         -------
         m2_axioms_ideal : Mapping[label, sympy.UnevaluatedExpr]
             A mapping from label to its corresponding r-axiom.
-
-        .. deprecated :: 0.7.6
-           Use :class:`.SimplexAxioms|.ObservableAxioms` instead. The ideal
-           is correct but is not suited to the easiest way to compute their
-           varieties. Using this representation of the axioms entangles
-           the solution of response variables with their marginalized
-           versions.
-
-
         """
         labels = self.labels
         qs = self.qvars.qs
@@ -575,6 +573,13 @@ class MAxiomsIdeal:
     ) -> Mapping[str, sympy.UnevaluatedExpr]:
         """
         Construct the M=3 algebraic ideal with agreement variables.
+
+        .. deprecated :: 0.7.6
+           Use :class:`.SimplexAxioms|.ObservableAxioms` instead. The ideal
+           is correct but is not suited to the easiest way to compute their
+           varieties. Using this representation of the axioms entangles
+           the solution of response variables with their marginalized
+           versions.
 
         Parameters
         ----------
