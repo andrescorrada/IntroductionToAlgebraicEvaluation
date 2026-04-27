@@ -54,7 +54,7 @@ class AnswerKeyVariables:
         None.
 
         """
-        self.labels = labels
+        self._labels = labels
 
         self._qs = MappingProxyType(
             {
@@ -79,10 +79,10 @@ class AnswerKeyVariables:
         return self._qs
 
     def __repr__(self):
-        return f"AnswerKeyVariables({self.labels})"
+        return f"AnswerKeyVariables({self._labels})"
 
     def __str__(self):
-        return f"{tuple(self._qs[label] for label in self.labels)}"
+        return f"{tuple(self._qs[label] for label in self._labels)}"
 
 
 class ResponseVariables:

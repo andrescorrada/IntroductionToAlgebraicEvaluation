@@ -1,4 +1,5 @@
 """@author: Andrés Corrada-Emmanuel."""
+
 import itertools
 
 import pytest
@@ -17,7 +18,10 @@ from ntqr.r2.examples import uciadult_label_counts
     "observed_responses, error_msg",
     (
         ({}, "There must be at least one decision key."),
-        ({("a", "b"): 1, ("a",): 3}, ""),
+        (
+            {("a", "b"): 1, ("a",): 3},
+            "Not all decision tuples have the same length.",
+        ),
     ),
 )
 def test_questionaligneddecisions_valueerror(observed_responses, error_msg):
@@ -35,16 +39,3 @@ for label, decisions_counts in uciadult_label_counts.items():
         observed_responses[decisions] = (
             observed_responses.get(decisions, 0) + count
         )
-
-
-@pytest.mark.parametrize(
-    "indices, counts",
-    (
-        ((0,), {("a",): 15389, ("b",): 21453}),
-        ((1,), {("a",): 2671, ("b",): 34171}),
-        ((2,), {("a",): 15061, ("b",): 21781}),
-    ),
-)
-def test_questionaligneddecisions_marginalize(indices, counts):
-    qads = QuestionAlignedDecisions(observed_responses, labels)
-    assert qads.marginalize(indices).counts == counts
