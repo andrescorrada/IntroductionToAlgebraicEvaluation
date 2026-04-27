@@ -181,6 +181,11 @@ class MAxiomsIdeal:
     ideals are linear equations. Thus, it may seem that calling them
     'ideals', while strictly true, is overkill. However, in P-space,
     these ideals are polynomials of degree 2 or higher.
+
+    .. deprecated :: 0.7.6
+       Use :class:`.*Axioms` instead. The expressions computed
+       here are correct but make solving for the possible and
+       consistent sets harder than they need to be.
     """
 
     def __init__(
@@ -382,6 +387,14 @@ class MAxiomsIdeal:
         -------
         m2_axioms_ideal : Mapping[label, sympy.UnevaluatedExpr]
             A mapping from label to its corresponding r-axiom.
+
+        .. deprecated :: 0.7.6
+           Use :class:`.SimplexAxioms|.ObservableAxioms` instead. The ideal
+           is correct but is not suited to the easiest way to compute their
+           varieties. Using this representation of the axioms entangles
+           the solution of response variables with their marginalized
+           versions.
+
 
         """
         labels = self.labels
