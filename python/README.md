@@ -4,6 +4,10 @@
 
 ```console
 ~$: pip install ntqr
+~$: cd <working_directory_of_choice>
+~$: ntqr-docs
+~$: cd ntqr_notebooks
+~$: jupyter notebook
 ```
 
 :::{figure-md}
