@@ -153,6 +153,54 @@ class ResponseVariables:
     def errors(self):
         return self._errors
 
+    def observables_dict(
+        self, counts: Mapping[Sequence, int]
+    ) -> Mapping[sympy.Symbol, int]:
+        """
+
+
+        Parameters
+        ----------
+        counts : Mapping[Sequence, int]
+            Mapping from observable question-aligned decision events by
+            the classifiers to their observed counts.
+
+        Returns
+        -------
+        dict
+            Mapping from observable response variable to its observed
+            count.
+
+        """
+        response_var_counts = {}
+        for decisions, var in self.responses.items():
+            response_var_counts[var] = counts.get(decisions, 0)
+
+        return response_var_counts
+
+    def label_response_to_observable(
+        self,
+    ) -> Mapping[sympy.Symbol, sympy.Symbol]:
+        """
+        Constructs a mapping from a label response variable to its
+        corresponding observable response variable. That is,
+            R_{event, true_label} -> R_{event}.
+
+        Returns
+        -------
+        dict
+            Mapping[sympy.Symbol, sympy.Symbol].
+
+        """
+        lr_to_r = {}
+        for label in self.labels:
+            for decisions in self.responses.keys():
+                lr_to_r[self.label_responses[label][decisions]] = (
+                    self.responses[decisions]
+                )
+
+        return lr_to_r
+
     def _response_variables(self, labels, classifiers):
         """
         Constructs observable response variables given 'labels' and
