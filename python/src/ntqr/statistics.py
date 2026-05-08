@@ -9,7 +9,7 @@ labels in the answer key to the test (the 'Q' variables) nor the counts
 of decision events given true label (the 'label response' variables).
 
 NTQR uses the SymPy package to carry out its symbolic computations. The
-classes in this module build these variables of the form,
+classes in this module build the variables of the form,
 
 1. Q_label: for the q var associated with a label.
 2. R_{label_i, label_j, ...} for the response variables of an ensemble.
@@ -87,16 +87,24 @@ class AnswerKeyVariables:
 
 class ResponseVariables:
     """
-    Variables associated with the decision events of the classifiers.
+    Variables for the counts of decisions events given true label.
 
     Attributes
     ----------
 
 
-    responses : Mapping[m_subset, Mapping[Sequence[Label], simpy.Symbol]]
+    responses : Mapping[Sequence[Label],
+                        Mapping[Sequence[Label], sympy.Symbol]]
+        Variables for the observed counts of decision events.
 
 
-    responses_by_label : Mapping[m_subset, Mapping[Label, Mapping[...]]]
+    responses_by_label : Mapping[Label, Mapping[Sequence[Label], Mapping[...]]]
+        Variables for the counts of a decision event given true label.
+
+    correct: Mapping[Laboel, sympy.Symbol]
+        All correct variable given true label.
+
+    errors: Mapping[Label, Mapping[Sequence[Label], sympy.Symbol]]
     """
 
     def __init__(self, labels: ntqr.Labels, classifiers: Sequence[str]):
@@ -200,6 +208,26 @@ class ResponseVariables:
                 )
 
         return lr_to_r
+
+    def label_response_to_q(self) -> Mapping[sympy.Symbol, sympy.Symbol]:
+        """
+        Creates mapping from label response variable to Q_label.
+
+        Returns
+        -------
+        lr_to_q : Mapping[sympy.Symbol, sympy.Symbol]
+            Mapping from a label response variable to its corresponding
+            Q_label variable.
+
+        """
+        qs = AnswerKeyVariables(self.labels).qs
+        lr_to_q = {
+            r_var: qs[label]
+            for label in self.labels
+            for r_var in self.label_responses[label].values()
+        }
+
+        return lr_to_q
 
     def _response_variables(self, labels, classifiers):
         """
