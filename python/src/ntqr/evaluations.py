@@ -9,7 +9,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 from itertools import chain, combinations, product
 from types import MappingProxyType
-from typing import Iterable, Mapping, Optional, Self, Set, Tuple
+from typing import Iterable, Mapping, Self, Set, Tuple
 
 import numpy as np
 import numpy.typing as npt
@@ -22,6 +22,40 @@ from ntqr.statistics import MClassifiersVariables
 from ntqr.raxioms import MAxiomsIdeal
 import ntqr.r2.raxioms
 import ntqr.r3.raxioms
+
+
+# These generators are used in different classes
+def generate_simplex_points(
+    target_sum: int, n_vars: int
+) -> Iterable[Sequence[int]]:
+    """Generator of tuples of integers that sum to target_sum.
+
+    Parameters
+    ----------
+    target_sum : int
+        DESCRIPTION.
+    n_vars : int
+        DESCRIPTION.
+
+    Returns
+    -------
+    Iterable[Sequence[int]]
+        DESCRIPTION.
+
+    """
+    # Base case. When one var is left, it gets the remainder
+    # of the sum.
+    if n_vars == 1:
+        if target_sum >= 0:
+            yield (target_sum,)
+        return
+
+    # Recurse over the current variable
+    for i in range(target_sum + 1):
+        for sub_combination in generate_simplex_points(
+            target_sum - i, n_vars - 1
+        ):
+            yield (i,) + sub_combination
 
 
 class AnswerKeyQSimplex:
@@ -81,12 +115,7 @@ class AnswerKeyQSimplex:
             Generator of all possible answer-key simplex points.
 
         """
-        ranges = (range(0, self.N) for label in self.labels)
-        answer_key_simplex_points = filter(
-            lambda x: sum(x) == self.Q, product(*ranges)
-        )
-        for point in answer_key_simplex_points:
-            yield point
+        return generate_simplex_points(self.Q, len(self.labels))
 
 
 class MLabelResponseSimplexes:
