@@ -8,6 +8,7 @@ and its associated axioms.
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from itertools import chain, combinations, product
+import math
 from types import MappingProxyType
 from typing import Iterable, Mapping, Self, Set, Tuple
 
@@ -54,6 +55,49 @@ def generate_simplex_points(
     for i in range(target_sum + 1):
         for sub_combination in generate_simplex_points(
             target_sum - i, n_vars - 1
+        ):
+            yield (i,) + sub_combination
+
+
+def generate_observable_cube_points(
+    target_sum: int, maxs: Sequence[int]
+) -> Iterable[Sequence[int]]:
+    """Generator of points on a simple inside the observable hypercube.
+
+    The sum of decision events must equal the assumed label count in
+    the answer key, but, in addition, each event count cannot be larger
+    than the min of the label count OR the observed count of the event.
+
+    This generator produces the points that obey the target sum and
+    the individual max possible value for an event. Note that this is
+    not enough to produce the consistent set as the product of each
+    label generator -- they must obey the same observable count
+    ACROSS all labels.
+
+    Parameters
+    ----------
+    target_sum : int
+        Sum of the variables.
+    maxs : Sequence[int]
+        The individual max for each variable.
+
+    Returns
+    -------
+    Iterable[Sequence[int]]
+        DESCRIPTION.
+
+    """
+    # Base case. When one var is left, it gets the remainder
+    # of the sum.
+    if len(maxs) == 1:
+        if (target_sum >= 0) and (target_sum <= maxs[0]):
+            yield (target_sum,)
+        return
+
+    # Recurse over the current variable
+    for i in range(maxs[0] + 1):
+        for sub_combination in generate_simplex_points(
+            target_sum - i, maxs[1:]
         ):
             yield (i,) + sub_combination
 
@@ -116,6 +160,239 @@ class AnswerKeyQSimplex:
 
         """
         return generate_simplex_points(self.Q, len(self.labels))
+
+
+class PossibleSet:
+    """
+    Class for the possible set of evaluations for N classifiers
+    classifying Q items into R labels.
+
+    Given a point in the answer key Q-simplex, we can count
+    how many group evaluations are possible before we see any
+    test results.
+
+    For small tests, it is also possible to generate all of the
+    points in the possible set but it can quickly blow up so
+    caution must be exercised when calling generators of possible
+    evaluations.
+    """
+
+    def __init__(self, labels: Sequence[str], classifiers: Sequence[str]):
+        self.labels = labels
+        self.classifiers = classifiers
+
+    def set_count_at_ql(self, ql: Sequence[int]) -> int:
+        """
+        Computes the size of the possible set at given answer key ql point.
+
+        The size of the possible set at any given answer key Q-simplex,
+        point ql can be quite large for small tests and labels so this
+        function carries out the exact integer representation of the
+        count using SymPy's symbolic functionality.
+
+        Parameters
+        ----------
+        ql : Sequence[int]
+            The answer key Q-simplex point, values must correspond
+            to the number of labels used to initialize the class.
+
+        Returns
+        -------
+        int
+            The integer count of the possible set at the given ql value.
+
+        """
+        n_events = len(self.labels) ** len(self.classifiers)
+        count = math.prod(
+            (
+                sympy.factorial(n_events + q_val - 1)
+                / ((sympy.factorial(q_val)) * (sympy.factorial(n_events - 1)))
+            )
+            for q_val in ql
+        )
+
+        return count
+
+    def set_generator(self, ql: Sequence[int]) -> Iterable[Sequence[int]]:
+        """
+        Generator of the possible set at given answer key ql point.
+
+        Points are returned as tuples where variables are sorted
+        by label then event.
+
+        This generator should be used with caution since even reasonably
+        sized tests can be quite large, of the order of (R^N)! where
+        R is the number of labels and N the number of classifiers.
+
+        Parameters
+        ----------
+        ql : Sequence[int]
+            The answer key Q-simplex point, values must correspond
+            to the number of labels used to initialize the class.
+
+        Returns
+        -------
+        Iterable[Sequence[int]]
+            Points are represented as tuples of ints where the
+            label response variables have been sorted by label,
+            then event.
+
+        """
+        n_events = len(self.labels) ** len(self.classifiers)
+        label_generators = (
+            generate_simplex_points(q_val, n_events) for q_val in ql
+        )
+
+        point_generator = (point for point in product(*label_generators))
+
+        return point_generator
+
+    def __repr__(self):
+        return f"PossibleSet({self.labels},{self.classifiers})"
+
+
+class ConsistentSet:
+    """
+    Class for N classifier evaluations logically consistent with the
+    observed counts of the R^N ways they can agree/disagree when
+    using R labels.
+
+    This is a subset of of the possible set, smaller both in
+    the dimension of its geometry (the number of indepent variables)
+    and its count in that space.
+
+    This is due to the observable counts for an event setting a ceiling
+    for the possible value of the count of the same event **given** true
+    label.
+    """
+
+    def __init__(
+        self,
+        labels: Sequence[str],
+        classifiers: Sequence[str],
+        counts: Mapping[Sequence[str], int],
+    ):
+        self.labels = labels
+        self.classifiers = classifiers
+        self.counts = counts
+
+    def max_value_at_ql(
+        self, ql: Sequence[int], vars: Sequence[sympy.Symbol]
+    ) -> Sequence[int]:
+        """
+        Computes maximum value for each variable at given ql Q-simplex point.
+
+        The maximum value possible for the count of a decision event by
+        the ensemble given true label is the minimum of the assumed count of
+        that label in the answer key and event observed count.
+
+        Parameters
+        ----------
+        ql : Sequence[int]
+            DESCRIPTION.
+        vars : Sequence[sympy.Symbol]
+            DESCRIPTION.
+
+        Returns
+        -------
+        Sequence[int]
+            DESCRIPTION.
+
+        """
+        # We need two mappings of symbols to symbols
+        # The first maps label responses variables to the true label
+        rVars = ntqr.statistics.ResponseVariables(
+            self.labels, self.classifiers
+        )
+        lr_var_to_ql = rVars.label_response_to_q()
+        lr_var_to_obs = rVars.label_response_to_observable()
+
+        # The substitution dict for the Q-simplex point
+        # We assume q vars are ordered the same as the labels.
+        qVars = ntqr.statistics.AnswerKeyVariables()
+        q_dict = {
+            q_var: q_val
+            for q_var, q_val in zip(
+                [qVars.qs[label] for label in self.labels], ql
+            )
+        }
+        # The observables substitution dict
+        obs_dict = rVars.observables_dict(self.counts)
+
+        # Assembling the output
+        max_vals = [
+            min(
+                lr_var_to_ql[var].subs(q_dict),
+                lr_var_to_obs[var].subs(obs_dict),
+            )
+            for var in vars
+        ]
+
+        return max_vals
+
+    def set_generator(self, ql: Sequence[int]) -> Iterable[Sequence[int]]:
+        """
+        Generator of the possible set at given answer key ql point.
+
+        Points are returned as tuples where variables are sorted
+        by label then event.
+
+        This generator should be used with caution since even reasonably
+        sized tests can be quite large, of the order of (R^N)! where
+        R is the number of labels and N the number of classifiers.
+
+        Parameters
+        ----------
+        ql : Sequence[int]
+            The answer key Q-simplex point, values must correspond
+            to the number of labels used to initialize the class.
+
+        Returns
+        -------
+        Iterable[Sequence[int]]
+            Points are represented as tuples of ints where the
+            label response variables have been sorted by label,
+            then event.
+
+        """
+        n_events = len(self.labels) ** len(self.classifiers)
+        # We generate the N-1 labels
+        label_generators = (
+            generate_simplex_points(q_val, n_events) for q_val in ql[1:]
+        )
+
+        # The maximum value possible for the events given the first label
+        rVars = ntqr.statistics.ResponseVariables(
+            self.labels, self.classifiers
+        )
+        lr_var_to_obs = rVars.label_response_to_observable()
+
+        # The observables substitution dict
+        obs_dict = rVars.observables_dict(self.counts)
+
+        # Assembling the output
+        max_vals = [
+            min(
+                ql[0],
+                lr_var_to_obs[var].subs(obs_dict),
+            )
+            for var in rVars.label_responses[self.labels[0]].values()
+        ]
+        for nm1_point in product(*label_generators):
+            sum_others = tuple(sum(vals) for vals in zip(*nm1_point))
+            if all(
+                max_val - sum_event_others >= 0
+                for max_val, sum_event_others in zip(max_vals, sum_others)
+            ):
+                first_point = tuple(
+                    max_val - sum_event_others
+                    for max_val, sum_event_others in zip(max_vals, sum_others)
+                )
+                yield (first_point, *nm1_point)
+        return
+
+    def __repr__(self):
+        return f"ConsistentSet({self.labels},{self.classifiers},{self.counts})"
 
 
 class MLabelResponseSimplexes:
