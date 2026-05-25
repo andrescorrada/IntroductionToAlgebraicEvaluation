@@ -7,8 +7,10 @@ and its associated axioms.
 
 from collections.abc import Sequence
 from dataclasses import dataclass, field
+from functools import lru_cache
 from itertools import chain, combinations, product
 import math
+import random
 from types import MappingProxyType
 from typing import Iterable, Mapping, Self, Set, Tuple
 
@@ -34,14 +36,14 @@ def generate_simplex_points(
     Parameters
     ----------
     target_sum : int
-        DESCRIPTION.
+        Sum of the variables.
     n_vars : int
-        DESCRIPTION.
+        Number of variables.
 
     Returns
     -------
     Iterable[Sequence[int]]
-        DESCRIPTION.
+        The points on the simplex obeying the target_sum.
 
     """
     # Base case. When one var is left, it gets the remainder
@@ -57,6 +59,35 @@ def generate_simplex_points(
             target_sum - i, n_vars - 1
         ):
             yield (i,) + sub_combination
+
+
+def random_simplex_point(target_sum: int, n_vars: int) -> Sequence[int]:
+    """Generates a random point on the simplex.
+
+    Parameters
+    ----------
+    target_sum : int
+        Required target sum for the variables.
+    n_vars : int
+        Number of variables.
+
+    Returns
+    -------
+    Sequence[int]
+        A single point on the simplex obeynig target sum.
+
+    """
+    positive_sum = target_sum + n_vars
+
+    # Using the positive stars-and-bars method
+    slots = random.sample(range(1, positive_sum), n_vars - 1)
+    sorted_slots = [0] + sorted(slots) + [positive_sum]
+    positive_samples = [
+        sorted_slots[i + 1] - sorted_slots[i] for i in range(n_vars)
+    ]
+
+    # Subtract 1 to allow variables to be 0
+    return tuple(x - 1 for x in positive_samples)
 
 
 def generate_observable_cube_points(
@@ -96,10 +127,77 @@ def generate_observable_cube_points(
 
     # Recurse over the current variable
     for i in range(maxs[0] + 1):
-        for sub_combination in generate_simplex_points(
+        for sub_combination in generate_observable_cube_points(
             target_sum - i, maxs[1:]
         ):
             yield (i,) + sub_combination
+
+
+def random_bounded_simplex_point(
+    total_sum: int, bounds: Sequence[int]
+) -> Sequence[int]:
+    """
+    Uniformly samples non-negative integers x_i such that:
+    0 <= x_i <= bounds[i] and sum(x_i) == total_sum
+
+    Parameters
+    ----------
+    total_sum : int
+        Sum required.
+    bounds : Sequence[int]
+        Bounds for each variable, must be equal to or less than total_sum.
+
+    Raises
+    ------
+    ValueError
+        If no points satisfy the given bounds and sum to total_sum.
+
+    Returns
+    -------
+    Sequence[int]
+        The sampled point.
+
+    """
+    n = len(bounds)
+
+    # 1. Check if a valid solution is mathematically possible
+    if total_sum < 0 or total_sum > sum(bounds):
+        raise ValueError("Total sum is impossible given the provided bounds.")
+
+    # 2. Count valid ways to complete the remaining variables using Memoization
+    @lru_cache(maxsize=None)
+    def count_ways(index, remaining_sum):
+        # Base case: if we processed all variables
+        if index == n:
+            return 1 if remaining_sum == 0 else 0
+        if remaining_sum < 0:
+            return 0
+
+        ways = 0
+        max_v = min(bounds[index], remaining_sum)
+        for v in range(max_v + 1):
+            ways += count_ways(index + 1, remaining_sum - v)
+        return ways
+
+    # 3. Generate the variables sequentially based on exact remaining probabilities
+    result = []
+    current_sum = total_sum
+
+    for i in range(n):
+        max_v = min(bounds[i], current_sum)
+
+        # Determine the probability weight for each valid assignment of the current variable
+        weights = []
+        for v in range(max_v + 1):
+            weights.append(count_ways(i + 1, current_sum - v))
+
+        # Choices picks a value based on the exact number of matching downstream paths
+        chosen_v = random.choices(range(max_v + 1), weights=weights, k=1)[0]
+
+        result.append(chosen_v)
+        current_sum -= chosen_v
+
+    return tuple(result)
 
 
 class AnswerKeyQSimplex:
@@ -213,6 +311,39 @@ class PossibleSet:
 
         return count
 
+    def sum_count_at_ql(self, ql: Sequence[int]) -> int:
+        """
+        Computes the sum of the possible values over the labels.
+
+        This is useful for considering if random sampling from
+        the possible set is possible. To randomly draw one evaluation
+        from the possbile set, you would have to create the sum of
+        the evaluations over the labels, not the product.
+
+        Parameters
+        ----------
+        ql : Sequence[int]
+            The answer key Q-simplex point, values must correspond
+            to the number of labels used to initialize the class.
+
+        Returns
+        -------
+        int
+            The number of values that need to be generated to sample
+            one point from the possible set.
+
+        """
+        n_events = len(self.labels) ** len(self.classifiers)
+        count = sum(
+            (
+                sympy.factorial(n_events + q_val - 1)
+                / ((sympy.factorial(q_val)) * (sympy.factorial(n_events - 1)))
+            )
+            for q_val in ql
+        )
+
+        return count
+
     def set_generator(self, ql: Sequence[int]) -> Iterable[Sequence[int]]:
         """
         Generator of the possible set at given answer key ql point.
@@ -246,6 +377,37 @@ class PossibleSet:
         point_generator = (point for point in product(*label_generators))
 
         return point_generator
+
+    def random_points(
+        self, ql: Sequence[int], n: int
+    ) -> Sequence[Sequence[int]]:
+        """
+        Generates n random points in possible set at given ql.
+
+        Parameters
+        ----------
+        ql : Sequence[int]
+            Point on the Q-simplex.
+        n : int
+            Number of points wanted.
+
+        Returns
+        -------
+        Sequence[Sequence[int]]
+            Sequence of length n of possible evaluation points.
+
+        """
+        # We are assuming that the possible set is so large that
+        # we can generate random points for each label separately
+        n_vars = len(self.labels) ** len(self.classifiers)
+        points = set()
+        while len(points) < n:
+            random_point = tuple(
+                random_simplex_point(q_val, n_vars) for q_val in ql
+            )
+            points.add(random_point)
+
+        return points
 
     def __repr__(self):
         return f"PossibleSet({self.labels},{self.classifiers})"
@@ -309,7 +471,7 @@ class ConsistentSet:
 
         # The substitution dict for the Q-simplex point
         # We assume q vars are ordered the same as the labels.
-        qVars = ntqr.statistics.AnswerKeyVariables()
+        qVars = ntqr.statistics.AnswerKeyVariables(self.labels)
         q_dict = {
             q_var: q_val
             for q_var, q_val in zip(
@@ -355,38 +517,29 @@ class ConsistentSet:
             then event.
 
         """
-        n_events = len(self.labels) ** len(self.classifiers)
-        # We generate the N-1 labels
-        label_generators = (
-            generate_simplex_points(q_val, n_events) for q_val in ql[1:]
-        )
-
-        # The maximum value possible for the events given the first label
         rVars = ntqr.statistics.ResponseVariables(
             self.labels, self.classifiers
         )
-        lr_var_to_obs = rVars.label_response_to_observable()
-
-        # The observables substitution dict
-        obs_dict = rVars.observables_dict(self.counts)
-
-        # Assembling the output
         max_vals = [
-            min(
-                ql[0],
-                lr_var_to_obs[var].subs(obs_dict),
-            )
-            for var in rVars.label_responses[self.labels[0]].values()
+            self.max_value_at_ql(ql, rVars.label_responses[label].values())
+            for label in self.labels
         ]
+        label_generators = (
+            generate_observable_cube_points(q_val, maxs)
+            for q_val, maxs in zip(ql[1:], max_vals[1:])
+        )
+
         for nm1_point in product(*label_generators):
             sum_others = tuple(sum(vals) for vals in zip(*nm1_point))
             if all(
                 max_val - sum_event_others >= 0
-                for max_val, sum_event_others in zip(max_vals, sum_others)
+                for max_val, sum_event_others in zip(max_vals[0], sum_others)
             ):
                 first_point = tuple(
                     max_val - sum_event_others
-                    for max_val, sum_event_others in zip(max_vals, sum_others)
+                    for max_val, sum_event_others in zip(
+                        max_vals[0], sum_others
+                    )
                 )
                 yield (first_point, *nm1_point)
         return
