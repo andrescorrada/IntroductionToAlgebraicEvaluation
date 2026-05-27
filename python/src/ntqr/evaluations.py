@@ -380,7 +380,7 @@ class PossibleSet:
 
     def random_points(
         self, ql: Sequence[int], n: int
-    ) -> Sequence[Sequence[int]]:
+    ) -> set[Sequence[Sequence[int]]]:
         """
         Generates n random points in possible set at given ql.
 
@@ -542,6 +542,112 @@ class ConsistentSet:
                     )
                 )
                 yield (first_point, *nm1_point)
+        return
+
+    def random_points(
+        self, ql: Sequence[int], n: int
+    ) -> set[Sequence[Sequence[int]]]:
+        """
+        Returns n random points in the consistent set at given ql.
+
+        Parameters
+        ----------
+        ql : Sequence[int]
+            Assumed value of labels in the answer key.
+        n : int
+            Number of random points wanted.
+
+        Returns
+        -------
+        set[Sequence[Sequence[int]]]
+            A random set of n points from the consistent set of evaluations
+            at given ql point.
+
+        """
+        rVars = ntqr.statistics.ResponseVariables(
+            self.labels, self.classifiers
+        )
+        max_vals = [
+            self.max_value_at_ql(ql, rVars.label_responses[label].values())
+            for label in self.labels
+        ]
+
+        points = set()
+        while len(points) < n:
+
+            # A random point on the rest of the labels
+            nm1_point = tuple(
+                random_bounded_simplex_point(q_val, maxs)
+                for q_val, maxs in zip(ql[1:], max_vals[1:])
+            )
+
+            sum_others = tuple(sum(vals) for vals in zip(*nm1_point))
+            if all(
+                max_val - sum_event_others >= 0
+                for max_val, sum_event_others in zip(max_vals[0], sum_others)
+            ):
+                first_point = tuple(
+                    max_val - sum_event_others
+                    for max_val, sum_event_others in zip(
+                        max_vals[0], sum_others
+                    )
+                )
+                points.add((first_point, *nm1_point))
+
+        return points
+
+    def correct_cuboid_generator(
+        self, ql: Sequence[int]
+    ) -> Sequence[Sequence[int]]:
+        """
+        Generates the correct cuboid for each label given Q-simplex point, ql.
+
+        A correct cuboid point is defined by the number of correct label
+        answers for each classifier. Strictly speaking, this set does not
+        have the geometry of a cuboid, but can be confined within one.
+
+        This set is the basis for no-knowledge alarms since they consist of
+        points where classifiers may have enough disagreements that one of
+        them cannot be working properly at the specified ql value.
+
+        Parameters
+        ----------
+        ql : Sequence[int]
+            Assumed point in the Q-simplex, the count of labels in the
+            answer key.
+
+        Returns
+        -------
+        Sequence[Sequence[int]]
+            Points of the form (R_{\ell_i, \ell_j, \dots; \ell},...). The
+            number of label corrects for each classifier and label.
+
+        """
+        # Calculate the matrices that allow us to marginalize the joint
+        # event counts to the number of correct for each classifier
+        # and label.
+        label_vars = ntqr.statistics.ResponseVariables(
+            self.labels, self.classifiers
+        ).label_responses
+        marg_mats = [
+            np.array(
+                [
+                    [
+                        1 if event[c] == label else 0
+                        for event in label_vars[label].keys()
+                    ]
+                    for c in range(len(self.classifiers))
+                ]
+            )
+            for label in self.labels
+        ]
+
+        for l_points in self.set_generator(ql):
+            yield tuple(
+                tuple((m_mat @ l_point).tolist())
+                for m_mat, l_point in zip(marg_mats, l_points)
+            )
+
         return
 
     def __repr__(self):
