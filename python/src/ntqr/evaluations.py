@@ -598,7 +598,7 @@ class ConsistentSet:
 
     def correct_cuboid_generator(
         self, ql: Sequence[int]
-    ) -> Sequence[Sequence[int]]:
+    ) -> Iterable[Sequence[Sequence[int]]]:
         """
         Generates the correct cuboid for each label given Q-simplex point, ql.
 
@@ -618,7 +618,7 @@ class ConsistentSet:
 
         Returns
         -------
-        Sequence[Sequence[int]]
+        Iterable[Sequence[Sequence[int]]]
             Points of the form (R_{\ell_i, \ell_j, \dots; \ell},...). The
             number of label corrects for each classifier and label.
 
@@ -649,6 +649,57 @@ class ConsistentSet:
             )
 
         return
+
+    def random_correct_cuboid_points(
+        self, ql: Sequence[int], n: int
+    ) -> Sequence[Sequence[Sequence[int]]]:
+        """
+        Random list of points on the correct label cuboids.
+
+        Points may not be unique since they are marginalized
+        counts of unique points on the consistent set.
+
+        Parameters
+        ----------
+        ql : Sequence[int]
+            Assumed count of each label in the answer key.
+        n : int
+            Number of points sampled in the consistent set.
+
+        Returns
+        -------
+        Sequence[Sequence[Sequence[int]]]
+            Sequence, n long, of points in the correctness cuboid.
+
+        """
+        # Constructing the matrices that will allow us to
+        # marginalize to the correct cuboid coordinates.
+        label_vars = ntqr.statistics.ResponseVariables(
+            self.labels, self.classifiers
+        ).label_responses
+        marg_mats = [
+            np.array(
+                [
+                    [
+                        1 if event[c] == label else 0
+                        for event in label_vars[label].keys()
+                    ]
+                    for c in range(len(self.classifiers))
+                ]
+            )
+            for label in self.labels
+        ]
+
+        points = list(self.random_points(ql, n))
+        c_points = [
+            tuple(
+                tuple((m_mat @ l_point).tolist())
+                for m_mat, l_point in zip(marg_mats, point)
+            )
+            for point in points
+        ]
+
+        return c_points
 
     def __repr__(self):
         return f"ConsistentSet({self.labels},{self.classifiers},{self.counts})"
