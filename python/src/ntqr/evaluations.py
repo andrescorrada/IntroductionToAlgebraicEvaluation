@@ -619,7 +619,7 @@ class ConsistentSet:
         Returns
         -------
         Iterable[Sequence[Sequence[int]]]
-            Points of the form (R_{\ell_i, \ell_j, \dots; \ell},...). The
+            Points of the form (R_{l_i, l_j, ...; l_true},...). The
             number of label corrects for each classifier and label.
 
         """
@@ -733,6 +733,9 @@ class MLabelResponseSimplexes:
     of this class and the ntqr.raxioms.MAxiomsIdeal class to compute
     the subset of possible label test responses that are logically
     consistent with the observed test results.
+
+    .. deprecated :: 0.8
+       Use :class:`.ConsistentSet` instead.
 
     """
 
@@ -913,6 +916,9 @@ class MVariety:
     Thus the intersection of m-varities is a containing variety
     for the variety that corresponds to all axioms up to m=N
     being obeyed.
+
+    .. deprecated :: 0.8
+       Use :class:`.ConsistentSet` instead.
     """
 
     labels: tuple[str]
@@ -1360,6 +1366,9 @@ class MVarietyTupleDict(MVariety):
     """Concrete class for MVariety storing points as dict of tuples.
 
     Warning: this class is memory intensive.
+
+    .. deprecated :: 0.8
+       Use :class:`.ConsistentSet` instead.
     """
 
     def generate_points(self) -> Iterable:
@@ -1542,6 +1551,9 @@ class MAxiomsVarieties:
     evaluations that are logically consistent with how we observe
     the classifiers agreeing and disagreeing on the question
     responses.
+
+    .. deprecated :: 0.8
+       Use :class:`.ConsistentSet` instead.
     """
 
     def __init__(
@@ -2117,7 +2129,8 @@ class SingleClassifierEvaluations:
     of points that have dimension R*(R-1), but the set itself has
     dimension (R-1)*(R-1).
 
-
+    .. deprecated :: 0.8
+       Use :class:`.ConsistentSet` instead.
     """
 
     def __init__(
