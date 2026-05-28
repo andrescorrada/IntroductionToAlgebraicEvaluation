@@ -12,6 +12,7 @@
 :maxdepth: 2
 
 conceptual
+notebooks/PossibleAndConsistentSet
 notebooks/AlgebraAndGeometryOfNTQR
 notebooks/LogicalAlarmsMisalignedClassifiers
 notebooks/HowManyIndependentAxioms

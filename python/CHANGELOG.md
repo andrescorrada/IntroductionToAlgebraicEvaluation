@@ -116,6 +116,23 @@ Online documentation now looks much better.
   used the 'ground-up' axioms that required marginalized variables to be
   computed before full ones.
 
+## [0.8] - 2026-05-28
+
+### Added
+
+- Two new classes in ntqr.evaluations: PossibleSet and ConsistentSet.
+
+### Fixed
+
+- Sundry typos in docstrings.
+
+### Changed
+
+### Deprecated
+
+- ntqr.evaluations.{PossibleSet, ConsistentSet} replace all the other classes
+  in the module and have been deprecated. All future work will be based on
+  PossibleSet and ConsistentSet.
 
 
 

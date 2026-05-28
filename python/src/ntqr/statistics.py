@@ -101,7 +101,7 @@ class ResponseVariables:
     responses_by_label : Mapping[Label, Mapping[Sequence[Label], Mapping[...]]]
         Variables for the counts of a decision event given true label.
 
-    correct: Mapping[Laboel, sympy.Symbol]
+    correct: Mapping[Label, sympy.Symbol]
         All correct variable given true label.
 
     errors: Mapping[Label, Mapping[Sequence[Label], sympy.Symbol]]
