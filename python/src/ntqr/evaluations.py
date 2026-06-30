@@ -8,9 +8,10 @@ and its associated axioms.
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from functools import lru_cache
-from itertools import chain, combinations, product
+from itertools import chain, combinations, product, islice
 import math
 import random
+import scipy.sparse as sp
 from types import MappingProxyType
 from typing import Iterable, Mapping, Self, Set, Tuple
 
@@ -466,26 +467,14 @@ class ConsistentSet:
         rVars = ntqr.statistics.ResponseVariables(
             self.labels, self.classifiers
         )
-        lr_var_to_ql = rVars.label_response_to_q()
-        lr_var_to_obs = rVars.label_response_to_observable()
-
-        # The substitution dict for the Q-simplex point
-        # We assume q vars are ordered the same as the labels.
-        qVars = ntqr.statistics.AnswerKeyVariables(self.labels)
-        q_dict = {
-            q_var: q_val
-            for q_var, q_val in zip(
-                [qVars.qs[label] for label in self.labels], ql
-            )
-        }
-        # The observables substitution dict
-        obs_dict = rVars.observables_dict(self.counts)
+        lr_var_to_ql = rVars.label_response_to_q(ql)
+        lr_var_to_obs = rVars.label_response_to_observable(self.counts)
 
         # Assembling the output
         max_vals = [
             min(
-                lr_var_to_ql[var].subs(q_dict),
-                lr_var_to_obs[var].subs(obs_dict),
+                lr_var_to_ql[var],
+                lr_var_to_obs[var],
             )
             for var in vars
         ]
@@ -543,6 +532,69 @@ class ConsistentSet:
                 )
                 yield (first_point, *nm1_point)
         return
+
+    def alt_set_generator(self, ql: Sequence[int]) -> Iterable[tuple]:
+        """
+        Experimental set_generator meant to be much faster.
+
+        Parameters
+        ----------
+        ql : Sequence[int]
+            DESCRIPTION.
+
+        Yields
+        ------
+        Iterable[tuple]
+            DESCRIPTION.
+
+        """
+        rVars = ntqr.statistics.ResponseVariables(
+            self.labels, self.classifiers
+        )
+        max_vals = [
+            self.max_value_at_ql(ql, rVars.label_responses[label].values())
+            for label in self.labels
+        ]
+
+        R, E = len(self.labels), len(max_vals[0])
+        targets = ql[1:]
+        active_J = [j for j in range(E) if max_vals[0][j] > 0]
+
+        # Pre-filter valid columns to reduce work inside the loop
+        valid_cols = []
+        for j in active_J:
+            max_0 = max_vals[0][j]
+            ranges = [range(max_vals[i][j] + 1) for i in range(1, R)]
+            # Filtered to only include valid sums immediately
+            valid_cols.append([v for v in product(*ranges) if sum(v) <= max_0])
+
+        # Stack stores: (event_idx, current_sums, path)
+        stack = [(0, tuple([0] * (R - 1)), ())]
+
+        while stack:
+            event_idx, current_sums, path = stack.pop()
+
+            if event_idx == len(active_J):
+                if current_sums == tuple(targets):
+                    # Reconstruction logic
+                    nm1_points = [[0] * E for _ in range(R - 1)]
+                    first_point = list(max_vals[0])
+                    for step, j in enumerate(active_J):
+                        col = path[step]
+                        for i in range(R - 1):
+                            nm1_points[i][j] = col[i]
+                            first_point[j] -= col[i]
+                    yield (
+                        sp.csr_matrix(first_point),
+                        *(sp.csr_matrix(row) for row in nm1_points),
+                    )
+                continue
+
+            # Optimization: Pre-calculate remaining constraints to prune
+            for v in valid_cols[event_idx]:
+                new_sums = [current_sums[i] + v[i] for i in range(R - 1)]
+                if all(new_sums[i] <= targets[i] for i in range(R - 1)):
+                    stack.append((event_idx + 1, tuple(new_sums), path + (v,)))
 
     def random_points(
         self, ql: Sequence[int], n: int
