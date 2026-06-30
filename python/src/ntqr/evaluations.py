@@ -5,6 +5,7 @@ and its associated axioms.
 
 """
 
+import bisect
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from functools import lru_cache
@@ -13,7 +14,7 @@ import math
 import random
 import scipy.sparse as sp
 from types import MappingProxyType
-from typing import Iterable, Mapping, Self, Set, Tuple
+from typing import Iterable, Mapping, Self, Set, Tuple, List
 
 import numpy as np
 import numpy.typing as npt
@@ -648,6 +649,63 @@ class ConsistentSet:
 
         return points
 
+    def alt_random_set_generator(self, ql: Sequence[int]) -> Iterable[tuple]:
+        """
+        A high-performance generator that produces random valid sets
+        by shuffling traversal branches on the fly.
+        """
+        # (Same setup as your original alt_set_generator)
+        rVars = ntqr.statistics.ResponseVariables(
+            self.labels, self.classifiers
+        )
+        max_vals = [
+            self.max_value_at_ql(ql, rVars.label_responses[label].values())
+            for label in self.labels
+        ]
+
+        R, E = len(self.labels), len(max_vals[0])
+        targets = ql[1:]
+        active_J = [j for j in range(E) if max_vals[0][j] > 0]
+
+        # Pre-filter valid columns
+        valid_cols = []
+        for j in active_J:
+            max_0 = max_vals[0][j]
+            ranges = [range(max_vals[i][j] + 1) for i in range(1, R)]
+            # Filtered to only include valid sums immediately
+            valid_cols.append([v for v in product(*ranges) if sum(v) <= max_0])
+
+        stack = [(0, tuple([0] * (R - 1)), ())]
+
+        while stack:
+            event_idx, current_sums, path = stack.pop()
+
+            if event_idx == len(active_J):
+                if current_sums == tuple(targets):
+                    # Reconstruction logic (Same as before)
+                    nm1_points = [[0] * E for _ in range(R - 1)]
+                    first_point = list(max_vals[0])
+                    for step, j in enumerate(active_J):
+                        col = path[step]
+                        for i in range(R - 1):
+                            nm1_points[i][j] = col[i]
+                            first_point[j] -= col[i]
+                    yield (
+                        sp.csr_matrix(first_point),
+                        *(sp.csr_matrix(row) for row in nm1_points),
+                    )
+                continue
+
+            # --- THE KEY OPTIMIZATION: RANDOMIZE THE TRAVERSAL ---
+            # Get candidates for this event
+            candidates = valid_cols[event_idx][:]
+            random.shuffle(candidates)  # This ensures different random paths
+
+            for v in candidates:
+                new_sums = [current_sums[i] + v[i] for i in range(R - 1)]
+                if all(new_sums[i] <= targets[i] for i in range(R - 1)):
+                    stack.append((event_idx + 1, tuple(new_sums), path + (v,)))
+
     def correct_cuboid_generator(
         self, ql: Sequence[int]
     ) -> Iterable[Sequence[Sequence[int]]]:
@@ -694,7 +752,7 @@ class ConsistentSet:
             for label in self.labels
         ]
 
-        for l_points in self.set_generator(ql):
+        for l_points in self.alt_set_generator(ql):
             yield tuple(
                 tuple((m_mat @ l_point).tolist())
                 for m_mat, l_point in zip(marg_mats, l_points)
@@ -702,33 +760,18 @@ class ConsistentSet:
 
         return
 
-    def random_correct_cuboid_points(
-        self, ql: Sequence[int], n: int
-    ) -> Sequence[Sequence[Sequence[int]]]:
+    import numpy as np
+
+    def correct_cuboid_random_generator(
+        self, ql: Sequence[int]
+    ) -> Iterable[Sequence[Sequence[int]]]:
         """
-        Random list of points on the correct label cuboids.
-
-        Points may not be unique since they are marginalized
-        counts of unique points on the consistent set.
-
-        Parameters
-        ----------
-        ql : Sequence[int]
-            Assumed count of each label in the answer key.
-        n : int
-            Number of points sampled in the consistent set.
-
-        Returns
-        -------
-        Sequence[Sequence[Sequence[int]]]
-            Sequence, n long, of points in the correctness cuboid.
-
+        Optimized generator that forces a fresh copy of data to prevent reference leakage.
         """
-        # Constructing the matrices that will allow us to
-        # marginalize to the correct cuboid coordinates.
         label_vars = ntqr.statistics.ResponseVariables(
             self.labels, self.classifiers
         ).label_responses
+
         marg_mats = [
             np.array(
                 [
@@ -737,21 +780,34 @@ class ConsistentSet:
                         for event in label_vars[label].keys()
                     ]
                     for c in range(len(self.classifiers))
-                ]
+                ],
+                dtype=np.int8,
             )
             for label in self.labels
         ]
 
-        points = list(self.random_points(ql, n))
-        c_points = [
-            tuple(
-                tuple((m_mat @ l_point).tolist())
-                for m_mat, l_point in zip(marg_mats, point)
-            )
-            for point in points
-        ]
+        gen = self.alt_random_set_generator(ql)
 
-        return c_points
+        for point in gen:
+            # A fix to a subtle reference bug:
+            # Convert each part of the point to a dense, new numpy array immediately.
+            # .toarray() on a CSR matrix creates a new dense array.
+            # .copy() ensures we aren't holding onto the generator's internal buffer.
+            dense_point_parts = [
+                (
+                    p.toarray().flatten()
+                    if hasattr(p, "toarray")
+                    else np.array(p).flatten()
+                )
+                for p in point
+            ]
+
+            # Now use the dense, isolated copies for transformation
+            transformed = tuple(
+                (m_mat @ p_part).tolist()
+                for m_mat, p_part in zip(marg_mats, dense_point_parts)
+            )
+            yield transformed
 
     def __repr__(self):
         return f"ConsistentSet({self.labels},{self.classifiers},{self.counts})"
