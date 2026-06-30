@@ -187,44 +187,46 @@ class ResponseVariables:
         return response_var_counts
 
     def label_response_to_observable(
-        self,
-    ) -> Mapping[sympy.Symbol, sympy.Symbol]:
+        self, counts: Mapping[Sequence, int]
+    ) -> Mapping[sympy.Symbol, int]:
         """
         Constructs a mapping from a label response variable to its
-        corresponding observable response variable. That is,
-            R_{event, true_label} -> R_{event}.
+        corresponding observable count. That is,
+            R_{event, true_label} -> count of event in test.
 
         Returns
         -------
         dict
-            Mapping[sympy.Symbol, sympy.Symbol].
+            Mapping[sympy.Symbol, int].
 
         """
+        obs_dict = self.observables_dict(counts)
         lr_to_r = {}
         for label in self.labels:
             for decisions in self.responses.keys():
-                lr_to_r[self.label_responses[label][decisions]] = (
+                lr_to_r[self.label_responses[label][decisions]] = obs_dict[
                     self.responses[decisions]
-                )
+                ]
 
         return lr_to_r
 
-    def label_response_to_q(self) -> Mapping[sympy.Symbol, sympy.Symbol]:
+    def label_response_to_q(
+        self, ql: Sequence[int]
+    ) -> Mapping[sympy.Symbol, int]:
         """
-        Creates mapping from label response variable to Q_label.
+        Creates mapping from label response variable to Q_label value.
 
         Returns
         -------
-        lr_to_q : Mapping[sympy.Symbol, sympy.Symbol]
+        lr_to_q : Mapping[sympy.Symbol, int]
             Mapping from a label response variable to its corresponding
-            Q_label variable.
+            Q_label variable value.
 
         """
-        qs = AnswerKeyVariables(self.labels).qs
         lr_to_q = {
-            r_var: qs[label]
-            for label in self.labels
-            for r_var in self.label_responses[label].values()
+            r_var: ql[q_i]
+            for q_i in range(len(self.labels))
+            for r_var in self.label_responses[self.labels[q_i]].values()
         }
 
         return lr_to_q
