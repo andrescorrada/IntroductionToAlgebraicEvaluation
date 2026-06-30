@@ -651,10 +651,10 @@ class ConsistentSet:
 
     def alt_random_set_generator(self, ql: Sequence[int]) -> Iterable[tuple]:
         """
-        A high-performance generator that produces random valid sets
-        by shuffling traversal branches on the fly.
+        Randomized 'Random Walk' generator.
+        Instead of exploring the whole tree, it samples a random valid path.
         """
-        # (Same setup as your original alt_set_generator)
+        # 1. Setup
         rVars = ntqr.statistics.ResponseVariables(
             self.labels, self.classifiers
         )
@@ -667,44 +667,61 @@ class ConsistentSet:
         targets = ql[1:]
         active_J = [j for j in range(E) if max_vals[0][j] > 0]
 
-        # Pre-filter valid columns
-        valid_cols = []
+        # 2. Pre-generate candidates (as before)
+        # We keep this step to know which branches are 'valid'
+        options_per_col = []
         for j in active_J:
             max_0 = max_vals[0][j]
             ranges = [range(max_vals[i][j] + 1) for i in range(1, R)]
-            # Filtered to only include valid sums immediately
-            valid_cols.append([v for v in product(*ranges) if sum(v) <= max_0])
+            options_per_col.append(
+                [v for v in product(*ranges) if sum(v) <= max_0]
+            )
 
-        stack = [(0, tuple([0] * (R - 1)), ())]
+        # 3. Random Walk Loop
+        # We yield results indefinitely. You control the number of samples with islice.
+        while True:
+            current_sums = [0] * (R - 1)
+            path = []
+            possible = True
 
-        while stack:
-            event_idx, current_sums, path = stack.pop()
+            # Walk through columns
+            for step_idx in range(len(active_J)):
+                # Filter valid moves based on remaining slack
+                valid_moves = []
+                for v in options_per_col[step_idx]:
+                    if all(
+                        current_sums[i] + v[i] <= targets[i]
+                        for i in range(R - 1)
+                    ):
+                        valid_moves.append(v)
 
-            if event_idx == len(active_J):
-                if current_sums == tuple(targets):
-                    # Reconstruction logic (Same as before)
-                    nm1_points = [[0] * E for _ in range(R - 1)]
-                    first_point = list(max_vals[0])
-                    for step, j in enumerate(active_J):
-                        col = path[step]
-                        for i in range(R - 1):
-                            nm1_points[i][j] = col[i]
-                            first_point[j] -= col[i]
-                    yield (
-                        sp.csr_matrix(first_point),
-                        *(sp.csr_matrix(row) for row in nm1_points),
-                    )
-                continue
+                if not valid_moves:
+                    possible = False
+                    break
 
-            # --- THE KEY OPTIMIZATION: RANDOMIZE THE TRAVERSAL ---
-            # Get candidates for this event
-            candidates = valid_cols[event_idx][:]
-            random.shuffle(candidates)  # This ensures different random paths
+                # --- THE STOCHASTIC FIX ---
+                # Pick ONE random move instead of exploring all
+                move = random.choice(valid_moves)
 
-            for v in candidates:
-                new_sums = [current_sums[i] + v[i] for i in range(R - 1)]
-                if all(new_sums[i] <= targets[i] for i in range(R - 1)):
-                    stack.append((event_idx + 1, tuple(new_sums), path + (v,)))
+                for i in range(R - 1):
+                    current_sums[i] += move[i]
+                path.append(move)
+
+            # Final validation (ensure we hit the target exactly)
+            if possible and tuple(current_sums) == tuple(targets):
+                # Reconstruction logic
+                nm1_points = [[0] * E for _ in range(R - 1)]
+                first_point = list(max_vals[0])
+                for step, j in enumerate(active_J):
+                    col = path[step]
+                    for i in range(R - 1):
+                        nm1_points[i][j] = col[i]
+                        first_point[j] -= col[i]
+
+                yield (
+                    sp.csr_matrix(first_point),
+                    *(sp.csr_matrix(row) for row in nm1_points),
+                )
 
     def correct_cuboid_generator(
         self, ql: Sequence[int]
@@ -766,12 +783,12 @@ class ConsistentSet:
         self, ql: Sequence[int]
     ) -> Iterable[Sequence[Sequence[int]]]:
         """
-        Optimized generator that forces a fresh copy of data to prevent reference leakage.
+        Optimized generator with result de-duplication to handle
+        upstream generator noise and projection collapse.
         """
         label_vars = ntqr.statistics.ResponseVariables(
             self.labels, self.classifiers
         ).label_responses
-
         marg_mats = [
             np.array(
                 [
@@ -788,26 +805,26 @@ class ConsistentSet:
 
         gen = self.alt_random_set_generator(ql)
 
-        for point in gen:
-            # A fix to a subtle reference bug:
-            # Convert each part of the point to a dense, new numpy array immediately.
-            # .toarray() on a CSR matrix creates a new dense array.
-            # .copy() ensures we aren't holding onto the generator's internal buffer.
-            dense_point_parts = [
-                (
-                    p.toarray().flatten()
-                    if hasattr(p, "toarray")
-                    else np.array(p).flatten()
-                )
-                for p in point
-            ]
+        # Track unique results to ensure the output generator is strictly unique
+        seen_results = set()
 
-            # Now use the dense, isolated copies for transformation
+        for point in gen:
+            # 1. Break reference with copy
+            safe_point = tuple(p.copy() for p in point)
+
+            # 2. Perform transformation
             transformed = tuple(
-                (m_mat @ p_part).tolist()
-                for m_mat, p_part in zip(marg_mats, dense_point_parts)
+                (m_mat @ p_part.T).flatten().tolist()
+                for m_mat, p_part in zip(marg_mats, safe_point)
             )
-            yield transformed
+
+            # 3. De-duplication: Only yield if we haven't seen this result before
+            # We convert to a tuple of tuples to make it hashable for the set
+            hashable_result = tuple(tuple(t) for t in transformed)
+
+            if hashable_result not in seen_results:
+                seen_results.add(hashable_result)
+                yield transformed
 
     def __repr__(self):
         return f"ConsistentSet({self.labels},{self.classifiers},{self.counts})"
