@@ -826,6 +826,57 @@ class ConsistentSet:
                 seen_results.add(hashable_result)
                 yield transformed
 
+    def get_expected_event_counts(self):
+        """
+        Constructs an array of expected event counts ordered
+        by the canonical ResponseVariables key order.
+        """
+        # Initialize the statistics class to access the canonical event order
+        rVars = ntqr.statistics.ResponseVariables(
+            self.labels, self.classifiers
+        )
+        canonical_events = list(rVars.responses.keys())
+
+        # Extract counts from self.counts using the canonical order.
+        # We use .get(event, 0) just in case an event exists in the model
+        # but not in your input data counter.
+        return np.array(
+            [self.counts.get(event, 0) for event in canonical_events],
+            dtype=np.int64,
+        )
+
+    def validate_point(self, point_tuple, ql):
+        """
+        Validates a generated point against:
+        1. Label sum constraints (ql).
+        2. Total event count constraints (self.counts).
+        """
+        # 1. Get the expected counts in the correct order
+        expected_counts = self.get_expected_event_counts()
+
+        # 2. Check Label Sums
+        for i, matrix in enumerate(point_tuple):
+            if matrix.sum() != ql[i]:
+                return (
+                    False,
+                    f"Constraint Mismatch: Label {i} sum {matrix.sum()} != ql[{i}] ({ql[i]})",
+                )
+
+        # 3. Check Event Sums
+        # Sum across all label matrices
+        summed_matrix = sum(point_tuple)
+        observed_sums = summed_matrix.toarray().flatten()
+
+        if not np.array_equal(observed_sums, expected_counts):
+            # Identify the first point of failure for debugging
+            mismatch_indices = np.where(observed_sums != expected_counts)[0]
+            return (
+                False,
+                f"Event Mismatch at indices {mismatch_indices[:5]}...",
+            )
+
+        return True, "Valid"
+
     def __repr__(self):
         return f"ConsistentSet({self.labels},{self.classifiers},{self.counts})"
 
