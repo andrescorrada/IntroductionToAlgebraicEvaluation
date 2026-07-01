@@ -5,16 +5,16 @@ and its associated axioms.
 
 """
 
-import bisect
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from functools import lru_cache
-from itertools import chain, combinations, product, islice
+from itertools import chain, combinations, product
 import math
 import random
 import scipy.sparse as sp
+from scipy.sparse import sparray
 from types import MappingProxyType
-from typing import Iterable, Mapping, Self, Set, Tuple, List
+from typing import Iterable, Mapping, Self, Set, Tuple
 
 import numpy as np
 import numpy.typing as npt
@@ -482,7 +482,7 @@ class ConsistentSet:
 
         return max_vals
 
-    def set_generator(self, ql: Sequence[int]) -> Iterable[Sequence[int]]:
+    def set_generator(self, ql: Sequence[int]) -> Iterable[tuple]:
         """
         Generator of the possible set at given answer key ql point.
 
@@ -502,51 +502,9 @@ class ConsistentSet:
         Returns
         -------
         Iterable[Sequence[int]]
-            Points are represented as tuples of ints where the
+            Points are represented as sparse arrays of ints where the
             label response variables have been sorted by label,
             then event.
-
-        """
-        rVars = ntqr.statistics.ResponseVariables(
-            self.labels, self.classifiers
-        )
-        max_vals = [
-            self.max_value_at_ql(ql, rVars.label_responses[label].values())
-            for label in self.labels
-        ]
-        label_generators = (
-            generate_observable_cube_points(q_val, maxs)
-            for q_val, maxs in zip(ql[1:], max_vals[1:])
-        )
-
-        for nm1_point in product(*label_generators):
-            sum_others = tuple(sum(vals) for vals in zip(*nm1_point))
-            if all(
-                max_val - sum_event_others >= 0
-                for max_val, sum_event_others in zip(max_vals[0], sum_others)
-            ):
-                first_point = tuple(
-                    max_val - sum_event_others
-                    for max_val, sum_event_others in zip(
-                        max_vals[0], sum_others
-                    )
-                )
-                yield (first_point, *nm1_point)
-        return
-
-    def alt_set_generator(self, ql: Sequence[int]) -> Iterable[tuple]:
-        """
-        Experimental set_generator meant to be much faster.
-
-        Parameters
-        ----------
-        ql : Sequence[int]
-            DESCRIPTION.
-
-        Yields
-        ------
-        Iterable[tuple]
-            DESCRIPTION.
 
         """
         rVars = ntqr.statistics.ResponseVariables(
@@ -597,59 +555,7 @@ class ConsistentSet:
                 if all(new_sums[i] <= targets[i] for i in range(R - 1)):
                     stack.append((event_idx + 1, tuple(new_sums), path + (v,)))
 
-    def random_points(
-        self, ql: Sequence[int], n: int
-    ) -> set[Sequence[Sequence[int]]]:
-        """
-        Returns n random points in the consistent set at given ql.
-
-        Parameters
-        ----------
-        ql : Sequence[int]
-            Assumed value of labels in the answer key.
-        n : int
-            Number of random points wanted.
-
-        Returns
-        -------
-        set[Sequence[Sequence[int]]]
-            A random set of n points from the consistent set of evaluations
-            at given ql point.
-
-        """
-        rVars = ntqr.statistics.ResponseVariables(
-            self.labels, self.classifiers
-        )
-        max_vals = [
-            self.max_value_at_ql(ql, rVars.label_responses[label].values())
-            for label in self.labels
-        ]
-
-        points = set()
-        while len(points) < n:
-
-            # A random point on the rest of the labels
-            nm1_point = tuple(
-                random_bounded_simplex_point(q_val, maxs)
-                for q_val, maxs in zip(ql[1:], max_vals[1:])
-            )
-
-            sum_others = tuple(sum(vals) for vals in zip(*nm1_point))
-            if all(
-                max_val - sum_event_others >= 0
-                for max_val, sum_event_others in zip(max_vals[0], sum_others)
-            ):
-                first_point = tuple(
-                    max_val - sum_event_others
-                    for max_val, sum_event_others in zip(
-                        max_vals[0], sum_others
-                    )
-                )
-                points.add((first_point, *nm1_point))
-
-        return points
-
-    def alt_random_set_generator(self, ql: Sequence[int]) -> Iterable[tuple]:
+    def random_set_generator(self, ql: Sequence[int]) -> Iterable[tuple]:
         """
         Randomized 'Random Walk' generator.
         Instead of exploring the whole tree, it samples a random valid path.
@@ -769,7 +675,7 @@ class ConsistentSet:
             for label in self.labels
         ]
 
-        for l_points in self.alt_set_generator(ql):
+        for l_points in self.set_generator(ql):
             yield tuple(
                 tuple((m_mat @ l_point).tolist())
                 for m_mat, l_point in zip(marg_mats, l_points)
@@ -783,8 +689,18 @@ class ConsistentSet:
         self, ql: Sequence[int]
     ) -> Iterable[Sequence[Sequence[int]]]:
         """
-        Optimized generator with result de-duplication to handle
-        upstream generator noise and projection collapse.
+        Generates random points in the correct_cuboids.
+
+        Parameters
+        ----------
+        ql : Sequence[int]
+            Point in the Q-simplex.
+
+        Yields
+        ------
+        Iterable[Sequence[Sequence[int]]]
+            Random stream of consistent in the correctness cuboid points.
+
         """
         label_vars = ntqr.statistics.ResponseVariables(
             self.labels, self.classifiers
@@ -803,7 +719,7 @@ class ConsistentSet:
             for label in self.labels
         ]
 
-        gen = self.alt_random_set_generator(ql)
+        gen = self.random_set_generator(ql)
 
         # Track unique results to ensure the output generator is strictly unique
         seen_results = set()
@@ -826,10 +742,17 @@ class ConsistentSet:
                 seen_results.add(hashable_result)
                 yield transformed
 
-    def get_expected_event_counts(self):
+    def get_expected_event_counts(self) -> Sequence[int]:
         """
-        Constructs an array of expected event counts ordered
-        by the canonical ResponseVariables key order.
+        Creates array of observed joint decision event counts.
+
+        Events are sorted in the order established by ntqr.statistics.
+
+        Returns
+        -------
+        Sequence[int]
+            Observed joint decision counts.
+
         """
         # Initialize the statistics class to access the canonical event order
         rVars = ntqr.statistics.ResponseVariables(
@@ -845,17 +768,32 @@ class ConsistentSet:
             dtype=np.int64,
         )
 
-    def validate_point(self, point_tuple, ql):
+    def validate_point(
+        self, point: Sequence[Sequence[int]], ql: Sequence[int]
+    ) -> tuple[bool, str]:
         """
-        Validates a generated point against:
-        1. Label sum constraints (ql).
-        2. Total event count constraints (self.counts).
+        Tests if a point is logically consistent with the counts.
+
+
+        Parameters
+        ----------
+        point : Sequence[Sequence[int]]
+            Point, putatively in the consistent set, to be tested.
+        ql : Sequence[int]
+            Point in the Q-simple.
+
+        Returns
+        -------
+        tuple(bool,str)
+            Whether the point is valid or not, and a string message
+            with debug information if the test fails.
+
         """
         # 1. Get the expected counts in the correct order
         expected_counts = self.get_expected_event_counts()
 
         # 2. Check Label Sums
-        for i, matrix in enumerate(point_tuple):
+        for i, matrix in enumerate(point):
             if matrix.sum() != ql[i]:
                 return (
                     False,
@@ -864,7 +802,7 @@ class ConsistentSet:
 
         # 3. Check Event Sums
         # Sum across all label matrices
-        summed_matrix = sum(point_tuple)
+        summed_matrix = sum(point)
         observed_sums = summed_matrix.toarray().flatten()
 
         if not np.array_equal(observed_sums, expected_counts):
@@ -876,6 +814,40 @@ class ConsistentSet:
             )
 
         return True, "Valid"
+
+    def are_points_equal(self, p1: tuple[sparray], p2: tuple[sparray]) -> bool:
+        """
+        Tests if points are equal.
+
+        Parameters
+        ----------
+        p1 : tuple[sparray]
+            First point.
+        p2 : tuple[sparray]
+            Second point.
+
+        Returns
+        -------
+        bool
+            Returns true if both points have the same number of labels
+            and all their values are equal.
+
+        """
+        if len(p1) != len(p2):
+            return False
+
+        for m1, m2 in zip(p1, p2):
+            # 1. Check if shapes match
+            if m1.shape != m2.shape:
+                return False
+
+            # 2. Check if values match
+            # (m1 != m2) returns a sparse matrix of differences.
+            # .nnz (number of non-zero elements) > 0 means they are different.
+            if (m1 != m2).nnz > 0:
+                return False
+
+        return True
 
     def __repr__(self):
         return f"ConsistentSet({self.labels},{self.classifiers},{self.counts})"
