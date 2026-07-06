@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9] - 2026-07-06
+
+### Added
+
+- New class, HashablePoint, in ntqr.evaluations to make evaluations
+  hashable.
+- New methods in ntqr.evaluations{PossibleSet, ConsistentSet},
+  .is_valid_point validate if a point belongs to a test Q-simplex point.
+
+### Fixed
+
+- Sundry typos in docstrings.
+
+### Changed
+
+- All generators in ntqr.evaluations are now faster.
+- ntqr.evaluations.ConsistentSet generators now return scipy.sparse
+  arrays for significant memory savings. This is further aided by
+  the fact that all evaluations in NTQR are now tuples of HashablePoint
+  objects.
+- Moved ntqr.evaluations.ConsistentSet.random_set_generator to using
+  numba for a 20x speed-up over pure Python code.
+
+### Deprecated
+
 ## [Unreleased]
 
 ### Added

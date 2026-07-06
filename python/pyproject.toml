@@ -15,7 +15,9 @@ readme = "README.md"
 
 dependencies = ["sympy>=1.14.0",
                 "typing_extensions>=4.12.2",
-                "matplotlib>=3.10.8"]
+                "matplotlib>=3.10.8",
+                "scipy",
+                "numba"]
 
 license = {file = "LICENSE.txt"}
 keywords = ["evaluation", "algebra", "machine learning", "logic", "ai safety"]

@@ -13,6 +13,7 @@
 
 conceptual
 notebooks/PossibleAndConsistentSet
+notebooks/VerifyingNTQR
 notebooks/AlgebraAndGeometryOfNTQR
 notebooks/LogicalAlarmsMisalignedClassifiers
 notebooks/HowManyIndependentAxioms
